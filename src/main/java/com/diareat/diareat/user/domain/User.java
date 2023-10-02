@@ -1,5 +1,6 @@
 package com.diareat.diareat.user.domain;
 
+import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.food.domain.Food;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
@@ -36,6 +37,12 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) // 유저가 탈퇴하면 촬영한 음식도 삭제
     private List<Food> foods = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) // 유저가 탈퇴하면 즐겨찾기 음식도 삭제
+    private List<FavoriteFood> favoriteFoods = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user") // 유저의 팔로우 목록
+    private List<User> followings = new ArrayList<>();
 
     // 생성 메서드
     public static User createUser(String name, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
