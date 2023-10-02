@@ -1,9 +1,9 @@
 package com.diareat.diareat.user.service;
 
-import com.diareat.diareat.food.repository.FavoriteFoodRepository;
-import com.diareat.diareat.food.repository.FoodRepository;
+import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.CreateUserDto;
+import com.diareat.diareat.user.dto.ResponseResearchUserDto;
 import com.diareat.diareat.user.dto.ResponseUserDto;
 import com.diareat.diareat.user.dto.UpdateUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
@@ -14,63 +14,75 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final FoodRepository foodRepository;
-    private final FavoriteFoodRepository favoriteFoodRepository;
 
     // 회원정보 저장
     @Transactional
     public Long saveUser(CreateUserDto createUserDto) {
-
-    return null;
+        // 나이, 성별, 키, 몸무게로 기준 영양소 계산 (추후 로직 구성)
+        // BaseNutrition baseNutrition = BaseNutrition
+        return userRepository.save(User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getAge(), createUserDto.getGender(), null)).getId();
     }
 
     // 회원정보 조회
     @Transactional(readOnly = true)
     public ResponseUserDto getUserInfo(Long userId) {
-        return userRepository.findById(userId)
-                .map(ResponseUserDto::from)
-                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+        return ResponseUserDto.from(getUserById(userId));
     }
 
     // 회원정보 수정
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
-
+        User user = getUserById(updateUserDto.getUserId());
+        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), null);
     }
 
     // 회원 탈퇴
     @Transactional
     public void deleteUser(Long userId) {
-
+        User user = getUserById(userId);
+        userRepository.delete(user);
     }
 
     // 회원이 팔로우를 위해 검색한 유저 목록 조회
     @Transactional(readOnly = true)
-    public List<User> searchUser(String name) {
-
-        return null;
+    public List<ResponseResearchUserDto> searchUser(String name) {
+        List<User> users = userRepository.findAllByNameContaining(name);
+        return users.stream()
+                .map(user -> ResponseResearchUserDto.of(user.getId(), user.getName())).collect(Collectors.toList());
     }
 
     // 회원이 특정 회원 팔로우
     @Transactional
     public void followUser(Long userId, Long followId) {
-
+        User user = getUserById(userId);
+        User followUser = getUserById(followId);
+        user.followUser(followUser);
     }
 
     // 회원이 특정 회원 팔로우 취소
     @Transactional
     public void unfollowUser(Long userId, Long unfollowId) {
+        User user = getUserById(userId);
+        User followUser = getUserById(unfollowId);
+        user.unfollowUser(followUser);
+    }
 
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
     }
 
     /*
      아래 메서드들은 원래 두 패키지 모두에 존재할 수 있는 혼합적인 의미를 가지고 있으며, 일단 FoodService에서 구현을 담당할 예정이다.
+     현재 UserService가 음식 관련 Repository에 의존하지 않고 있기에, FoodService에서 구현하는 것이 더 적절하다고 판단했다.
+
      // 유저의 즐겨찾기 음식 목록 조회
      public void getFavoriteFoodList(Long userId) {
 
@@ -107,10 +119,9 @@ public class UserService {
      }
      */
 
-    /**
+    /*
      * 위 메서드 외 누락된 메서드가 존재할 수 있으며, UserService에는 아래와 같은 추가적인 부가 기능을 구현할 가능성이 있다.
-     * 1. 친구 추가 기능 (팔로우 기능 구현 중)
-     * 2. 친구 목록에 나를 포함하여 각 사람의 칼탄단지 섭취량 기준으로 섭취 현황을 채점(?)하여 정렬하는 랭킹 기능
-     * 3. 주간 과제 기능? -> 2번과 연계 가능
+     * 1. 팔로우 목록에 나를 포함하여 칼탄단지 섭취량 기준으로 건강한 섭취 현황을 분석(?)하여 점수별로 정렬하는 랭킹 기능
+     * 2. 주간 과제 기능 (예: 주간에 목표한 섭취량을 달성하면 보상이 주어지는 등)
      */
 }
