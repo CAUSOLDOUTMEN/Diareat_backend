@@ -25,9 +25,10 @@ public class UserService {
     // 회원정보 저장
     @Transactional
     public Long saveUser(CreateUserDto createUserDto) {
-        // 나이, 성별, 키, 몸무게로 기준 영양소 계산 (추후 로직 구성)
-        // BaseNutrition baseNutrition = BaseNutrition
-        return userRepository.save(User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getAge(), createUserDto.getGender(), null)).getId();
+        // 나이, 성별, 키, 몸무게로 기준 영양소 계산 (일단 임의의 값으로 설정했고 추후 로직 구성)
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
+        User user = User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getAge(), createUserDto.getGender(), baseNutrition);
+        return userRepository.save(user).getId();
     }
 
     // 회원정보 조회
@@ -40,7 +41,8 @@ public class UserService {
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
-        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), null);
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
+        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), baseNutrition);
     }
 
     // 회원 탈퇴
