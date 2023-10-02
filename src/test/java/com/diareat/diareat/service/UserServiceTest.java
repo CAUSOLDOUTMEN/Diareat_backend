@@ -1,7 +1,8 @@
 package com.diareat.diareat.service;
 
-import com.diareat.diareat.user.domain.User;
+import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.dto.CreateUserDto;
+import com.diareat.diareat.user.dto.ResponseResearchUserDto;
 import com.diareat.diareat.user.dto.ResponseUserDto;
 import com.diareat.diareat.user.dto.UpdateUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
@@ -10,15 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
+@Transactional
 class UserServiceTest {
 
     @Autowired
@@ -50,13 +51,13 @@ class UserServiceTest {
     void testUpdateUserInfo() { // 회원정보 수정
 
         // given
-        Long userId = 1L;
-        userService.saveUser(CreateUserDto.of("1", "testPassword", 180, 75, 1, 25));
+        Long id = userService.saveUser(CreateUserDto.of("1", "testPassword", 180, 75, 1, 25));
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
 
         // when
-        UpdateUserDto updateUserDto = UpdateUserDto.of(1L, "2", 185, 70, 75, null);
+        UpdateUserDto updateUserDto = UpdateUserDto.of(id, "2", 185, 70, 75, baseNutrition);
         userService.updateUserInfo(updateUserDto);
-        ResponseUserDto responseUserDto = userService.getUserInfo(userId);
+        ResponseUserDto responseUserDto = userService.getUserInfo(id);
 
         // then
         assertNotNull(responseUserDto);
@@ -68,14 +69,13 @@ class UserServiceTest {
     @Test
     void testDeleteUser() { // 회원 탈퇴
         // given
-        Long userId = 1L;
-        userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
+        Long id = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
 
         // when
-        userService.deleteUser(userId);
+        userService.deleteUser(id);
 
         // then
-        assertEquals(Optional.empty(), userRepository.findById(userId));
+        assertNull(userRepository.findById(id).orElse(null));
     }
 
     @Test
@@ -86,7 +86,7 @@ class UserServiceTest {
 
         // when
         String name = "testUser";
-        List<User> users = userService.searchUser(name);
+        List<ResponseResearchUserDto> users = userService.searchUser(name);
 
         // then
         assertEquals(1, users.size());
@@ -95,31 +95,27 @@ class UserServiceTest {
     @Test
     void testFollowUser() { // 회원이 특정 회원 팔로우
         // given
-        Long userId = 1L;
-        Long followId = 2L;
-        userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
-        userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
+        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
+        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
 
         // when
-        userService.followUser(userId, followId);
+        userService.followUser(id1, id2);
 
         // then
-        assertEquals(1, userRepository.findById(userId).get().getFollowings().size());
+        assertEquals(1, userRepository.findById(id1).get().getFollowings().size());
     }
 
     @Test
     void testUnfollowUser() { // 회원이 특정 회원 팔로우 취소
         // given
-        Long userId = 1L;
-        Long followId = 2L;
-        userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
-        userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
+        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
+        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
 
         // when
-        userService.followUser(userId, followId);
-        userService.unfollowUser(userId, followId);
+        userService.followUser(id1, id2);
+        userService.unfollowUser(id1, id2);
 
         // then
-        assertEquals(0, userRepository.findById(userId).get().getFollowings().size());
+        assertEquals(0, userRepository.findById(id1).get().getFollowings().size());
     }
 }
