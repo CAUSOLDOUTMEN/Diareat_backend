@@ -24,9 +24,11 @@ public class User {
     @JsonIgnore
     private String keyCode; // 로그인 식별키
 
-    private int tall; // 키
+    private int height; // 키
 
     private int weight; // 몸무게
+
+    private int gender; // 성별 (0: 남자, 1: 여자)
 
     private int age; // 나이
 
@@ -36,24 +38,25 @@ public class User {
     private List<Food> foods = new ArrayList<>();
 
     // 생성 메서드
-    public static User createUser(String name, String keyCode, int tall, int weight, int age, BaseNutrition baseNutrition) {
+    public static User createUser(String name, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
         User user = new User();
         user.name = name;
         user.keyCode = keyCode;
-        user.tall = tall;
+        user.height = height;
         user.weight = weight;
+        user.gender = gender;
         user.age = age;
         user.baseNutrition = baseNutrition;
         return user;
     }
 
-    // 회원정보 수정 및 수정에 따른 영양소 재계산
-    public void updateUser(String name, int tall, int weight, int age, BaseNutrition baseNutrition) {
+    // 회원정보 수정
+    public void updateUser(String name, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
         this.name = name;
-        this.tall = tall;
+        this.height = height;
         this.weight = weight;
+        this.gender = gender;
         this.age = age;
-        // 계산공식 추후 추가
         this.baseNutrition = baseNutrition;
     }
 }
