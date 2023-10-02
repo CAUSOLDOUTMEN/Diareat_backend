@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateUserDto {
 
-    private Long id;
+    private Long userId;
     private String name;
     private int height;
     private int weight;
     private int age;
     private BaseNutrition baseNutrition;
 
-    public UpdateUserDto of(Long userId, String userName, int userHeight, int userWeight, int userAge, BaseNutrition userBaseNutrition) {
+    public static UpdateUserDto of(Long userId, String userName, int userHeight, int userWeight, int userAge, BaseNutrition userBaseNutrition) {
         return new UpdateUserDto(userId, userName, userHeight, userWeight, userAge, userBaseNutrition);
     }
 }

@@ -16,11 +16,11 @@ public class ResponseUserDto {
     private int age;
     private BaseNutrition baseNutrition;
 
-    public ResponseUserDto of(String userName, int userHeight, int userWeight, int userGender, int userAge, BaseNutrition userBaseNutrition) {
+    public static ResponseUserDto of(String userName, int userHeight, int userWeight, int userGender, int userAge, BaseNutrition userBaseNutrition) {
         return new ResponseUserDto(userName, userHeight, userWeight, userGender, userAge, userBaseNutrition);
     }
 
-    public ResponseUserDto from(User user) {
+    public static ResponseUserDto from(User user) {
         return new ResponseUserDto(user.getName(), user.getHeight(), user.getWeight(), user.getGender(), user.getAge(), user.getBaseNutrition());
     }
 }
