@@ -58,12 +58,19 @@ public class User {
     }
 
     // 회원정보 수정
-    public void updateUser(String name, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
+    public void updateUser(String name, int height, int weight, int age, BaseNutrition baseNutrition) {
         this.name = name;
         this.height = height;
         this.weight = weight;
-        this.gender = gender;
         this.age = age;
         this.baseNutrition = baseNutrition;
+    }
+
+    public void followUser(User user) {
+        this.followings.add(user);
+    }
+
+    public void unfollowUser(User user) {
+        this.followings.remove(user);
     }
 }
