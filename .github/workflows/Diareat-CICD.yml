@@ -56,7 +56,10 @@ jobs:
             sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
 
-            echo "Some Environment Variable" > env.list
+            echo "DB_ENDPOINT=${{ secrets.DB_ENDPOINT }}" > env.list
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> env.list
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> env.list
+
 
             sudo docker run -d --env-file env.list --name Diareat_Backend ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
             sleep 10s
