@@ -52,4 +52,8 @@ public class Food {
         this.name = name;
         this.baseNutrition = baseNutrition;
     }
+
+    public boolean isFavorite() {
+        return this.favoriteFood != null;
+    }
 }
