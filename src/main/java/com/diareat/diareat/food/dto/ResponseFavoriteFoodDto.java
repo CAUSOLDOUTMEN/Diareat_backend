@@ -1,6 +1,7 @@
 package com.diareat.diareat.food.dto;
 
 import com.diareat.diareat.food.domain.FavoriteFood;
+import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,10 +11,10 @@ public class ResponseFavoriteFoodDto {
 
     private Long favoriteFoodId;
     private String name;
-    private String baseNutrition;
+    private BaseNutrition baseNutrition;
     private int count;
 
-    public static ResponseFavoriteFoodDto of(Long favoriteFoodId, String name, String baseNutrition, int count) {
+    public static ResponseFavoriteFoodDto of(Long favoriteFoodId, String name, BaseNutrition baseNutrition, int count) {
         return new ResponseFavoriteFoodDto(favoriteFoodId, name, baseNutrition, count);
     }
 
@@ -21,7 +22,7 @@ public class ResponseFavoriteFoodDto {
         return new ResponseFavoriteFoodDto(
                 favoriteFood.getId(),
                 favoriteFood.getName(),
-                favoriteFood.getBaseNutrition().toString(),
+                favoriteFood.getBaseNutrition(),
                 favoriteFood.getCount()
         );
     }
