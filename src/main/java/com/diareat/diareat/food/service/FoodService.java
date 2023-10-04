@@ -56,8 +56,9 @@ public class FoodService {
     }
 
     // 음식 삭제
-    public void deleteFood() {
-
+    @Transactional
+    public void deleteFood(Long foodId) {
+        foodRepository.deleteById(foodId);
     }
 
     // 즐겨찾기에 음식 저장
