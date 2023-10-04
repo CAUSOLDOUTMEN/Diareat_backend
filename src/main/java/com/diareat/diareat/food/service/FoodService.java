@@ -49,7 +49,7 @@ public class FoodService {
 
     // 음식 정보 수정
     @Transactional
-    public void updateFood(Long userId, UpdateFoodDto updateFoodDto) {
+    public void updateFood(UpdateFoodDto updateFoodDto) {
         Food food = foodRepository.findById(updateFoodDto.getFoodId())
                 .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
         food.updateFood(updateFoodDto.getName(), updateFoodDto.getBaseNutrition());

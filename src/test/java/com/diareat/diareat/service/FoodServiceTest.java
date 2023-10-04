@@ -3,6 +3,7 @@ package com.diareat.diareat.service;
 import com.diareat.diareat.food.domain.Food;
 import com.diareat.diareat.food.dto.CreateFoodDto;
 import com.diareat.diareat.food.dto.ResponseFoodDto;
+import com.diareat.diareat.food.dto.UpdateFoodDto;
 import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.food.service.FoodService;
@@ -56,7 +57,7 @@ class FoodServiceTest {
     }
 
     @Test
-    void testSaveAndGetFood() { // 음식 정보 저장 및 업데이트
+    void testSaveAndGetFood() { // 음식 정보 저장 및 해당 날짜 음식 리스트 불러오기
         // given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1,180, 80,18));
@@ -71,5 +72,25 @@ class FoodServiceTest {
         assertEquals("testFood",responseFoodDto.get(0).getName());
     }
 
+    @Test
+    void testUpdateFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
+
+        //when
+        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
+        foodService.updateFood(UpdateFoodDto.of(foodId, "testChangedFood", testChangedBaseNutrition));
+
+        Food changedFood = foodRepository.getReferenceById(foodId);
+
+        assertNotNull(changedFood);
+        assertEquals("testChangedFood", changedFood.getName());
+        assertEquals(2,changedFood.getBaseNutrition().getKcal());
+        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
+        assertEquals(4,changedFood.getBaseNutrition().getProtein());
+        assertEquals(5,changedFood.getBaseNutrition().getFat());
+    }
 
 }
