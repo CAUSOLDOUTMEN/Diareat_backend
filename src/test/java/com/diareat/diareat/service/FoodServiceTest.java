@@ -115,7 +115,7 @@ class FoodServiceTest {
         //when
         Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
 
-        List<ResponseFavoriteFoodDto> responseFavoriteFoodDtoList = foodService.getFavoriteFoodByUserId(userId);
+        List<ResponseFavoriteFoodDto> responseFavoriteFoodDtoList = foodService.getFavoriteFoodList(userId);
 
         assertNotNull(responseFavoriteFoodDtoList);
         assertEquals("testFood",responseFavoriteFoodDtoList.get(0).getName());
@@ -156,5 +156,29 @@ class FoodServiceTest {
         foodService.deleteFavoriteFood(favoriteFoodId);
 
         assertNull(favoriteFoodRepository.findById(favoriteFoodId).orElse(null));
+    }
+
+    @Test
+    void testNutritionSumByDate(){
+        //given
+        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(100,150,200,250);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword",1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
+        Food food = foodRepository.getReferenceById(foodId);
+
+        //when
+        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByDate(userId,food.getDate());
+
+        assertNotNull(responseNutritionSumByDateDto);
+        assertEquals(100, responseNutritionSumByDateDto.getTotalKcal());
+        assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
+        assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
+        assertEquals(250, responseNutritionSumByDateDto.getTotalFat());
+
+        assertEquals(Math.round((100*1.0)/(2000*1.0))*10.0, responseNutritionSumByDateDto.getRatioKcal());
+        assertEquals(Math.round((150*1.0)/(300*1.0))*10.0, responseNutritionSumByDateDto.getRatioCarbohydrate());
+        assertEquals(Math.round((200*1.0)/(80*1.0))*10.0, responseNutritionSumByDateDto.getRatioProtein());
+        assertEquals(Math.round((250*1.0)/(80*1.0))*10.0, responseNutritionSumByDateDto.getRatioFat());
+
     }
 }
