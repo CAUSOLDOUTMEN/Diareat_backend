@@ -3,6 +3,7 @@ package com.diareat.diareat.food.service;
 import com.diareat.diareat.food.domain.Food;
 import com.diareat.diareat.food.dto.CreateFoodDto;
 import com.diareat.diareat.food.dto.ResponseFoodDto;
+import com.diareat.diareat.food.dto.UpdateFoodDto;
 import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.user.domain.User;
@@ -47,8 +48,11 @@ public class FoodService {
 
 
     // 음식 정보 수정
-    public void updateFood() {
-
+    @Transactional
+    public void updateFood(Long userId, UpdateFoodDto updateFoodDto) {
+        Food food = foodRepository.findById(updateFoodDto.getFoodId())
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+        food.updateFood(updateFoodDto.getName(), updateFoodDto.getBaseNutrition());
     }
 
     // 음식 삭제
