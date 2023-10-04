@@ -80,13 +80,17 @@ public class FoodService {
     }
 
     // 즐겨찾기 음식 수정
-    public void updateFavoriteFood() {
-
+    @Transactional
+    public void updateFavoriteFood(UpdateFavoriteFoodDto updateFavoriteFoodDto) {
+        FavoriteFood food = favoriteFoodRepository.findById(updateFavoriteFoodDto.getFavoriteFoodId())
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+        food.updateFavoriteFood(updateFavoriteFoodDto.getName(), updateFavoriteFoodDto.getBaseNutrition());
     }
 
     // 즐겨찾기 해제
-    public void deleteFavoriteFood() {
-
+    @Transactional
+    public void deleteFavoriteFood(Long favoriteFoodId) {
+        favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
 
