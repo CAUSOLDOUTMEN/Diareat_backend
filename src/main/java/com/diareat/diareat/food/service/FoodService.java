@@ -5,6 +5,7 @@ import com.diareat.diareat.food.domain.Food;
 import com.diareat.diareat.food.dto.*;
 import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
+import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.ResponseResearchUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -91,6 +93,57 @@ public class FoodService {
     @Transactional
     public void deleteFavoriteFood(Long favoriteFoodId) {
         favoriteFoodRepository.deleteById(favoriteFoodId);
+    }
+
+    @Transactional
+    // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
+    public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
+        List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+        int totalKcal = 0;
+        int totalCarbohydrate = 0;
+        int totalProtein = 0;
+        int totalFat = 0;
+
+        for (Food food : foodList) {
+            BaseNutrition targetFoodNutrition = food.getBaseNutrition();
+            totalKcal += targetFoodNutrition.getKcal();
+            totalCarbohydrate += targetFoodNutrition.getCarbohydrate();
+            totalProtein += targetFoodNutrition.getProtein();
+            totalFat += targetFoodNutrition.getFat();
+        }
+
+        double ratioKcal = Math.round((totalKcal*1.0)/(targetUser.getBaseNutrition().getKcal()*1.0))*10.0;
+        double ratioCarbohydrate = Math.round((totalCarbohydrate*1.0)/(targetUser.getBaseNutrition().getCarbohydrate()*1.0))*10.0;
+        double ratioProtein = Math.round((totalProtein*1.0)/(targetUser.getBaseNutrition().getProtein()*1.0))*10.0;
+        double ratioFat = Math.round((totalFat*1.0)/(targetUser.getBaseNutrition().getFat()*1.0))*10.0;
+
+        return ResponseNutritionSumByDateDto.of(totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+    }
+
+    @Transactional
+    // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
+    public void getNutritionSumByWeek(Long userId) {
+
+    }
+
+    @Transactional
+    // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
+    public void getNutritionSumByMonth(Long userId) {
+
+    }
+
+    @Transactional
+    // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
+    public void getBestFoodByWeek(Long userId) {
+
+    }
+
+    @Transactional
+    // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
+    public void getWorstFoodByWeek(Long userId) {
+
     }
 
 
