@@ -17,6 +17,6 @@ public class ResponseNutritionSumByDateDto {
     double ratioFat;
 
     public static ResponseNutritionSumByDateDto of (int totalKcal, int totalCarbohydrate, int totalProtein, int totalFat, double ratioKcal, double ratioCarbohydrate, double ratioProtein, double ratioFat){
-        return new ResponseNutritionSumByDateDto(totalFat, totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+        return new ResponseNutritionSumByDateDto(totalKcal, totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
     }
 }
