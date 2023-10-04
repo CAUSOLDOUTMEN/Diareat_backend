@@ -120,4 +120,41 @@ class FoodServiceTest {
         assertNotNull(responseFavoriteFoodDtoList);
         assertEquals("testFood",responseFavoriteFoodDtoList.get(0).getName());
     }
+
+    @Test
+    void testUpdateFavoriteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
+        Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
+
+
+        //when
+        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
+        foodService.updateFavoriteFood(UpdateFavoriteFoodDto.of(favoriteFoodId, "testChangedFood", testChangedBaseNutrition));
+
+        FavoriteFood changedFood = favoriteFoodRepository.getReferenceById(favoriteFoodId);
+
+        assertNotNull(changedFood);
+        assertEquals("testChangedFood", changedFood.getName());
+        assertEquals(2,changedFood.getBaseNutrition().getKcal());
+        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
+        assertEquals(4,changedFood.getBaseNutrition().getProtein());
+        assertEquals(5,changedFood.getBaseNutrition().getFat());
+    }
+
+    @Test
+    void testDeleteFavoriteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
+        Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
+
+        //when
+        foodService.deleteFavoriteFood(favoriteFoodId);
+
+        assertNull(favoriteFoodRepository.findById(favoriteFoodId).orElse(null));
+    }
 }
