@@ -1,9 +1,8 @@
 package com.diareat.diareat.service;
 
+import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.food.domain.Food;
-import com.diareat.diareat.food.dto.CreateFoodDto;
-import com.diareat.diareat.food.dto.ResponseFoodDto;
-import com.diareat.diareat.food.dto.UpdateFoodDto;
+import com.diareat.diareat.food.dto.*;
 import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.food.service.FoodService;
@@ -66,10 +65,10 @@ class FoodServiceTest {
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood",testBaseNutrition));
         Food testFood = foodRepository.getReferenceById(foodId);
 
-        List<ResponseFoodDto> responseFoodDto = foodService.getFoodListByDate(userId, testFood.getDate());
+        List<ResponseFoodDto> responseFoodDtoList = foodService.getFoodListByDate(userId, testFood.getDate());
 
-        assertNotNull(responseFoodDto);
-        assertEquals("testFood",responseFoodDto.get(0).getName());
+        assertNotNull(responseFoodDtoList);
+        assertEquals("testFood",responseFoodDtoList.get(0).getName());
     }
 
     @Test
@@ -104,5 +103,21 @@ class FoodServiceTest {
         foodService.deleteFood(foodId);
 
         assertNull(foodRepository.findById(foodId).orElse(null));
+    }
+
+    @Test
+    void testSaveAndGetFavoriteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
+
+        //when
+        Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
+
+        List<ResponseFavoriteFoodDto> responseFavoriteFoodDtoList = foodService.getFavoriteFoodByUserId(userId);
+
+        assertNotNull(responseFavoriteFoodDtoList);
+        assertEquals("testFood",responseFavoriteFoodDtoList.get(0).getName());
     }
 }

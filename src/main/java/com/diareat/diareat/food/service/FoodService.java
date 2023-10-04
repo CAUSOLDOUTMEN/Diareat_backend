@@ -61,6 +61,7 @@ public class FoodService {
     }
 
     // 즐겨찾기에 음식 저장
+    @Transactional
     public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
         User user = userRepository.findById(createFavoriteFoodDto.getUserId())
                 .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
