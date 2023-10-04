@@ -1,9 +1,8 @@
 package com.diareat.diareat.food.service;
 
+import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.food.domain.Food;
-import com.diareat.diareat.food.dto.CreateFoodDto;
-import com.diareat.diareat.food.dto.ResponseFoodDto;
-import com.diareat.diareat.food.dto.UpdateFoodDto;
+import com.diareat.diareat.food.dto.*;
 import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.user.domain.User;
@@ -62,8 +61,21 @@ public class FoodService {
     }
 
     // 즐겨찾기에 음식 저장
-    public Long saveFavoriteFood() {
-        return null;
+    public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
+        User user = userRepository.findById(createFavoriteFoodDto.getUserId())
+                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, createFavoriteFoodDto.getBaseNutrition());
+        return favoriteFoodRepository.save(favoriteFood).getId();
+    }
+
+    //즐겨찾기 음식 리스트 반환
+    @Transactional
+    public List<ResponseFavoriteFoodDto> getFavoriteFoodByUserId(Long userId){
+        List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
+        return foodList.stream()
+                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(), favoriteFood.getName(),
+                        favoriteFood.getBaseNutrition(), favoriteFood.getCount())).collect(Collectors.toList());
     }
 
     // 즐겨찾기 음식 수정
