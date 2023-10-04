@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ResponseUserDto {
 
+    private Long id; //누락된 id
     private String name;
     private int height;
     private int weight;
@@ -16,11 +17,12 @@ public class ResponseUserDto {
     private int age;
     private BaseNutrition baseNutrition;
 
-    public static ResponseUserDto of(String userName, int userHeight, int userWeight, int userGender, int userAge, BaseNutrition userBaseNutrition) {
-        return new ResponseUserDto(userName, userHeight, userWeight, userGender, userAge, userBaseNutrition);
+
+    public static ResponseUserDto of(Long id, String userName, int userHeight, int userWeight, int userGender, int userAge, BaseNutrition userBaseNutrition) {
+        return new ResponseUserDto(id, userName, userHeight, userWeight, userGender, userAge, userBaseNutrition);
     }
 
     public static ResponseUserDto from(User user) {
-        return new ResponseUserDto(user.getName(), user.getHeight(), user.getWeight(), user.getGender(), user.getAge(), user.getBaseNutrition());
+        return new ResponseUserDto(user.getId(), user.getName(), user.getHeight(), user.getWeight(), user.getGender(), user.getAge(), user.getBaseNutrition());
     }
 }
