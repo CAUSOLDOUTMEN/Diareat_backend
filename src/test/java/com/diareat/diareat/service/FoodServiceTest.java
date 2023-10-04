@@ -93,4 +93,16 @@ class FoodServiceTest {
         assertEquals(5,changedFood.getBaseNutrition().getFat());
     }
 
+    @Test
+    void testDeleteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
+
+        //when
+        foodService.deleteFood(foodId);
+
+        assertNull(foodRepository.findById(foodId).orElse(null));
+    }
 }
