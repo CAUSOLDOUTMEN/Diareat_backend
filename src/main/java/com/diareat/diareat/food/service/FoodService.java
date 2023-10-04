@@ -72,7 +72,7 @@ public class FoodService {
 
     //즐겨찾기 음식 리스트 반환
     @Transactional
-    public List<ResponseFavoriteFoodDto> getFavoriteFoodByUserId(Long userId){
+    public List<ResponseFavoriteFoodDto> getFavoriteFoodList(Long userId){
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         return foodList.stream()
                 .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(), favoriteFood.getName(),
