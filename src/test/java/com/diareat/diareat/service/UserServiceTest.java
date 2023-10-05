@@ -36,10 +36,9 @@ class UserServiceTest {
     @Test
     void testSaveAndGetUserInfo() { // 회원정보 저장 및 조회
         // given
-        Long userId = 1L;
 
         // when
-        userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
         ResponseUserDto responseUserDto = userService.getUserInfo(userId);
 
         // 검증: 올바른 결과를 반환하는지 확인
