@@ -16,6 +16,7 @@ public class ResponseUserDto {
     private int age;
     private BaseNutrition baseNutrition;
 
+
     public static ResponseUserDto of(String userName, int userHeight, int userWeight, int userGender, int userAge, BaseNutrition userBaseNutrition) {
         return new ResponseUserDto(userName, userHeight, userWeight, userGender, userAge, userBaseNutrition);
     }
