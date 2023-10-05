@@ -94,6 +94,57 @@ public class FoodService {
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
+        return calculateNutritionSumAndRatio(userId, foodList);
+    }
+
+    @Transactional(readOnly = true)
+    // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
+    public ResponseNutritionSumByDateDto getNutritionSumByWeek(Long userId) {
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(6);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate);
+
+        return calculateNutritionSumAndRatio(userId, foodList);
+    }
+
+    @Transactional(readOnly = true)
+    // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
+    public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusMonths(1);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate);
+
+        return calculateNutritionSumAndRatio(userId, foodList);
+    }
+
+    @Transactional(readOnly = true)
+    // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
+    public void getBestFoodByWeek(Long userId) {
+
+    }
+
+    @Transactional(readOnly = true)
+    // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
+    public void getWorstFoodByWeek(Long userId) {
+
+    }
+
+    private User getUserById(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+    }
+
+    private Food getFoodById(Long foodId){
+        return foodRepository.findById(foodId)
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+    }
+
+    private FavoriteFood getFavoriteFoodById(Long foodId){
+        return favoriteFoodRepository.findById(foodId)
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+    }
+
+    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList){
         User targetUser = getUserById(userId);
         int totalKcal = 0;
         int totalCarbohydrate = 0;
@@ -114,45 +165,6 @@ public class FoodService {
         double ratioFat = Math.round((totalFat*1.0)/(targetUser.getBaseNutrition().getFat()*1.0))*10.0;
 
         return ResponseNutritionSumByDateDto.of(totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
-    }
-
-    @Transactional
-    // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
-    public void getNutritionSumByWeek(Long userId) {
-
-    }
-
-    @Transactional
-    // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
-    public void getNutritionSumByMonth(Long userId) {
-
-    }
-
-    @Transactional
-    // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
-    public void getBestFoodByWeek(Long userId) {
-
-    }
-
-    @Transactional
-    // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
-    public void getWorstFoodByWeek(Long userId) {
-
-    }
-
-    private User getUserById(Long userId){
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
-    }
-
-    private Food getFoodById(Long foodId){
-        return foodRepository.findById(foodId)
-                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
-    }
-
-    private FavoriteFood getFavoriteFoodById(Long foodId){
-        return favoriteFoodRepository.findById(foodId)
-                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
     }
 
 
