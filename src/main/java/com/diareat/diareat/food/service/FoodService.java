@@ -7,18 +7,16 @@ import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
-import com.diareat.diareat.user.dto.ResponseResearchUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.FoodException;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -33,14 +31,13 @@ public class FoodService {
     // 촬영 후, 음식 정보 저장
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
-        User user = userRepository.findById(createFoodDto.getUserId())
-                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+        User user = getUserById(createFoodDto.getUserId());
         Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition());
         return foodRepository.save(food).getId();
     }
 
     // 회원이 특정 날짜에 먹은 음식 반환
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
         return foodList.stream()
@@ -51,8 +48,7 @@ public class FoodService {
     // 음식 정보 수정
     @Transactional
     public void updateFood(UpdateFoodDto updateFoodDto) {
-        Food food = foodRepository.findById(updateFoodDto.getFoodId())
-                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+        Food food = getFoodById(updateFoodDto.getFoodId());
         food.updateFood(updateFoodDto.getName(), updateFoodDto.getBaseNutrition());
     }
 
@@ -65,15 +61,15 @@ public class FoodService {
     // 즐겨찾기에 음식 저장
     @Transactional
     public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
-        User user = userRepository.findById(createFavoriteFoodDto.getUserId())
-                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+
+        User user = getUserById(createFavoriteFoodDto.getUserId());
 
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, createFavoriteFoodDto.getBaseNutrition());
         return favoriteFoodRepository.save(favoriteFood).getId();
     }
 
     //즐겨찾기 음식 리스트 반환
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ResponseFavoriteFoodDto> getFavoriteFoodList(Long userId){
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         return foodList.stream()
@@ -84,8 +80,7 @@ public class FoodService {
     // 즐겨찾기 음식 수정
     @Transactional
     public void updateFavoriteFood(UpdateFavoriteFoodDto updateFavoriteFoodDto) {
-        FavoriteFood food = favoriteFoodRepository.findById(updateFavoriteFoodDto.getFavoriteFoodId())
-                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+        FavoriteFood food = getFavoriteFoodById(updateFavoriteFoodDto.getFavoriteFoodId());
         food.updateFavoriteFood(updateFavoriteFoodDto.getName(), updateFavoriteFoodDto.getBaseNutrition());
     }
 
@@ -95,12 +90,11 @@ public class FoodService {
         favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
-        User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+        User targetUser = getUserById(userId);
         int totalKcal = 0;
         int totalCarbohydrate = 0;
         int totalProtein = 0;
@@ -144,6 +138,21 @@ public class FoodService {
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
     public void getWorstFoodByWeek(Long userId) {
 
+    }
+
+    private User getUserById(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
+    }
+
+    private Food getFoodById(Long foodId){
+        return foodRepository.findById(foodId)
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
+    }
+
+    private FavoriteFood getFavoriteFoodById(Long foodId){
+        return favoriteFoodRepository.findById(foodId)
+                .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
     }
 
 

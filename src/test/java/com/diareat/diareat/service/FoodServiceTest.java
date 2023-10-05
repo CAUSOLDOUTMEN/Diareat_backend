@@ -7,24 +7,16 @@ import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
-import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.CreateUserDto;
-import com.diareat.diareat.user.dto.ResponseResearchUserDto;
-import com.diareat.diareat.user.dto.ResponseUserDto;
-import com.diareat.diareat.user.dto.UpdateUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.log4j2.Log4J2LoggingSystem;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
