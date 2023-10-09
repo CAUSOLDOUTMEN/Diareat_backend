@@ -11,4 +11,6 @@ import java.util.List;
 public interface FollowRepository extends JpaRepository<Follow, Follow.PK> {
     @Query(value = "select u from Follow f INNER JOIN User u ON f.toUser = u.id where f.fromUser = :userId") // 팔로우 목록 조회
     List<User> findAllByFromUser(@Param("userId") Long userId);
+
+    boolean existsByFromUserAndToUser(Long fromUser, Long toUser); // 팔로우 여부 확인
 }
