@@ -1,22 +1,17 @@
 package com.diareat.diareat.service;
 
-import com.diareat.diareat.user.domain.BaseNutrition;
-import com.diareat.diareat.user.dto.CreateUserDto;
-import com.diareat.diareat.user.dto.ResponseResearchUserDto;
-import com.diareat.diareat.user.dto.ResponseUserDto;
-import com.diareat.diareat.user.dto.UpdateUserDto;
+import com.diareat.diareat.user.dto.*;
+import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.user.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @SpringBootTest
 @Transactional
@@ -28,93 +23,145 @@ class UserServiceTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    FollowRepository followRepository;
+
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userRepository.deleteAll();
+        followRepository.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+        followRepository.deleteAll();
     }
 
     @Test
-    void testSaveAndGetUserInfo() { // 회원정보 저장 및 조회
+    void saveUser() {
         // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 75, 1, 25));
 
         // when
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
         ResponseUserDto responseUserDto = userService.getUserInfo(userId);
 
-        // 검증: 올바른 결과를 반환하는지 확인
+        // then
         assertNotNull(responseUserDto);
+        assertEquals("testUser", responseUserDto.getName());
+        assertEquals(25, responseUserDto.getAge());
+    }
+
+    @Test
+    void getSimpleUserInfo() {
+        // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 75, 1, 25));
+
+        // when
+        ResponseSimpleUserDto responseSimpleUserDto = userService.getSimpleUserInfo(userId);
+
+        // then
+        assertEquals("testUser", responseSimpleUserDto.getName());
+    }
+
+    @Test
+    void getUserInfo() {
+        // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 75, 1, 25));
+
+        // when
+        ResponseUserDto responseUserDto = userService.getUserInfo(userId);
+
+        // then
         assertEquals("testUser", responseUserDto.getName());
     }
 
     @Test
-    void testUpdateUserInfo() { // 회원정보 수정
-
+    void updateUserInfo() {
         // given
-        Long id = userService.saveUser(CreateUserDto.of("1", "testPassword", 180, 75, 1, 25));
-        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 160, 50, 25));
+        UpdateUserDto updateUserDto = UpdateUserDto.of(userId, "updateUser", 180, 75, 25, false);
 
         // when
-        UpdateUserDto updateUserDto = UpdateUserDto.of(id, "2", 185, 70, 75, baseNutrition);
         userService.updateUserInfo(updateUserDto);
-        ResponseUserDto responseUserDto = userService.getUserInfo(id);
 
         // then
-        assertNotNull(responseUserDto);
-        assertEquals("2", responseUserDto.getName());
-        assertEquals(185, responseUserDto.getHeight());
-        assertEquals(70, responseUserDto.getWeight());
+        assertEquals("updateUser", userService.getUserInfo(userId).getName());
+        assertEquals(180, userService.getUserInfo(userId).getHeight());
     }
 
     @Test
-    void testDeleteUser() { // 회원 탈퇴
+    void getUserNutrition() { // 임시 코드 사용, 추후 로직 개편 시 테스트코드 수정
         // given
-        Long id = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 160, 50, 25));
+
+        // when
+        ResponseUserNutritionDto responseUserNutritionDto = userService.getUserNutrition(userId);
+
+        // then
+        assertEquals(0, responseUserNutritionDto.getCalorie());
+    }
+
+    @Test
+    void updateBaseNutrition() {
+        // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 160, 50, 25));
+
+        // when
+        UpdateUserNutritionDto updateUserNutritionDto = UpdateUserNutritionDto.of(userId, 2000, 300, 80, 80);
+        userService.updateBaseNutrition(updateUserNutritionDto);
+
+        // then
+        assertEquals(2000, userService.getUserNutrition(userId).getCalorie());
+    }
+
+    @Test
+    void deleteUser() {
+        // given
+        Long id = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 75, 1, 25));
 
         // when
         userService.deleteUser(id);
 
         // then
-        assertNull(userRepository.findById(id).orElse(null));
+        assertFalse(userRepository.existsById(id));
     }
 
     @Test
-    void testSearchUserName() {
+    void searchUser() {
         // given
-        userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
-        userService.saveUser(CreateUserDto.of("hello", "testPassword", 180, 75, 1, 25));
-
-        // when
-        String name = "testUser";
-        List<ResponseResearchUserDto> users = userService.searchUser(name);
+        userService.saveUser(CreateUserDto.of("user1", "testPassword", 0, 175, 80, 25));
+        Long id = userService.saveUser(CreateUserDto.of("user2", "testPassword", 0, 175, 80, 25));
+        String name = "user";
 
         // then
-        assertEquals(1, users.size());
+        assertEquals(2, userService.searchUser(id, name).size());
     }
 
     @Test
-    void testFollowUser() { // 회원이 특정 회원 팔로우
+    void followUser() {
         // given
-        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
-        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
+        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 75, 1, 25));
+        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 0, 75, 1, 25));
 
         // when
-        userService.followUser(id1, id2);
+        userService.followUser(id2, id1);
 
         // then
-        assertEquals(1, userRepository.findById(id1).get().getFollowings().size());
+        assertEquals(1, followRepository.findAllByFromUser(id1).size());
     }
 
     @Test
-    void testUnfollowUser() { // 회원이 특정 회원 팔로우 취소
+    void unfollowUser() {
         // given
-        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 180, 75, 1, 25));
-        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 180, 75, 1, 25));
+        Long id1 = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 0, 175, 1, 25));
+        Long id2 = userService.saveUser(CreateUserDto.of("followUser", "testPassword", 0, 175, 1, 25));
 
         // when
         userService.followUser(id1, id2);
         userService.unfollowUser(id1, id2);
 
         // then
-        assertEquals(0, userRepository.findById(id1).get().getFollowings().size());
+        assertEquals(0, followRepository.findAllByFromUser(id1).size());
     }
 }
