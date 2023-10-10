@@ -25,7 +25,7 @@ public class UserService {
     // 회원정보 저장
     @Transactional
     public Long saveUser(CreateUserDto createUserDto) {
-        BaseNutrition baseNutrition = BaseNutrition.createNutrition(0, 0, 0, 0); // 로직 확정 전에는 임시 코드로 대체
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
         // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
         User user = User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();

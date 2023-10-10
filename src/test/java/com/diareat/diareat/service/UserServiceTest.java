@@ -99,7 +99,7 @@ class UserServiceTest {
         ResponseUserNutritionDto responseUserNutritionDto = userService.getUserNutrition(userId);
 
         // then
-        assertEquals(0, responseUserNutritionDto.getCalorie());
+        assertEquals(2000, responseUserNutritionDto.getCalorie());
     }
 
     @Test
