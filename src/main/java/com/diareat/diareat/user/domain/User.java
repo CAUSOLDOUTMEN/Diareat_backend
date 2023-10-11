@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +25,8 @@ public class User {
     @JsonIgnore
     private String keyCode; // 로그인 식별키
 
+    private String image; // 프로필 사진 경로
+
     private int height; // 키
 
     private int weight; // 몸무게
@@ -35,21 +35,13 @@ public class User {
 
     private int age; // 나이
 
-    private BaseNutrition baseNutrition; // 영양소
+    private BaseNutrition baseNutrition; // 기준영양소
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) // 유저가 탈퇴하면 촬영한 음식도 삭제
     private List<Food> foods = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) // 유저가 탈퇴하면 즐겨찾기 음식도 삭제
     private List<FavoriteFood> favoriteFoods = new ArrayList<>();
-
-    @ManyToMany // 팔로우 목록
-    @JoinTable(
-            name = "user_follows",
-            joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "following_id")
-    )
-    private Set<User> followings = new HashSet<>();
 
     // 생성 메서드
     public static User createUser(String name, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
@@ -65,19 +57,15 @@ public class User {
     }
 
     // 회원정보 수정
-    public void updateUser(String name, int height, int weight, int age, BaseNutrition baseNutrition) {
+    public void updateUser(String name, int height, int weight, int age) {
         this.name = name;
         this.height = height;
         this.weight = weight;
         this.age = age;
+    }
+
+    // 회원 기준영양소 직접 수정
+    public void updateBaseNutrition(BaseNutrition baseNutrition) {
         this.baseNutrition = baseNutrition;
-    }
-
-    public void followUser(User user) {
-        this.followings.add(user);
-    }
-
-    public void unfollowUser(User user) {
-        this.followings.remove(user);
     }
 }
