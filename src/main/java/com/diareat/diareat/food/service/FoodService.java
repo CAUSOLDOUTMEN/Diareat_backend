@@ -121,8 +121,8 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getBestFoodByWeek(Long userId, LocalDate startDate) {
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, startDate.minusWeeks(1));
+    public ResponseFoodRankDto getBestFoodByWeek(Long userId, LocalDate endDate) {
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> top3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
@@ -131,14 +131,14 @@ public class FoodService {
                 .collect(Collectors.toList()); //고단백 저지방일수록 점수를 높게 측정되도록 기준을 잡은 후, 그 기준을 기반으로 정렬
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
 
-        return ResponseFoodRankDto.of(userId, top3Foods, startDate, true);
+        return ResponseFoodRankDto.of(userId, top3Foods, endDate, true);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getWorstFoodByWeek(Long userId, LocalDate startDate) {
+    public ResponseFoodRankDto getWorstFoodByWeek(Long userId, LocalDate endDate) {
 
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, startDate.minusWeeks(1));
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> worst3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
@@ -146,7 +146,7 @@ public class FoodService {
                 .limit(3)
                 .collect(Collectors.toList());
 
-        return ResponseFoodRankDto.of(userId, worst3Foods, startDate, false);
+        return ResponseFoodRankDto.of(userId, worst3Foods, endDate, false);
     }
 
     private User getUserById(Long userId){
