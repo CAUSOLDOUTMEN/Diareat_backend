@@ -142,9 +142,10 @@ public class FoodService {
 
         List<Food> worst3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
-                        0.7 * food.getBaseNutrition().getProtein()- 0.3 * food.getBaseNutrition().getProtein()))
+                        0.7 * food.getBaseNutrition().getFat() + 0.3 * food.getBaseNutrition().getCarbohydrate()).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
+        //반대로 고지방 고탄수의 경우를 7:3으로 측정하고, 지방이 높을 수록 점수가 급격히 높아짐. 이 경우는 점수가 높은 것이 안좋음.
 
         return ResponseFoodRankDto.of(userId, worst3Foods, endDate, false);
     }
