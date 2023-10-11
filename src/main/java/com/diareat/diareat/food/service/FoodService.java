@@ -96,27 +96,25 @@ public class FoodService {
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
-        return calculateNutritionSumAndRatio(userId, foodList);
+        return calculateNutritionSumAndRatio(userId, foodList, date, 1);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByWeek(Long userId) {
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(6);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
-        return calculateNutritionSumAndRatio(userId, foodList);
+        return calculateNutritionSumAndRatio(userId, foodList, endDate, 7);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusMonths(1);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
-        return calculateNutritionSumAndRatio(userId, foodList);
+        return calculateNutritionSumAndRatio(userId, foodList, endDate, 30);
     }
 
     @Transactional(readOnly = true)
@@ -169,7 +167,7 @@ public class FoodService {
                 .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
     }
 
-    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList){
+    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType){
         User targetUser = getUserById(userId);
         int totalKcal = 0;
         int totalCarbohydrate = 0;
@@ -189,7 +187,7 @@ public class FoodService {
         double ratioProtein = Math.round((((double) totalProtein /(double) targetUser.getBaseNutrition().getProtein())*100.0)*10.0)/10.0;
         double ratioFat =Math.round((((double) totalFat /(double) targetUser.getBaseNutrition().getFat())*100.0)*10.0)/10.0;
 
-        return ResponseNutritionSumByDateDto.of(totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
     }
 
 
