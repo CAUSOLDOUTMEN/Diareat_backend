@@ -30,7 +30,6 @@ public class Food {
     @JoinColumn(name = "favorite_food_id")
     private FavoriteFood favoriteFood;
 
-    @CreatedDate
     private LocalDate date;
 
     private LocalTime time;
@@ -42,6 +41,7 @@ public class Food {
         Food food = new Food();
         food.name = name;
         food.user = user;
+        food.date = LocalDate.now();
         food.time = LocalTime.now();
         food.baseNutrition = baseNutrition;
         return food;

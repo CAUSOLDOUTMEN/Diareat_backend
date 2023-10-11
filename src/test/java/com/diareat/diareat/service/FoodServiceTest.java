@@ -7,6 +7,7 @@ import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
+import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.CreateUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.user.service.UserService;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -153,24 +155,76 @@ class FoodServiceTest {
     @Test
     void testNutritionSumByDate(){
         //given
-        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(100,150,200,250);
+        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword",1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
         Food food = foodRepository.getReferenceById(foodId);
 
         //when
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByDate(userId,food.getDate());
-
-        assertNotNull(responseNutritionSumByDateDto);
-        assertEquals(100, responseNutritionSumByDateDto.getTotalKcal());
+        assertEquals(1400, responseNutritionSumByDateDto.getTotalKcal());
         assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
         assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
         assertEquals(250, responseNutritionSumByDateDto.getTotalFat());
 
-        assertEquals(Math.round((100*1.0)/(2000*1.0))*10.0, responseNutritionSumByDateDto.getRatioKcal());
-        assertEquals(Math.round((150*1.0)/(300*1.0))*10.0, responseNutritionSumByDateDto.getRatioCarbohydrate());
-        assertEquals(Math.round((200*1.0)/(80*1.0))*10.0, responseNutritionSumByDateDto.getRatioProtein());
-        assertEquals(Math.round((250*1.0)/(80*1.0))*10.0, responseNutritionSumByDateDto.getRatioFat());
+        assertEquals(Math.round((((double)1400 / (double)2000) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioKcal());
+        assertEquals(Math.round((((double)150 / (double)300) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioCarbohydrate());
+        assertEquals(Math.round((((double)200 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioProtein());
+        assertEquals(Math.round((((double)250 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioFat());
+    }
 
+    @Test
+    void testNutritionSumByWeekAndMonth(){
+        //given
+        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(100,150,200,250);
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword",1, 180, 80, 18));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
+
+    }
+
+    @Test
+    void getBest3FoodTest() {
+        // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1, 180, 80, 18));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food1", BaseNutrition.createNutrition(100, 100 ,10, 1)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 2)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 100 ,6, 3)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food4", BaseNutrition.createNutrition(100, 100 ,4, 4)));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 100 ,2, 5)));
+
+        Food testFood = foodRepository.getReferenceById(foodId);
+
+        // when
+        ResponseFoodRankDto response = foodService.getBestFoodByWeek(userId, testFood.getDate());
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+
+        // then
+        assertEquals(3, top3Foods.size());
+        assertEquals("Food1", top3Foods.get(0).getName());
+        assertEquals("Food2", top3Foods.get(1).getName());
+        assertEquals("Food3", top3Foods.get(2).getName());
+    }
+
+    @Test
+    void getWorst3FoodsTest() {
+        // given
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1, 180, 80, 18));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food1", BaseNutrition.createNutrition(100, 50 ,10, 1)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 20)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 80 ,6, 7)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food4", BaseNutrition.createNutrition(100, 100 ,4, 5)));
+        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 90 ,2, 6)));
+
+        Food testFood = foodRepository.getReferenceById(foodId);
+
+        // when
+        ResponseFoodRankDto response = foodService.getWorstFoodByWeek(userId, testFood.getDate());
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+
+        // then
+        assertEquals(3, top3Foods.size());
+        assertEquals("Food2", top3Foods.get(0).getName());
+        assertEquals("Food4", top3Foods.get(1).getName());
+        assertEquals("Food5", top3Foods.get(2).getName());
     }
 }
