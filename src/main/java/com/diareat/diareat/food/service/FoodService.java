@@ -130,6 +130,7 @@ public class FoodService {
                 .limit(3)
                 .collect(Collectors.toList()); //고단백 저지방일수록 점수를 높게 측정되도록 기준을 잡은 후, 그 기준을 기반으로 정렬
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
+        // ** Best 3 기준 논의 필요 **
 
         return ResponseFoodRankDto.of(userId, top3Foods, endDate, true);
     }
@@ -146,6 +147,9 @@ public class FoodService {
                 .limit(3)
                 .collect(Collectors.toList());
         //반대로 고지방 고탄수의 경우를 7:3으로 측정하고, 지방이 높을 수록 점수가 급격히 높아짐. 이 경우는 점수가 높은 것이 안좋음.
+        //(수정) https://blog.nongshim.com/1961, 탄수화물이 더 영향을 미친다고 하는데...흠...
+        // ** 이점은 논의가 필요할 듯? **
+        // 우선 임시로 지방 비율을 높게 설정
 
         return ResponseFoodRankDto.of(userId, worst3Foods, endDate, false);
     }
