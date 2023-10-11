@@ -30,7 +30,6 @@ public class Food {
     @JoinColumn(name = "favorite_food_id")
     private FavoriteFood favoriteFood;
 
-    @CreatedDate
     private LocalDate date;
 
     private LocalTime time;
