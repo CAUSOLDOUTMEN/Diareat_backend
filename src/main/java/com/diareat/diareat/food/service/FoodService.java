@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.rmi.registry.LocateRegistry;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,14 +121,32 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
-    public void getBestFoodByWeek(Long userId) {
+    public ResponseFoodRankDto getBestFoodByWeek(Long userId, LocalDate startDate) {
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, startDate.minusWeeks(1));
 
+        List<Food> top3Foods = foodList.stream()
+                .sorted(Comparator.comparingDouble((Food food) ->
+                        0.7 * food.getBaseNutrition().getProtein()- 0.3 * food.getBaseNutrition().getProtein()).reversed())
+                .limit(3)
+                .collect(Collectors.toList()); //고단백 저지방일수록 점수를 높게 측정되도록 기준을 잡은 후, 그 기준을 기반으로 정렬
+        //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
+
+        return ResponseFoodRankDto.of(userId, top3Foods, startDate, true);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
-    public void getWorstFoodByWeek(Long userId) {
+    public ResponseFoodRankDto getWorstFoodByWeek(Long userId, LocalDate startDate) {
 
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, startDate.minusWeeks(1));
+
+        List<Food> worst3Foods = foodList.stream()
+                .sorted(Comparator.comparingDouble((Food food) ->
+                        0.7 * food.getBaseNutrition().getProtein()- 0.3 * food.getBaseNutrition().getProtein()))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        return ResponseFoodRankDto.of(userId, worst3Foods, startDate, false);
     }
 
     private User getUserById(Long userId){
@@ -159,10 +179,10 @@ public class FoodService {
             totalFat += targetFoodNutrition.getFat();
         }
 
-        double ratioKcal = Math.round((totalKcal*1.0)/(targetUser.getBaseNutrition().getKcal()*1.0))*10.0;
-        double ratioCarbohydrate = Math.round((totalCarbohydrate*1.0)/(targetUser.getBaseNutrition().getCarbohydrate()*1.0))*10.0;
-        double ratioProtein = Math.round((totalProtein*1.0)/(targetUser.getBaseNutrition().getProtein()*1.0))*10.0;
-        double ratioFat = Math.round((totalFat*1.0)/(targetUser.getBaseNutrition().getFat()*1.0))*10.0;
+        double ratioKcal = Math.round((((double) totalKcal /(double) targetUser.getBaseNutrition().getKcal())*100.0)*10.0)/10.0;
+        double ratioCarbohydrate = Math.round((((double) totalCarbohydrate /(double) targetUser.getBaseNutrition().getCarbohydrate())*100.0)*10.0)/10.0;
+        double ratioProtein = Math.round((((double) totalProtein /(double) targetUser.getBaseNutrition().getProtein())*100.0)*10.0)/10.0;
+        double ratioFat =Math.round((((double) totalFat /(double) targetUser.getBaseNutrition().getFat())*100.0)*10.0)/10.0;
 
         return ResponseNutritionSumByDateDto.of(totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
     }
