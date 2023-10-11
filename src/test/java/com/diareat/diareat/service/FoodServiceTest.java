@@ -196,7 +196,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getBestFoodByWeek(userId, testFood.getDate());
-        List<Food> top3Foods = response.getRankFoodList();
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -219,7 +219,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getWorstFoodByWeek(userId, testFood.getDate());
-        List<Food> top3Foods = response.getRankFoodList();
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
