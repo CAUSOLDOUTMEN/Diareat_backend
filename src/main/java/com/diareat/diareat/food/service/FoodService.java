@@ -126,7 +126,7 @@ public class FoodService {
 
         List<Food> top3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
-                        0.7 * food.getBaseNutrition().getProtein()- 0.3 * food.getBaseNutrition().getProtein()).reversed())
+                        0.7 * food.getBaseNutrition().getProtein()- 0.3 * food.getBaseNutrition().getFat()).reversed())
                 .limit(3)
                 .collect(Collectors.toList()); //고단백 저지방일수록 점수를 높게 측정되도록 기준을 잡은 후, 그 기준을 기반으로 정렬
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
