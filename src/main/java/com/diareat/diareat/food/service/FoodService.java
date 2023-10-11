@@ -130,7 +130,10 @@ public class FoodService {
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
         // ** Best 3 기준 논의 필요 **
 
-        return ResponseFoodRankDto.of(userId, top3Foods, endDate, true);
+        List<ResponseFoodDto> top3FoodsDtoList = top3Foods.stream()
+                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+
+        return ResponseFoodRankDto.of(userId, top3FoodsDtoList, endDate, true);
     }
 
     @Transactional(readOnly = true)
@@ -149,7 +152,11 @@ public class FoodService {
         // ** 이점은 논의가 필요할 듯? **
         // 우선 임시로 지방 비율을 높게 설정
 
-        return ResponseFoodRankDto.of(userId, worst3Foods, endDate, false);
+        List<ResponseFoodDto> worst3FoodDtoList = worst3Foods.stream()
+                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+
+
+        return ResponseFoodRankDto.of(userId, worst3FoodDtoList, endDate, false);
     }
 
     private User getUserById(Long userId){
