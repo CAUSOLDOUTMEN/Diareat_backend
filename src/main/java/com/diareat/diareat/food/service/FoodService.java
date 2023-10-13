@@ -119,7 +119,8 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getBestFoodByWeek(Long userId, LocalDate endDate) {
+    public ResponseFoodRankDto getBestFoodByWeek(Long userId) {
+        LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> top3Foods = foodList.stream()
@@ -138,8 +139,8 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getWorstFoodByWeek(Long userId, LocalDate endDate) {
-
+    public ResponseFoodRankDto getWorstFoodByWeek(Long userId) {
+        LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> worst3Foods = foodList.stream()

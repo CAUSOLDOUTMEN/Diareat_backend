@@ -190,12 +190,11 @@ class FoodServiceTest {
         foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 2)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 100 ,6, 3)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food4", BaseNutrition.createNutrition(100, 100 ,4, 4)));
-        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 100 ,2, 5)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 100 ,2, 5)));
 
-        Food testFood = foodRepository.getReferenceById(foodId);
 
         // when
-        ResponseFoodRankDto response = foodService.getBestFoodByWeek(userId, testFood.getDate());
+        ResponseFoodRankDto response = foodService.getBestFoodByWeek(userId);
         List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
@@ -213,12 +212,11 @@ class FoodServiceTest {
         foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 20)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 80 ,6, 7)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food4", BaseNutrition.createNutrition(100, 100 ,4, 5)));
-        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 90 ,2, 6)));
+        foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 90 ,2, 6)));
 
-        Food testFood = foodRepository.getReferenceById(foodId);
 
         // when
-        ResponseFoodRankDto response = foodService.getWorstFoodByWeek(userId, testFood.getDate());
+        ResponseFoodRankDto response = foodService.getWorstFoodByWeek(userId);
         List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
