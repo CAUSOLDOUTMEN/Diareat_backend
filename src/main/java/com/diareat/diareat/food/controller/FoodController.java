@@ -29,7 +29,7 @@ public class FoodController {
 
     //특정 날짜에 먹은 음식 반환
     @Operation(summary = "[음식] 특정 날짜에 먹은 음식 목록 조회",description = "유저의 특정 날짜에 먹은 음식 목록을 조회합니다.")
-    @GetMapping("{userId}")
+    @GetMapping("/{userId}")
     public ApiResponse<List<ResponseFoodDto>> getFoodListByDate(@PathVariable Long userId,
                                                                 @RequestParam int yy,
                                                                 @RequestParam int mm,
@@ -48,7 +48,7 @@ public class FoodController {
     }
     //음식 삭제
     @Operation(summary = "[음식] 음식 정보 삭제",description = "음식에 대한 정보를 삭제합니다.")
-    @DeleteMapping("{foodId}/delete")
+    @DeleteMapping("/{foodId}/delete")
     public ApiResponse<Void> deleteFood(@PathVariable Long foodId){
         foodService.deleteFood(foodId);
         return ApiResponse.success(null, ResponseCode.FOOD_DELETE_SUCCESS.getMessage());
@@ -86,7 +86,7 @@ public class FoodController {
 
     //특정 날짜에 먹은 음식들의 영양성분별 총합 조회
     @Operation(summary = "[음식] 특정 날짜에 먹은 음식들의 영양성분 총합 조회",description = "특정 날짜에 유저가 먹은 음식들의 영양성분별 총합 및 권장섭취량에 대한 비율을 조회합니다.")
-    @GetMapping("{userId}/nutrition")
+    @GetMapping("/{userId}/nutrition")
     public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByDate(@PathVariable Long userId,
                                                                             @RequestParam int yy,
                                                                             @RequestParam int mm,
@@ -97,14 +97,14 @@ public class FoodController {
 
     //"" 7일간 총합 조회
     @Operation(summary = "[음식] 최근 7일간 먹은 음식들의 영양성분 총합 조회",description = "최근 7일 간 유저가 먹은 음식들의 영양성분별 총합 및 권장섭취량에 대한 비율을 조회합니다.")
-    @GetMapping("{userId}/nutrition/recentWeek")
+    @GetMapping("/{userId}/nutrition/recentWeek")
     public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByWeek(@PathVariable Long userId){
         return ApiResponse.success(foodService.getNutritionSumByWeek(userId),ResponseCode.FOOD_FAVORITE_READ_SUCCESS.getMessage());
     }
 
     //"" 30일간 (1달간) 총합 조회
     @Operation(summary = "[음식] 최근 한달 간 먹은 음식들의 영양성분 총합 조회",description = "최근 한달 간 유저가 먹은 음식들의 영양성분별 총합 및 권장섭취량에 대한 비율을 조회합니다.")
-    @GetMapping("{userId}/nutrition/recentMonth")
+    @GetMapping("/{userId}/nutrition/recentMonth")
     public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByMonth(@PathVariable Long userId){
         return ApiResponse.success(foodService.getNutritionSumByMonth(userId),ResponseCode.FOOD_FAVORITE_READ_SUCCESS.getMessage());
 
@@ -112,14 +112,14 @@ public class FoodController {
 
     //7일간의 Best 3 조회
     @Operation(summary = "[음식] 최근 7일 간 먹은 Top3 음식 조회",description = "최근 7일 간 유저가 먹은 음식들 중에서 Top3에 해당한 음식들을 조회합니다.")
-    @GetMapping("{userId}/best")
+    @GetMapping("/{userId}/best")
     public ApiResponse<ResponseFoodRankDto> getBestFoodByWeek(@PathVariable Long userId){
         return ApiResponse.success(foodService.getBestFoodByWeek(userId),ResponseCode.FOOD_FAVORITE_READ_SUCCESS.getMessage());
     }
 
     //7일간의 Worst 3 조회
     @Operation(summary = "[음식] 최근 7일 간 먹은 Worst3 음식 조회",description = "최근 7일 간 유저가 먹은 음식들 중에서 Worst3에 해당한 음식들을 조회합니다.")
-    @GetMapping("{userId}/worst")
+    @GetMapping("/{userId}/worst")
     public ApiResponse<ResponseFoodRankDto> getWorstFoodByWeek(@PathVariable Long userId){
         return ApiResponse.success(foodService.getWorstFoodByWeek(userId),ResponseCode.FOOD_FAVORITE_READ_SUCCESS.getMessage());
     }
