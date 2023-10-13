@@ -27,6 +27,8 @@ public class UserService {
     public Long saveUser(CreateUserDto createUserDto) {
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
         // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
+        if (userRepository.existsByName(createUserDto.getName()))
+            throw new UserException(ResponseCode.USER_ALREADY_EXIST);
         User user = User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();
     }
@@ -89,6 +91,9 @@ public class UserService {
     public void followUser(Long userId, Long followId) {
         validateUser(userId);
         validateUser(followId);
+        // 이미 팔로우 중인 경우
+        if (followRepository.existsByFromUserAndToUser(userId, followId))
+            throw new UserException(ResponseCode.FOLLOWED_ALREADY);
         followRepository.save(Follow.makeFollow(userId, followId));
     }
 
@@ -97,11 +102,23 @@ public class UserService {
     public void unfollowUser(Long userId, Long unfollowId) {
         validateUser(userId);
         validateUser(unfollowId);
+        // 이미 팔로우 취소한 경우
+        if (followRepository.existsByFromUserAndToUser(userId, unfollowId))
+            throw new UserException(ResponseCode.UNFOLLOWED_ALREADY);
         followRepository.delete(Follow.makeFollow(userId, unfollowId));
     }
 
+    // 회원의 팔로우 목록 조회 (현재 외부 Dto 변환은 Food에서 위임받아 진행할지 협의하지 않았기에 일단 User 리스트로 반환)
+    @Transactional(readOnly = true)
+    public List<User> getFollowList(Long userId) {
+        validateUser(userId);
+        List<User> users = followRepository.findAllByFromUser(userId);
+        users.add(getUserById(userId)); // 자기 자신도 랭킹에 포함
+        return users;
+    }
+
     private void validateUser(Long userId) {
-        if(!userRepository.existsById(userId))
+        if (!userRepository.existsById(userId))
             throw new UserException(ResponseCode.USER_NOT_FOUND);
     }
 
