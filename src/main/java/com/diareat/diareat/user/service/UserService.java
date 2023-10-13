@@ -27,6 +27,8 @@ public class UserService {
     public Long saveUser(CreateUserDto createUserDto) {
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
         // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
+        if (userRepository.existsByName(createUserDto.getName()))
+            throw new UserException(ResponseCode.USER_ALREADY_EXIST);
         User user = User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();
     }
@@ -89,6 +91,9 @@ public class UserService {
     public void followUser(Long userId, Long followId) {
         validateUser(userId);
         validateUser(followId);
+        // 이미 팔로우 중인 경우
+        if (followRepository.existsByFromUserAndToUser(userId, followId))
+            throw new UserException(ResponseCode.FOLLOWED_ALREADY);
         followRepository.save(Follow.makeFollow(userId, followId));
     }
 
@@ -97,11 +102,14 @@ public class UserService {
     public void unfollowUser(Long userId, Long unfollowId) {
         validateUser(userId);
         validateUser(unfollowId);
+        // 이미 팔로우 취소한 경우
+        if (followRepository.existsByFromUserAndToUser(userId, unfollowId))
+            throw new UserException(ResponseCode.UNFOLLOWED_ALREADY);
         followRepository.delete(Follow.makeFollow(userId, unfollowId));
     }
 
     private void validateUser(Long userId) {
-        if(!userRepository.existsById(userId))
+        if (!userRepository.existsById(userId))
             throw new UserException(ResponseCode.USER_NOT_FOUND);
     }
 
