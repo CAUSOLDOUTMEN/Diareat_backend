@@ -65,6 +65,6 @@ jobs:
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> env.list
 
 
-            sudo docker run -d --env-file env.list --name Diareat_Backend ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
+            sudo docker run -d -p 22:22/tcp --env-file env.list --name Diareat_Backend ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
             sleep 10s
             sudo docker ps | grep ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
