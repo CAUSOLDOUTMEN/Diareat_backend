@@ -14,11 +14,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class User {
+public class TestUser {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    protected Long id;
 
     private String name; // 닉네임
 
@@ -44,8 +44,8 @@ public class User {
     private List<FavoriteFood> favoriteFoods = new ArrayList<>();
 
     // 생성 메서드
-    public static User createUser(String name, String image, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
-        User user = new User();
+    public static TestUser createUser(String name, String image, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
+        TestUser user = new TestUser();
         user.name = name;
         user.image = image;
         user.keyCode = keyCode;

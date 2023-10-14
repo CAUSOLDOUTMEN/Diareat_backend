@@ -2,7 +2,7 @@ package com.diareat.diareat.service;
 
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.Follow;
-import com.diareat.diareat.user.domain.User;
+import com.diareat.diareat.user.domain.TestUser;
 import com.diareat.diareat.user.dto.*;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class TestUserServiceTest {
 
     @InjectMocks
     private UserService userService;
@@ -35,28 +36,29 @@ class UserServiceTest {
 
     @DisplayName("회원정보 저장")
     @Test
-    void saveUser() {
+    void saveUser() { // setId() 메서드 임시 삽입하여 테스트 진행함
         // Given
         CreateUserDto createUserDto = CreateUserDto.of("test", "profile.jpg", "testPassword", 0, 75, 1, 25);
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
-        User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
+        TestUser user = TestUser.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
+        user.setId(1L); // 테스트 커밋 중 User에 setId() 메서드 임시적으로 삽입하여 테스트 진행함
 
-        given(userRepository.existsByName("test")).willReturn(false); // 유저가 존재하지 않음
-        given(userRepository.save(any(User.class))).willReturn(user);
+        given(userRepository.existsByName("test")).willReturn(false);
+        given(userRepository.save(any(TestUser.class))).willReturn(user);
 
         // When
-        Long id = userService.saveUser(createUserDto);
+        Long id = userService.saveUser(createUserDto); // id null로 반환됨 (Mock은 실제 DB에 객체를 생성하지 않기 때문)
 
         // Then
-        assertEquals(user.getId(), id); // 저장된 사용자의 ID와 반환된 ID를 비교
-        verify(userRepository, times(1)).save(any(User.class)); // userRepository의 save 메서드가 1번 호출되었는지 확인
+        assertEquals(1L, id);
+        verify(userRepository, times(1)).save(any(TestUser.class));
     }
 
     @Test
     void getSimpleUserInfo() {
         // Given
         Long userId = 1L;
-        User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user = TestUser.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // When
@@ -71,7 +73,7 @@ class UserServiceTest {
     void getUserInfo() {
         // Given
         Long userId = 1L;
-        User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user = TestUser.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // When
@@ -86,7 +88,7 @@ class UserServiceTest {
     void updateUserInfo() {
         // given
         UpdateUserDto updateUserDto = UpdateUserDto.of(1L, "update", 180, 75, 25, false);
-        User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user = TestUser.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
         given(userRepository.findById(updateUserDto.getUserId())).willReturn(Optional.of(user));
 
         // when
@@ -104,7 +106,7 @@ class UserServiceTest {
     void getUserNutrition() { // 임시 코드 사용, 추후 로직 개편 시 테스트코드 수정
         // Given
         Long userId = 1L;
-        User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user = TestUser.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // When
@@ -122,7 +124,7 @@ class UserServiceTest {
         // Given
         UpdateUserNutritionDto updateUserNutritionDto = UpdateUserNutritionDto.of(1L, 2000, 300, 80, 80);
         // 필드 초기화
-        User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(1000, 100, 40, 40));
+        TestUser user = TestUser.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(1000, 100, 40, 40));
         given(userRepository.findById(updateUserNutritionDto.getUserId())).willReturn(Optional.of(user));
 
         // When
@@ -149,8 +151,36 @@ class UserServiceTest {
     }
 
     @Test
-    void searchUser() {
+    void searchUser() { // setId() 메서드 임시 삽입하여 테스트 진행함
+        // Given
+        Long userId1 = 1L;
+        Long userId2 = 2L;
+        Long userId3 = 3L;
+        String name = "John";
 
+        // 사용자 목록 생성
+        TestUser user1 = TestUser.createUser("John", "profile1.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user2 = TestUser.createUser("John Doe", "profile2.jpg", "keycode456", 170, 65, 1, 35, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        TestUser user3 = TestUser.createUser("John Doo", "profile3.jpg", "keycode789", 160, 55, 1, 25, BaseNutrition.createNutrition(2000, 300, 80, 80));
+        user1.setId(userId1);
+        user2.setId(userId2);
+        user3.setId(userId3);
+
+        given(userRepository.existsById(userId1)).willReturn(true);
+        given(userRepository.findAllByNameContaining(name)).willReturn(List.of(user1, user2, user3));
+        given(followRepository.existsByFromUserAndToUser(userId1, userId2)).willReturn(true);
+        given(followRepository.existsByFromUserAndToUser(userId1, userId3)).willReturn(false);
+
+        // When
+        List<ResponseSearchUserDto> result = userService.searchUser(userId1, name);
+
+        // Then
+        assertEquals(2, result.size());
+        assertEquals("John Doe", result.get(0).getName());
+        assertTrue(result.get(0).isFollow());
+        assertEquals("John Doo", result.get(1).getName());
+        assertFalse(result.get(1).isFollow());
+        verify(userRepository, times(1)).findAllByNameContaining(name);
     }
 
     @Test

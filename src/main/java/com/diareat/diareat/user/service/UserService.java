@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,7 +83,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<ResponseSearchUserDto> searchUser(Long hostId, String name) {
         validateUser(hostId);
-        List<User> users = userRepository.findAllByNameContaining(name);
+        List<User> users = new ArrayList<>(userRepository.findAllByNameContaining(name));
+        users.removeIf(user -> user.getId().equals(hostId)); // 검색 결과에서 자기 자신은 제외 (removeIf 메서드는 ArrayList에만 존재)
         return users.stream()
                 .map(user -> ResponseSearchUserDto.of(user.getId(), user.getName(), user.getImage(), followRepository.existsByFromUserAndToUser(hostId, user.getId()))).collect(Collectors.toList());
     }
