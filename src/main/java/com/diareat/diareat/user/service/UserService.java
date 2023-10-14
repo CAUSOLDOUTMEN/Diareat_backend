@@ -29,7 +29,7 @@ public class UserService {
         // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
         if (userRepository.existsByName(createUserDto.getName()))
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
-        User user = User.createUser(createUserDto.getName(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
+        User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();
     }
 
@@ -68,6 +68,7 @@ public class UserService {
         User user = getUserById(updateUserNutritionDto.getUserId());
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(updateUserNutritionDto.getCalorie(), updateUserNutritionDto.getCarbohydrate(), updateUserNutritionDto.getProtein(), updateUserNutritionDto.getFat());
         user.updateBaseNutrition(baseNutrition);
+        userRepository.save(user);
     }
 
     // 회원 탈퇴
@@ -103,7 +104,7 @@ public class UserService {
         validateUser(userId);
         validateUser(unfollowId);
         // 이미 팔로우 취소한 경우
-        if (followRepository.existsByFromUserAndToUser(userId, unfollowId))
+        if (!followRepository.existsByFromUserAndToUser(userId, unfollowId))
             throw new UserException(ResponseCode.UNFOLLOWED_ALREADY);
         followRepository.delete(Follow.makeFollow(userId, unfollowId));
     }

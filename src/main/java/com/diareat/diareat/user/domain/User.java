@@ -44,9 +44,10 @@ public class User {
     private List<FavoriteFood> favoriteFoods = new ArrayList<>();
 
     // 생성 메서드
-    public static User createUser(String name, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
+    public static User createUser(String name, String image, String keyCode, int height, int weight, int gender, int age, BaseNutrition baseNutrition) {
         User user = new User();
         user.name = name;
+        user.image = image;
         user.keyCode = keyCode;
         user.height = height;
         user.weight = weight;

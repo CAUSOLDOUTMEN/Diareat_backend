@@ -53,7 +53,7 @@ class FoodServiceTest {
     void testSaveAndGetFood() { // 음식 정보 저장 및 해당 날짜 음식 리스트 불러오기
         // given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1,180, 80,18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword", 1,180, 80,18));
 
         //when
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood",testBaseNutrition));
@@ -69,7 +69,7 @@ class FoodServiceTest {
     void testUpdateFood() {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
 
         //when
@@ -90,7 +90,7 @@ class FoodServiceTest {
     void testDeleteFood() {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser","testImage", "tessPassword", 1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
 
         //when
@@ -103,7 +103,7 @@ class FoodServiceTest {
     void testSaveAndGetFavoriteFood() {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
 
         //when
@@ -119,7 +119,7 @@ class FoodServiceTest {
     void testUpdateFavoriteFood() {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
         Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
 
@@ -142,7 +142,7 @@ class FoodServiceTest {
     void testDeleteFavoriteFood() {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "tessPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
         Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
 
@@ -156,7 +156,7 @@ class FoodServiceTest {
     void testNutritionSumByDate(){
         //given
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword",1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword",1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
         Food food = foodRepository.getReferenceById(foodId);
 
@@ -177,7 +177,7 @@ class FoodServiceTest {
     void testNutritionSumByWeekAndMonth(){
         //given
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(100,150,200,250);
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword",1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword",1, 180, 80, 18));
         Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
 
     }
@@ -185,7 +185,7 @@ class FoodServiceTest {
     @Test
     void getBest3FoodTest() {
         // given
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword", 1, 180, 80, 18));
         foodService.saveFood(CreateFoodDto.of(userId, "Food1", BaseNutrition.createNutrition(100, 100 ,10, 1)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 2)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 100 ,6, 3)));
@@ -208,7 +208,7 @@ class FoodServiceTest {
     @Test
     void getWorst3FoodsTest() {
         // given
-        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testPassword", 1, 180, 80, 18));
+        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword", 1, 180, 80, 18));
         foodService.saveFood(CreateFoodDto.of(userId, "Food1", BaseNutrition.createNutrition(100, 50 ,10, 1)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 20)));
         foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 80 ,6, 7)));
