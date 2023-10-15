@@ -52,8 +52,7 @@ class FoodServiceTest {
     void testSaveAndGetFood() { // 음식 정보 저장 및 해당 날짜 음식 리스트 불러오기
         // given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-        CreateUserDto createUserDto = CreateUserDto.of("testUser", "testImage","testPassword", 1,180, 80,18);
-        User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), testBaseNutrition);
+        User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
         user.setId(1L);
 
         CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition);
@@ -74,26 +73,31 @@ class FoodServiceTest {
         verify(foodRepository, times(1)).save(any(Food.class));
     }
 
-//    @Test
-//    void testUpdateFood() {
-//        //given
-//        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
-//        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
-//
-//        //when
-//        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
-//        foodService.updateFood(UpdateFoodDto.of(foodId, "testChangedFood", testChangedBaseNutrition));
-//
-//        Food changedFood = foodRepository.getReferenceById(foodId);
-//
-//        assertNotNull(changedFood);
-//        assertEquals("testChangedFood", changedFood.getName());
-//        assertEquals(2,changedFood.getBaseNutrition().getKcal());
-//        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
-//        assertEquals(4,changedFood.getBaseNutrition().getProtein());
-//        assertEquals(5,changedFood.getBaseNutrition().getFat());
-//    }
+    @Test
+    void testUpdateFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        food.setId(1L);
+
+        given(foodRepository.findById(any(Long.class))).willReturn(Optional.of(food));
+        given(foodRepository.getReferenceById(any(Long.class))).willReturn(food);
+
+
+        //when
+        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
+        foodService.updateFood(UpdateFoodDto.of(food.getId(), "testChangedFood", testChangedBaseNutrition));
+
+        Food changedFood = foodRepository.getReferenceById(food.getId());
+
+        assertNotNull(changedFood);
+        assertEquals("testChangedFood", changedFood.getName());
+        assertEquals(2,changedFood.getBaseNutrition().getKcal());
+        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
+        assertEquals(4,changedFood.getBaseNutrition().getProtein());
+        assertEquals(5,changedFood.getBaseNutrition().getFat());
+    }
 //
 //    @Test
 //    void testDeleteFood() {
