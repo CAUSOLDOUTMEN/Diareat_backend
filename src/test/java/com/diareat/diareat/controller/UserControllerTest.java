@@ -1,5 +1,6 @@
 package com.diareat.diareat.controller;
 
+import com.diareat.diareat.auth.KakaoAuthService;
 import com.diareat.diareat.user.controller.UserController;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
@@ -39,6 +40,9 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private KakaoAuthService kakaoAuthService;
 
     private final Long testUserId = 1L;
     private final ObjectMapper mapper = new ObjectMapper();
