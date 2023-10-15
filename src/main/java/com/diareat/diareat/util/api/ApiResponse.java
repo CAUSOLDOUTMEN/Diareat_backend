@@ -8,24 +8,22 @@ import lombok.RequiredArgsConstructor;
 public class ApiResponse<T> {
 
     private ApiHeader header;
-    private ApiBody body;
+    private T data;
+    private String msg;
 
     private static final int SUCCESS = 200;
 
-    public ApiResponse(ApiHeader header, ApiBody body) {
+    private ApiResponse(ApiHeader header, T data, String msg) {
         this.header = header;
-        this.body = body;
-    }
-
-    public ApiResponse(ApiHeader header) {
-        this.header = header;
+        this.data = data;
+        this.msg = msg;
     }
 
     public static <T> ApiResponse<T> success(T data, String message) {
-        return new ApiResponse<T>(new ApiHeader(SUCCESS, "SUCCESS"), new ApiBody(data, message));
+        return new ApiResponse<T>(new ApiHeader(SUCCESS, "SUCCESS"), data, message);
     }
 
     public static <T> ApiResponse<T> fail(ResponseCode responseCode) {
-        return new ApiResponse(new ApiHeader(responseCode.getHttpStatusCode(), responseCode.getMessage()), new ApiBody(null, responseCode.getMessage()));
+        return new ApiResponse<T>(new ApiHeader(responseCode.getHttpStatusCode(), responseCode.getMessage()), null, responseCode.getMessage());
     }
 }

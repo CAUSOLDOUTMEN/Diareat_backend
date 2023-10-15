@@ -28,7 +28,7 @@ public class UserController {
 
     // 회원 기본정보 조회
     @Operation(summary = "[프로필] 회원 기본정보 조회", description = "회원 기본정보를 조회합니다.")
-    @GetMapping("{userId}/info/simple/")
+    @GetMapping("{userId}/info/simple")
     public ApiResponse<ResponseSimpleUserDto> getSimpleUserInfo(@PathVariable Long userId) {
         return ApiResponse.success(userService.getSimpleUserInfo(userId), ResponseCode.USER_CREATE_SUCCESS.getMessage());
     }

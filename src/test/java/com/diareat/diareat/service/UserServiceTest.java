@@ -7,6 +7,7 @@ import com.diareat.diareat.user.dto.*;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.user.service.UserService;
+import com.diareat.diareat.util.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,6 +55,22 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
+    @DisplayName("회원정보 저장 닉네임 중복")
+    @Test
+    void saveUserDupliacedName() {
+        // Given
+        CreateUserDto createUserDto = CreateUserDto.of("test", "profile.jpg", "testPassword", 0, 75, 1, 25);
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
+        User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
+        user.setId(1L); // 테스트 커밋 중 User에 setId() 메서드 임시적으로 삽입하여 테스트 진행함
+
+        given(userRepository.existsByName("test")).willReturn(true);
+
+        // When -> 예외처리
+        assertThrows(UserException.class, () -> userService.saveUser(createUserDto));
+    }
+
+    @DisplayName("회원 기본정보 조회")
     @Test
     void getSimpleUserInfo() {
         // Given
@@ -69,6 +86,7 @@ class UserServiceTest {
         assertEquals("profile.jpg", result.getImage());
     }
 
+    @DisplayName("회원정보 조회")
     @Test
     void getUserInfo() {
         // Given
@@ -84,6 +102,7 @@ class UserServiceTest {
         assertEquals(30, result.getAge());
     }
 
+    @DisplayName("회원정보 수정")
     @Test
     void updateUserInfo() {
         // given
@@ -102,6 +121,7 @@ class UserServiceTest {
         assertEquals(25, user.getAge());
     }
 
+    @DisplayName("회원 기준섭취량 조회")
     @Test
     void getUserNutrition() { // 임시 코드 사용, 추후 로직 개편 시 테스트코드 수정
         // Given
@@ -119,6 +139,7 @@ class UserServiceTest {
         assertEquals(80, result.getFat());
     }
 
+    @DisplayName("회원 기준섭취량 직접 수정")
     @Test
     void updateBaseNutrition() {
         // Given
@@ -137,6 +158,7 @@ class UserServiceTest {
         assertEquals(80, user.getBaseNutrition().getFat());
     }
 
+    @DisplayName("회원 탈퇴")
     @Test
     void deleteUser() {
         // Given
@@ -150,6 +172,7 @@ class UserServiceTest {
         verify(userRepository, times(1)).deleteById(userId);
     }
 
+    @DisplayName("회원의 친구 검색 결과 조회")
     @Test
     void searchUser() { // setId() 메서드로 테스트 진행함
         // Given
@@ -183,6 +206,7 @@ class UserServiceTest {
         verify(userRepository, times(1)).findAllByNameContaining(name);
     }
 
+    @DisplayName("회원이 특정 회원 팔로우")
     @Test
     void followUser() {
         // Given
@@ -203,6 +227,22 @@ class UserServiceTest {
         verify(followRepository, times(1)).save(any(Follow.class));
     }
 
+    @DisplayName("회원이 특정 회원 팔로우 중복 요청")
+    @Test
+    void followerUserDuplicate() {
+        // Given
+        Long userId = 1L; // 팔로우 요청을 보낸 사용자의 ID
+        Long followId = 2L; // 팔로우할 사용자의 ID
+
+        given(userRepository.existsById(userId)).willReturn(true); // userId에 해당하는 사용자가 존재함
+        given(userRepository.existsById(followId)).willReturn(true); // followId에 해당하는 사용자가 존재함
+        given(followRepository.existsByFromUserAndToUser(userId, followId)).willReturn(true); // 아직 팔로우 중이 아님
+
+        // When -> 예외처리
+        assertThrows(UserException.class, () -> userService.followUser(userId, followId));
+    }
+
+    @DisplayName("회원이 특정 회원 팔로우 취소")
     @Test
     void unfollowUser() {
         // Given
@@ -218,5 +258,20 @@ class UserServiceTest {
 
         // Then
         verify(followRepository, times(1)).delete(any(Follow.class));
+    }
+
+    @DisplayName("회원이 특정 회원 팔로우 취소 중복 요청")
+    @Test
+    void unfollowUserDuplicate() {
+        // Given
+        Long userId = 1L; // 팔로우 취소를 요청한 사용자의 ID
+        Long unfollowId = 2L; // 팔로우를 취소할 사용자의 ID
+
+        given(userRepository.existsById(userId)).willReturn(true); // userId에 해당하는 사용자가 존재함
+        given(userRepository.existsById(unfollowId)).willReturn(true); // unfollowId에 해당하는 사용자가 존재함
+        given(followRepository.existsByFromUserAndToUser(userId, unfollowId)).willReturn(false);
+
+        // When -> 예외처리
+        assertThrows(UserException.class, () -> userService.unfollowUser(userId, unfollowId));
     }
 }
