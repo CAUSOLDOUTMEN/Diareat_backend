@@ -84,21 +84,18 @@ class FoodServiceTest {
         food.setId(1L);
 
         given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
-        given(foodRepository.getReferenceById(food.getId())).willReturn(food);
 
 
         //when
         BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
         foodService.updateFood(UpdateFoodDto.of(food.getId(), "testChangedFood", testChangedBaseNutrition));
 
-        Food changedFood = foodRepository.getReferenceById(food.getId());
 
-        assertNotNull(changedFood);
-        assertEquals("testChangedFood", changedFood.getName());
-        assertEquals(2,changedFood.getBaseNutrition().getKcal());
-        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
-        assertEquals(4,changedFood.getBaseNutrition().getProtein());
-        assertEquals(5,changedFood.getBaseNutrition().getFat());
+        assertEquals("testChangedFood", food.getName());
+        assertEquals(2,food.getBaseNutrition().getKcal());
+        assertEquals(3,food.getBaseNutrition().getCarbohydrate());
+        assertEquals(4,food.getBaseNutrition().getProtein());
+        assertEquals(5,food.getBaseNutrition().getFat());
     }
 //
     @Test
@@ -141,29 +138,27 @@ class FoodServiceTest {
         assertEquals("testFavoriteFood",responseFavoriteFoodDtoList.get(0).getName());
         verify(favoriteFoodRepository, times(1)).save(any(FavoriteFood.class));
     }
-//
-//    @Test
-//    void testUpdateFavoriteFood() {
-//        //given
-//        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
-//        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
-//        Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
-//
-//
-//        //when
-//        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
-//        foodService.updateFavoriteFood(UpdateFavoriteFoodDto.of(favoriteFoodId, "testChangedFood", testChangedBaseNutrition));
-//
-//        FavoriteFood changedFood = favoriteFoodRepository.getReferenceById(favoriteFoodId);
-//
-//        assertNotNull(changedFood);
-//        assertEquals("testChangedFood", changedFood.getName());
-//        assertEquals(2,changedFood.getBaseNutrition().getKcal());
-//        assertEquals(3,changedFood.getBaseNutrition().getCarbohydrate());
-//        assertEquals(4,changedFood.getBaseNutrition().getProtein());
-//        assertEquals(5,changedFood.getBaseNutrition().getFat());
-//    }
+    @Test
+    void testUpdateFavoriteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user, testBaseNutrition);
+        favoriteFood.setId(1L);
+
+        given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
+
+
+        //when
+        BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
+        foodService.updateFavoriteFood(UpdateFavoriteFoodDto.of(favoriteFood.getId(), "testChangedFood", testChangedBaseNutrition));
+
+        assertEquals("testChangedFood", favoriteFood.getName());
+        assertEquals(2,favoriteFood.getBaseNutrition().getKcal());
+        assertEquals(3,favoriteFood.getBaseNutrition().getCarbohydrate());
+        assertEquals(4,favoriteFood.getBaseNutrition().getProtein());
+        assertEquals(5,favoriteFood.getBaseNutrition().getFat());
+    }
 //
 //    @Test
 //    void testDeleteFavoriteFood() {
