@@ -91,6 +91,7 @@ public class FoodService {
     // 즐겨찾기 해제
     @Transactional
     public void deleteFavoriteFood(Long favoriteFoodId) {
+        validateFavoriteFood(favoriteFoodId);
         favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
@@ -213,6 +214,11 @@ public class FoodService {
     private void validateFood(Long foodId) {
         if (!foodRepository.existsById(foodId))
             throw new UserException(ResponseCode.FOOD_NOT_FOUND);
+    }
+
+    private void validateFavoriteFood(Long favoriteFoodId) {
+        if (!foodRepository.existsById(favoriteFoodId))
+            throw new UserException(ResponseCode.FAVORITE_NOT_FOUND);
     }
 
 
