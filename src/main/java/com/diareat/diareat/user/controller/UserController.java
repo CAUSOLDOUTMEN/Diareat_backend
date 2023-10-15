@@ -1,5 +1,6 @@
 package com.diareat.diareat.user.controller;
 
+import com.diareat.diareat.auth.KakaoAuthService;
 import com.diareat.diareat.user.dto.*;
 import com.diareat.diareat.user.service.UserService;
 import com.diareat.diareat.util.api.ApiResponse;
@@ -18,6 +19,14 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final KakaoAuthService kakaoAuthService;
+
+    // 카카오 로그인을 위해 회원가입 여부 확인
+    @Operation(summary = "[로그인] 카카오 로그인을 위해 회원가입 여부 확인", description = "카카오 로그인을 위해 회원가입 여부를 확인합니다.")
+    @GetMapping("/auth")
+    public ApiResponse<Long> authCheck(@RequestParam String token) {
+        return ApiResponse.success(kakaoAuthService.isSignedUp(token), ResponseCode.USER_READ_SUCCESS.getMessage());
+    }
 
     // 회원정보 저장
     @Operation(summary = "[회원가입] 회원정보 저장", description = "신규 회원정보를 저장합니다.")
