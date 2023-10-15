@@ -160,19 +160,21 @@ class FoodServiceTest {
         assertEquals(5,favoriteFood.getBaseNutrition().getFat());
     }
 //
-//    @Test
-//    void testDeleteFavoriteFood() {
-//        //given
-//        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","tessPassword", 1, 180, 80, 18));
-//        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
-//        Long favoriteFoodId = foodService.saveFavoriteFood(CreateFavoriteFoodDto.of(foodId, userId, "testFood", testBaseNutrition));
-//
-//        //when
-//        foodService.deleteFavoriteFood(favoriteFoodId);
-//
-//        assertNull(favoriteFoodRepository.findById(favoriteFoodId).orElse(null));
-//    }
+    @Test
+    void testDeleteFavoriteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFood", user, testBaseNutrition);
+        favoriteFood.setId(1L);
+
+        given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
+
+        //when
+        foodService.deleteFavoriteFood(favoriteFood.getId());
+
+        verify(favoriteFoodRepository, times(1)).deleteById(favoriteFood.getId());
+    }
 //
 //    @Test
 //    void testNutritionSumByDate(){
