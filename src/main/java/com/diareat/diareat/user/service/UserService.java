@@ -56,14 +56,14 @@ public class UserService {
         user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge());
     }
 
-    // 회원 기준영양소 조회
+    // 회원 기준섭취량 조회
     @Transactional(readOnly = true)
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
         return ResponseUserNutritionDto.from(user);
     }
 
-    // 회원 기준영양소 직접 수정
+    // 회원 기준섭취량 직접 수정
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());
