@@ -9,6 +9,7 @@ import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.util.api.ResponseCode;
+import com.diareat.diareat.util.exception.FavoriteException;
 import com.diareat.diareat.util.exception.FoodException;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -213,12 +214,12 @@ public class FoodService {
 
     private void validateFood(Long foodId) {
         if (!foodRepository.existsById(foodId))
-            throw new UserException(ResponseCode.FOOD_NOT_FOUND);
+            throw new FoodException(ResponseCode.FOOD_NOT_FOUND);
     }
 
     private void validateFavoriteFood(Long favoriteFoodId) {
-        if (!foodRepository.existsById(favoriteFoodId))
-            throw new UserException(ResponseCode.FAVORITE_NOT_FOUND);
+        if (!favoriteFoodRepository.existsById(favoriteFoodId))
+            throw new FavoriteException(ResponseCode.FAVORITE_NOT_FOUND);
     }
 
 
