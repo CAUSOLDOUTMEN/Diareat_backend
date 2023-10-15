@@ -36,9 +36,6 @@ class FoodServiceTest {
     @InjectMocks
     FoodService foodService;
 
-    @InjectMocks
-    UserService userService;
-
     @Mock
     FoodRepository foodRepository;
 
