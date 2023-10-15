@@ -261,27 +261,32 @@ class FoodServiceTest {
 
     }
 //
-//    @Test
-//    void getBest3FoodTest() {
-//        // given
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword", 1, 180, 80, 18));
-//        foodService.saveFood(CreateFoodDto.of(userId, "Food1", BaseNutrition.createNutrition(100, 100 ,10, 1)));
-//        foodService.saveFood(CreateFoodDto.of(userId, "Food2", BaseNutrition.createNutrition(100, 100 ,8, 2)));
-//        foodService.saveFood(CreateFoodDto.of(userId, "Food3", BaseNutrition.createNutrition(100, 100 ,6, 3)));
-//        foodService.saveFood(CreateFoodDto.of(userId, "Food4", BaseNutrition.createNutrition(100, 100 ,4, 4)));
-//        foodService.saveFood(CreateFoodDto.of(userId, "Food5", BaseNutrition.createNutrition(100, 100 ,2, 5)));
-//
-//
-//        // when
-//        ResponseFoodRankDto response = foodService.getBestFoodByWeek(userId);
-//        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
-//
-//        // then
-//        assertEquals(3, top3Foods.size());
-//        assertEquals("Food1", top3Foods.get(0).getName());
-//        assertEquals("Food2", top3Foods.get(1).getName());
-//        assertEquals("Food3", top3Foods.get(2).getName());
-//    }
+    @Test
+    void getBest3FoodTest() {
+        // given
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(1,1,1,1));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2));
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3));
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4));
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5));
+        user.setId(1L);
+
+        List<Food> foodList = List.of(food1, food2, food3, food4, food5);
+
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(userRepository.existsById(user.getId())).willReturn(true);
+
+        // when
+        ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId());
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+
+        // then
+        assertEquals(3, top3Foods.size());
+        assertEquals("Food1", top3Foods.get(0).getName());
+        assertEquals("Food2", top3Foods.get(1).getName());
+        assertEquals("Food3", top3Foods.get(2).getName());
+    }
 //
 //    @Test
 //    void getWorst3FoodsTest() {
