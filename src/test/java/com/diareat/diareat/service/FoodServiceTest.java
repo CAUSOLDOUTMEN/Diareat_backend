@@ -176,26 +176,32 @@ class FoodServiceTest {
         verify(favoriteFoodRepository, times(1)).deleteById(favoriteFood.getId());
     }
 //
-//    @Test
-//    void testNutritionSumByDate(){
-//        //given
-//        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser", "testImage","testPassword",1, 180, 80, 18));
-//        Long foodId = foodService.saveFood(CreateFoodDto.of(userId,"testFood", testFoodNutrition));
-//        Food food = foodRepository.getReferenceById(foodId);
-//
-//        //when
-//        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByDate(userId,food.getDate());
-//        assertEquals(1400, responseNutritionSumByDateDto.getTotalKcal());
-//        assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
-//        assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
-//        assertEquals(250, responseNutritionSumByDateDto.getTotalFat());
-//
-//        assertEquals(Math.round((((double)1400 / (double)2000) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioKcal());
-//        assertEquals(Math.round((((double)150 / (double)300) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioCarbohydrate());
-//        assertEquals(Math.round((((double)200 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioProtein());
-//        assertEquals(Math.round((((double)250 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioFat());
-//    }
+    @Test
+    void testNutritionSumByDate(){
+        //given
+        BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
+        User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
+        user.setId(1L);
+        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        food.setId(2L);
+
+        given(userRepository.existsById(user.getId())).willReturn(true);
+        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
+
+
+        //when
+        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByDate(user.getId(),food.getDate());
+        assertEquals(1400, responseNutritionSumByDateDto.getTotalKcal());
+        assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
+        assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
+        assertEquals(250, responseNutritionSumByDateDto.getTotalFat());
+
+        assertEquals(Math.round((((double)1400 / (double)2000) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioKcal());
+        assertEquals(Math.round((((double)150 / (double)300) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioCarbohydrate());
+        assertEquals(Math.round((((double)200 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioProtein());
+        assertEquals(Math.round((((double)250 / (double)80) * 100.0)*100.0)/100.0, responseNutritionSumByDateDto.getRatioFat());
+    }
 //
 //    @Test
 //    void testNutritionSumByWeekAndMonth(){
