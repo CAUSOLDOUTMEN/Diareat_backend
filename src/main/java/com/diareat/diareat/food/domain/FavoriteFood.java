@@ -55,4 +55,8 @@ public class FavoriteFood {
         favoriteFood.addCount();
         return Food.createFood(favoriteFood.getName(), favoriteFood.getUser(), favoriteFood.getBaseNutrition());
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
