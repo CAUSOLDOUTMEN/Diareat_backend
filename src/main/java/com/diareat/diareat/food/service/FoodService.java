@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.rmi.registry.LocateRegistry;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -41,6 +40,7 @@ public class FoodService {
     // 회원이 특정 날짜에 먹은 음식 반환
     @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
+        validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
         return foodList.stream()
                 .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
@@ -57,6 +57,7 @@ public class FoodService {
     // 음식 삭제
     @Transactional
     public void deleteFood(Long foodId) {
+        validateFood(foodId);
         foodRepository.deleteById(foodId);
     }
 
@@ -73,6 +74,7 @@ public class FoodService {
     //즐겨찾기 음식 리스트 반환
     @Transactional(readOnly = true)
     public List<ResponseFavoriteFoodDto> getFavoriteFoodList(Long userId){
+        validateUser(userId);
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         return foodList.stream()
                 .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(), favoriteFood.getName(),
@@ -95,6 +97,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
+        validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
         return calculateNutritionSumAndRatio(userId, foodList, date, 1);
     }
@@ -102,6 +105,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByWeek(Long userId) {
+        validateUser(userId);
         LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
@@ -111,6 +115,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
+        validateUser(userId);
         LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
@@ -120,6 +125,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
     public ResponseFoodRankDto getBestFoodByWeek(Long userId) {
+        validateUser(userId);
         LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
@@ -140,6 +146,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
     public ResponseFoodRankDto getWorstFoodByWeek(Long userId) {
+        validateUser(userId);
         LocalDate endDate = LocalDate.now();
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
 
@@ -196,6 +203,16 @@ public class FoodService {
         double ratioFat =Math.round((((double) totalFat /(double) targetUser.getBaseNutrition().getFat())*100.0)*10.0)/10.0;
 
         return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+    }
+
+    private void validateUser(Long userId) {
+        if (!userRepository.existsById(userId))
+            throw new UserException(ResponseCode.USER_NOT_FOUND);
+    }
+
+    private void validateFood(Long foodId) {
+        if (!foodRepository.existsById(foodId))
+            throw new UserException(ResponseCode.FOOD_NOT_FOUND);
     }
 
 
