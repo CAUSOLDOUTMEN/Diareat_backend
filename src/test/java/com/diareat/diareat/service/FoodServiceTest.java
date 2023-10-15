@@ -59,7 +59,7 @@ class FoodServiceTest {
         Food food = Food.createFood("testFood", user, testBaseNutrition);
         food.setId(2L);
 
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(user));
+        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(foodRepository.save(any(Food.class))).willReturn(food);
         given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
 
@@ -81,8 +81,8 @@ class FoodServiceTest {
         Food food = Food.createFood("testFood", user, testBaseNutrition);
         food.setId(1L);
 
-        given(foodRepository.findById(any(Long.class))).willReturn(Optional.of(food));
-        given(foodRepository.getReferenceById(any(Long.class))).willReturn(food);
+        given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
+        given(foodRepository.getReferenceById(food.getId())).willReturn(food);
 
 
         //when
@@ -99,19 +99,20 @@ class FoodServiceTest {
         assertEquals(5,changedFood.getBaseNutrition().getFat());
     }
 //
-//    @Test
-//    void testDeleteFood() {
-//        //given
-//        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
-//        Long userId = userService.saveUser(CreateUserDto.of("testUser","testImage", "tessPassword", 1, 180, 80, 18));
-//        Long foodId = foodService.saveFood(CreateFoodDto.of(userId, "testFood", testBaseNutrition));
-//
-//        //when
-//        foodService.deleteFood(foodId);
-//
-//        assertNull(foodRepository.findById(foodId).orElse(null));
-//    }
-//
+    @Test
+    void testDeleteFood() {
+        //given
+        BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
+        User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        food.setId(1L);
+
+        //when
+        foodService.deleteFood(food.getId());
+
+        verify(foodRepository, times(1)).deleteById(food.getId());
+    }
+
 //    @Test
 //    void testSaveAndGetFavoriteFood() {
 //        //given
