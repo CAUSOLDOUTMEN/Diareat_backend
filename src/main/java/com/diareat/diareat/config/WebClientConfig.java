@@ -1,4 +1,4 @@
-package com.diareat.diareat.auth.config;
+package com.diareat.diareat.config;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

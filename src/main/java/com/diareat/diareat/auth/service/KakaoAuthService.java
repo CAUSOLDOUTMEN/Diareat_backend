@@ -1,4 +1,4 @@
-package com.diareat.diareat.auth;
+package com.diareat.diareat.auth.service;
 
 import com.diareat.diareat.auth.component.KakaoUserInfo;
 import com.diareat.diareat.auth.dto.KakaoUserInfoResponse;
