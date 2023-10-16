@@ -24,7 +24,8 @@ public enum ResponseCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, false, "허용되지 않은 메소드입니다."),
 
     // 409 Conflict
-    USER_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 존재하는 닉네임입니다."),
+    USER_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 가입한 사용자입니다."),
+    USER_NAME_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 존재하는 닉네임입니다."),
     FOLLOWED_ALREADY(HttpStatus.CONFLICT, false, "이미 팔로우한 사용자입니다."),
     UNFOLLOWED_ALREADY(HttpStatus.CONFLICT, false, "이미 언팔로우한 사용자입니다."),
     FOOD_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 즐겨찾기에 존재하는 음식입니다."),
@@ -38,6 +39,7 @@ public enum ResponseCode {
     USER_SEARCH_SUCCESS(HttpStatus.OK, true, "사용자 검색 성공"),
     USER_FOLLOW_SUCCESS(HttpStatus.OK, true, "사용자 팔로우 성공"),
     USER_UNFOLLOW_SUCCESS(HttpStatus.OK, true, "사용자 언팔로우 성공"),
+    USER_LOGIN_SUCCESS(HttpStatus.OK, true, "사용자 로그인 성공"),
 
     FOOD_READ_SUCCESS(HttpStatus.OK, true, "음식 정보 조회 성공"),
     FOOD_UPDATE_SUCCESS(HttpStatus.OK, true, "음식 정보 수정 성공"),
