@@ -48,6 +48,8 @@ public enum ResponseCode {
     FOOD_FAVORITE_UPDATE_SUCCESS(HttpStatus.OK, true, "즐겨찾기 음식 수정 성공"),
     FOOD_FAVORITE_DELETE_SUCCESS(HttpStatus.OK, true, "즐겨찾기 음식 삭제 성공"),
 
+    TOKEN_CHECK_SUCCESS(HttpStatus.OK, true, "토큰 검증 완료"),
+
 
     // 201 Created
     USER_CREATE_SUCCESS(HttpStatus.CREATED, true, "사용자 생성 성공"),

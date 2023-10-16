@@ -42,4 +42,11 @@ public class AuthController {
         map.put(userId, jwtTokenProvider.createToken(userId.toString()));
         return ApiResponse.success(map, ResponseCode.USER_CREATE_SUCCESS.getMessage());
     }
+
+    // 토큰 검증 (Jwt 토큰을 서버에 전송하여, 서버가 유효한 토큰인지 확인하고 True 혹은 예외 반환)
+    @Operation(summary = "[토큰 검증] 토큰 검증", description = "클라이언트가 가지고 있던 Jwt 토큰을 서버에 전송하여, 서버가 유효한 토큰인지 확인하고 OK 혹은 예외를 반환합니다.")
+    @GetMapping("/token")
+    public ApiResponse<Boolean> tokenCheck(@RequestHeader String jwtToken) {
+        return ApiResponse.success(jwtTokenProvider.validateToken(jwtToken), ResponseCode.TOKEN_CHECK_SUCCESS.getMessage());
+    }
 }
