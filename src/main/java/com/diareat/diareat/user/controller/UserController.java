@@ -19,13 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    // 회원정보 저장
-    @Operation(summary = "[회원가입] 회원정보 저장", description = "신규 회원정보를 저장합니다.")
-    @PostMapping("/save")
-    public ApiResponse<Long> saveUser(CreateUserDto createUserDto) {
-        return ApiResponse.success(userService.saveUser(createUserDto), ResponseCode.USER_CREATE_SUCCESS.getMessage());
-    }
-
     // 회원 기본정보 조회
     @Operation(summary = "[프로필] 회원 기본정보 조회", description = "회원 기본정보를 조회합니다.")
     @GetMapping("{userId}/info/simple")

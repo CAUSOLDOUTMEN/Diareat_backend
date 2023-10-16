@@ -29,6 +29,8 @@ public class UserService {
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
         // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
         if (userRepository.existsByName(createUserDto.getName()))
+            throw new UserException(ResponseCode.USER_NAME_ALREADY_EXIST);
+        if(userRepository.existsByKeyCode(createUserDto.getKeyCode()))
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
         User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();
