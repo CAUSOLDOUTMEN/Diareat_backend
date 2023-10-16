@@ -1,6 +1,6 @@
 package com.diareat.diareat.controller;
 
-import com.diareat.diareat.auth.KakaoAuthService;
+import com.diareat.diareat.auth.service.KakaoAuthService;
 import com.diareat.diareat.user.controller.UserController;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
@@ -26,7 +26,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(controllers = UserController.class)
@@ -55,29 +54,6 @@ class UserControllerTest {
         when(userService.getSimpleUserInfo(testUserId)).thenReturn(ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage(), 100.0));
         when(userService.getUserInfo(testUserId)).thenReturn(ResponseUserDto.from(testUser));
     }
-
-    @DisplayName("회원정보 저장")
-    @Test
-    @WithMockUser("test")
-    void testSaveUser() throws Exception {
-        // Given
-        ApiResponse<Long> expectedResponse = ApiResponse.success(testUserId, ResponseCode.USER_CREATE_SUCCESS.getMessage());
-        String json = "{\"name\":\"test\",\"image\":\"test\",\"keyCode\":\"test\",\"gender\":0,\"height\":180,\"weight\":70,\"age\":20}";
-        when(userService.saveUser(any(CreateUserDto.class))).thenReturn(testUserId);
-
-        // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .post("/api/user/save")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(expectedResponse.getData()));
-    }
-
 
     @DisplayName("회원 기본정보 조회")
     @Test
