@@ -2,7 +2,7 @@ package com.diareat.diareat.auth.controller;
 
 import com.diareat.diareat.auth.component.JwtTokenProvider;
 import com.diareat.diareat.auth.service.KakaoAuthService;
-import com.diareat.diareat.user.dto.CreateUserDto;
+import com.diareat.diareat.user.dto.JoinUserDto;
 import com.diareat.diareat.user.service.UserService;
 import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
@@ -36,8 +36,8 @@ public class AuthController {
     // 회원가입 (성공 시 Jwt 토큰 발급)
     @Operation(summary = "[회원가입] 회원가입 및 토큰 발급", description = "신규 회원가입을 처리하고, 회원가입 성공 시 Jwt 토큰을 발급합니다.")
     @PostMapping("/join")
-    public ApiResponse<HashMap<Long, String>> saveUser(CreateUserDto createUserDto) {
-        Long userId = userService.saveUser(createUserDto);
+    public ApiResponse<HashMap<Long, String>> saveUser(JoinUserDto joinUserDto) {
+        Long userId = userService.saveUser(kakaoAuthService.createUserDto(joinUserDto));
         HashMap<Long, String> map = new HashMap<>();
         map.put(userId, jwtTokenProvider.createToken(userId.toString()));
         return ApiResponse.success(map, ResponseCode.USER_CREATE_SUCCESS.getMessage());
