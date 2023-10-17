@@ -122,9 +122,9 @@ class UserControllerTest {
     @WithMockUser("test")
     void getUserNutrition() throws Exception {
         // Given
-        when(userService.getUserNutrition(testUserId)).thenReturn(ResponseUserNutritionDto.of(2000, 300, 300, 80));
+        when(userService.getUserNutrition(testUserId)).thenReturn(ResponseUserNutritionDto.of(2000, 300, 300, 80, 1000, 200, 200, 60));
         ApiResponse<ResponseUserNutritionDto> expectedResponse = ApiResponse.success(
-               ResponseUserNutritionDto.of(2000, 300, 300, 80), ResponseCode.USER_READ_SUCCESS.getMessage());
+               ResponseUserNutritionDto.of(2000, 300, 300, 80, 1000, 200, 200, 60), ResponseCode.USER_READ_SUCCESS.getMessage());
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders
@@ -136,7 +136,11 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorie").value(expectedResponse.getData().getCalorie()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.protein").value(expectedResponse.getData().getProtein()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.fat").value(expectedResponse.getData().getFat()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(expectedResponse.getData().getCarbohydrate()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(expectedResponse.getData().getCarbohydrate()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultCalorie").value(expectedResponse.getData().getDefaultCalorie()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultProtein").value(expectedResponse.getData().getDefaultProtein()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultFat").value(expectedResponse.getData().getDefaultFat()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultCarbohydrate").value(expectedResponse.getData().getDefaultCarbohydrate()));
     }
 
     @DisplayName("회원 기준섭취량 직접 수정")

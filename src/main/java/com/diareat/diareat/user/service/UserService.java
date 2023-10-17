@@ -6,6 +6,7 @@ import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.*;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
+import com.diareat.diareat.util.UserTypeUtil;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,14 @@ public class UserService {
     // 회원정보 저장
     @Transactional
     public Long saveUser(CreateUserDto createUserDto) {
-        BaseNutrition baseNutrition = BaseNutrition.createNutrition(2000, 300, 80, 80);
-        // BaseNutrition baseNutrition = BaseNutrition.createNutrition(createUserDto.getGender(), createUserDto.getAge(), createUserDto.getHeight(), createUserDto.getWeight());
         if (userRepository.existsByName(createUserDto.getName()))
             throw new UserException(ResponseCode.USER_NAME_ALREADY_EXIST);
         if(userRepository.existsByKeyCode(createUserDto.getKeyCode()))
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
+
+        int type = UserTypeUtil.decideUserType(createUserDto.getGender(), createUserDto.getAge());
+        List<Integer> standard = UserTypeUtil.getStanardByUserType(type); // 유저 타입에 따른 기본 기준섭취량 조회
+        BaseNutrition baseNutrition = BaseNutrition.createNutrition(standard.get(0), standard.get(2), createUserDto.getWeight(), standard.get(1)); // 단백질은 자신 체중 기준으로 계산
         User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
         return userRepository.save(user).getId();
     }
@@ -40,7 +43,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
-        double nutritionScore = 100; // 로직 확정 전에는 임시 값으로 대체
+        double nutritionScore = 100; // 점수 계산 로직 확정 전 기본값 -> 추후 수정 필요
         return ResponseSimpleUserDto.of(user.getName(), user.getImage(), nutritionScore);
     }
 
@@ -55,14 +58,16 @@ public class UserService {
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
-        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge());
+        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), updateUserDto.isAutoUpdateNutrition());
+        userRepository.save(user);
     }
 
     // 회원 기준섭취량 조회
     @Transactional(readOnly = true)
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
-        return ResponseUserNutritionDto.from(user);
+        List<Integer> standard = UserTypeUtil.getStanardByUserType(user.getType()); // 유저 타입에 따른 기본 기준섭취량 조회
+        return ResponseUserNutritionDto.from(user, standard.get(0), standard.get(2), user.getWeight(), standard.get(1)); // 단백질은 자신 체중 기준으로 계산
     }
 
     // 회원 기준섭취량 직접 수정

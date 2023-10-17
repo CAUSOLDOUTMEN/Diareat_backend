@@ -2,6 +2,7 @@ package com.diareat.diareat.user.domain;
 
 import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.food.domain.Food;
+import com.diareat.diareat.util.UserTypeUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +39,8 @@ public class User implements UserDetails {
     private int gender; // 성별 (0: 남자, 1: 여자)
 
     private int age; // 나이
+
+    private int type; // 성별과 연령에 따른 유저 타입 (1~12)
 
     private BaseNutrition baseNutrition; // 기준영양소
 
@@ -102,15 +105,19 @@ public class User implements UserDetails {
         user.gender = gender;
         user.age = age;
         user.baseNutrition = baseNutrition;
+        user.type = UserTypeUtil.decideUserType(gender, age);
         return user;
     }
 
     // 회원정보 수정
-    public void updateUser(String name, int height, int weight, int age) {
+    public void updateUser(String name, int height, int weight, int age, boolean autoUpdate) {
         this.name = name;
         this.height = height;
         this.weight = weight;
         this.age = age;
+        if(autoUpdate) {
+            this.type = UserTypeUtil.decideUserType(this.gender, this.age);
+        }
     }
 
     // 회원 기준영양소 직접 수정
