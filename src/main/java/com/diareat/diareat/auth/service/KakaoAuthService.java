@@ -3,6 +3,8 @@ package com.diareat.diareat.auth.service;
 import com.diareat.diareat.auth.component.KakaoUserInfo;
 import com.diareat.diareat.auth.dto.KakaoUserInfoResponse;
 import com.diareat.diareat.user.domain.User;
+import com.diareat.diareat.user.dto.CreateUserDto;
+import com.diareat.diareat.user.dto.JoinUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.UserException;
@@ -12,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class KakaoAuthService { // 카카오 소셜로그인, 세션 관리는 추후 구현 예정
+public class KakaoAuthService {
 
     private final KakaoUserInfo kakaoUserInfo;
     private final UserRepository userRepository;
@@ -22,5 +24,12 @@ public class KakaoAuthService { // 카카오 소셜로그인, 세션 관리는 �
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
         User user = userRepository.findByKeyCode(userInfo.getId().toString()).orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
         return user.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public CreateUserDto createUserDto(JoinUserDto joinUserDto) { // 카카오로부터 프사 URL, 유저 고유ID를 얻어온 후, 이를 유저가 입력한 정보와 함께 CreateUserDto로 반환
+        KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(joinUserDto.getToken());
+        return CreateUserDto.of(joinUserDto.getNickName(), userInfo.getKakaoAccount().getProfile().getProfileImageUrl(),
+                userInfo.getId().toString(), joinUserDto.getGender(), joinUserDto.getHeight(), joinUserDto.getWeight(), joinUserDto.getAge());
     }
 }
