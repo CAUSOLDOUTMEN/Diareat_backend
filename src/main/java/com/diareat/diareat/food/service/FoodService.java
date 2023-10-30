@@ -189,9 +189,10 @@ public class FoodService {
         }
 
         // 팔로우한 유저들의 점수를 계산하여 rankUserDtos에 추가
-        rankUserDtos.forEach(rankUserDto ->
-                users.forEach(user ->
-                        rankUserDtos.add(calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()))));
+        for (User user : users) {
+            ResponseRankUserDto userDto = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+            rankUserDtos.add(userDto);
+        }
 
         // 식습관 총점 기준 내림차순 정렬
         rankUserDtos.sort(Comparator.comparing(ResponseRankUserDto::getTotalScore).reversed());
@@ -297,12 +298,12 @@ public class FoodService {
     private double calculateNutriRatioAndScore(double total, double standard, int type) {
         double ratio = Math.round(((total / standard) * 100.0) * 10.0) / 10.0;
         if (type == 0) { // 단백질
-            if (ratio <= 100.0) return ratio;
+            if (ratio < 100.0) return ratio;
             else if (ratio <= 150) return 100;
             else return (-2 * ratio + 400 < 0) ? 0 : (-2 * ratio + 400);
         } else { // 칼탄지
             double gradient = 1.11; // (9분의 10)
-            if (ratio <= 90.0) return ratio * gradient;
+            if (ratio < 90.0) return ratio * gradient;
             else if (ratio <= 110) return 100;
             else return (-gradient * (ratio - 200) < 0) ? 0 : (-gradient * (ratio - 200));
         }
