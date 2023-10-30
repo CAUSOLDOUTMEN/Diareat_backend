@@ -8,6 +8,8 @@ import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
+import com.diareat.diareat.user.dto.ResponseRankUserDto;
+import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,6 +45,9 @@ class FoodServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    FollowRepository followRepository;
 
     @DisplayName("음식 정보 저장")
     @Test
@@ -308,5 +314,45 @@ class FoodServiceTest {
         assertEquals("Food2", top3Foods.get(0).getName());
         assertEquals("Food4", top3Foods.get(1).getName());
         assertEquals("Food5", top3Foods.get(2).getName());
+    }
+
+    @Test
+    void getUserRankByWeek() {
+        // given
+        User user1 = User.createUser("testUser1", "testImage","testPassword", 180, 80, 0, 18, BaseNutrition.createNutrition(1000,100,100,100));
+        User user2 = User.createUser("testUser2", "testImage","testPassword", 180, 80, 0, 18, BaseNutrition.createNutrition(1000,100,100,100));
+        user1.setId(1L);
+        user2.setId(2L);
+
+        Food food1 = Food.createFood( "Food1", user1, BaseNutrition.createNutrition(1000, 100 ,100, 100));
+        Food food2 = Food.createFood( "Food2", user2, BaseNutrition.createNutrition(2000, 110 ,50, 90));
+
+        given(userRepository.findById(user1.getId())).willReturn(Optional.of(user1));
+        given(followRepository.findAllByFromUser(user1.getId())).willReturn(List.of(user2));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food1));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food2));
+
+        // when
+        List<ResponseRankUserDto> response = foodService.getUserRankByWeek(user1.getId());
+
+        // then
+        assertEquals(2, response.size());
+        assertEquals("testUser1", response.get(0).getName());
+        assertEquals("testUser2", response.get(1).getName());
+        assertEquals(100, response.get(0).getCalorieScore());
+        assertEquals(100, response.get(0).getCarbohydrateScore());
+        assertEquals(100, response.get(0).getProteinScore());
+        assertEquals(100, response.get(0).getFatScore());
+        assertEquals(400, response.get(0).getTotalScore());
+
+        assertEquals(0, response.get(1).getCalorieScore());
+        assertEquals(100, response.get(1).getCarbohydrateScore());
+        assertEquals(50, response.get(1).getProteinScore());
+        assertEquals(100, response.get(1).getFatScore());
+        assertEquals(250, response.get(1).getTotalScore());
+        verify(userRepository, times(1)).findById(user1.getId());
+        verify(followRepository, times(1)).findAllByFromUser(user1.getId());
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class));
     }
 }
