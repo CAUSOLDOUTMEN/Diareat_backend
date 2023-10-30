@@ -7,6 +7,8 @@ import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
+import com.diareat.diareat.user.dto.ResponseRankUserDto;
+import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.FavoriteException;
@@ -16,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class FoodService {
 
     private final FoodRepository foodRepository; // 유저:음식은 1:다
     private final FavoriteFoodRepository favoriteFoodRepository; // 유저:즐찾음식은 1:다
-
+    private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
     // 촬영 후, 음식 정보 저장
@@ -65,9 +67,9 @@ public class FoodService {
     // 즐겨찾기에 음식 저장
     @Transactional
     public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
-
         User user = getUserById(createFavoriteFoodDto.getUserId());
-
+        if (favoriteFoodRepository.existsByFoodId(createFavoriteFoodDto.getFoodId()))
+            throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, createFavoriteFoodDto.getBaseNutrition());
         return favoriteFoodRepository.save(favoriteFood).getId();
     }
@@ -169,22 +171,75 @@ public class FoodService {
         return ResponseFoodRankDto.of(userId, worst3FoodDtoList, endDate, false);
     }
 
-    private User getUserById(Long userId){
+    // 잔여 기능 구현 부분
+
+    // 유저의 구체적인 점수 현황과 Best3, Worst3 조회
+
+    // 유저의 일기 분석 그래프 데이터 및 식습관 totalScore 조회
+
+
+    @Transactional(readOnly = true)
+    // 유저의 식습관 점수를 기반으로 한 주간 랭킹 조회
+    public List<ResponseRankUserDto> getUserRankByWeek(Long userId) {
+        List<ResponseRankUserDto> rankUserDtos = new ArrayList<>();
+        List<User> users = followRepository.findAllByFromUser(userId); // 유저의 팔로우 유저 명단
+        rankUserDtos.add(calculateUserScoreThisWeek(getUserById(userId), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()));
+        if (users.isEmpty()) { // 팔로우한 유저가 없는 경우 본인의 점수 및 정보만 반환함
+            return rankUserDtos;
+        }
+
+        // 팔로우한 유저들의 점수를 계산하여 rankUserDtos에 추가
+        rankUserDtos.forEach(rankUserDto ->
+                users.forEach(user ->
+                        rankUserDtos.add(calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()))));
+
+        // 식습관 총점 기준 내림차순 정렬
+        rankUserDtos.sort(Comparator.comparing(ResponseRankUserDto::getTotalScore).reversed());
+        return rankUserDtos;
+    }
+
+
+    private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
     }
 
-    private Food getFoodById(Long foodId){
+    private Food getFoodById(Long foodId) {
         return foodRepository.findById(foodId)
                 .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
     }
 
-    private FavoriteFood getFavoriteFoodById(Long foodId){
+    private FavoriteFood getFavoriteFoodById(Long foodId) {
         return favoriteFoodRepository.findById(foodId)
                 .orElseThrow(() -> new FoodException(ResponseCode.FOOD_NOT_FOUND));
     }
 
-    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType){
+    private ResponseRankUserDto calculateUserScoreThisWeek(User targetUser, LocalDate startDate, LocalDate endDate) {
+        Map<LocalDate, List<BaseNutrition>> maps = getNutritionSumByDateMap(targetUser.getId(), startDate, endDate);
+        double kcalScore = 0.0;
+        double carbohydrateScore = 0.0;
+        double proteinScore = 0.0;
+        double fatScore = 0.0;
+        double totalScore;
+
+        for (LocalDate date : maps.keySet()) {
+            // 해당 날짜에 먹은 음식들의 영양성분 총합 계산
+            int totalKcal = maps.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
+            int totalCarbohydrate = maps.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+            int totalProtein = maps.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
+            int totalFat = maps.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
+
+            // 기준섭취량 대비 섭취 비율에 매핑되는 식습관 점수 계산
+            proteinScore += calculateNutriRatioAndScore(totalProtein, targetUser.getBaseNutrition().getProtein(), 0);
+            fatScore += calculateNutriRatioAndScore(totalFat, targetUser.getBaseNutrition().getFat(), 1);
+            carbohydrateScore += calculateNutriRatioAndScore(totalCarbohydrate, targetUser.getBaseNutrition().getCarbohydrate(), 1);
+            kcalScore += calculateNutriRatioAndScore(totalKcal, targetUser.getBaseNutrition().getKcal(), 1);
+        }
+        totalScore = (kcalScore + carbohydrateScore + proteinScore + fatScore);
+        return ResponseRankUserDto.of(targetUser.getId(), targetUser.getName(), targetUser.getImage(), kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore);
+    }
+
+    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType) {
         User targetUser = getUserById(userId);
         int totalKcal = 0;
         int totalCarbohydrate = 0;
@@ -199,12 +254,12 @@ public class FoodService {
             totalFat += targetFoodNutrition.getFat();
         }
 
-        double ratioKcal = Math.round((((double) totalKcal /(double) targetUser.getBaseNutrition().getKcal())*100.0)*10.0)/10.0;
-        double ratioCarbohydrate = Math.round((((double) totalCarbohydrate /(double) targetUser.getBaseNutrition().getCarbohydrate())*100.0)*10.0)/10.0;
-        double ratioProtein = Math.round((((double) totalProtein /(double) targetUser.getBaseNutrition().getProtein())*100.0)*10.0)/10.0;
-        double ratioFat =Math.round((((double) totalFat /(double) targetUser.getBaseNutrition().getFat())*100.0)*10.0)/10.0;
+        double ratioKcal = Math.round((((double) totalKcal / (double) targetUser.getBaseNutrition().getKcal()) * 100.0) * 10.0) / 10.0;
+        double ratioCarbohydrate = Math.round((((double) totalCarbohydrate / (double) targetUser.getBaseNutrition().getCarbohydrate()) * 100.0) * 10.0) / 10.0;
+        double ratioProtein = Math.round((((double) totalProtein / (double) targetUser.getBaseNutrition().getProtein()) * 100.0) * 10.0) / 10.0;
+        double ratioFat = Math.round((((double) totalFat / (double) targetUser.getBaseNutrition().getFat()) * 100.0) * 10.0) / 10.0;
 
-        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal, totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
     }
 
     private void validateUser(Long userId) {
@@ -222,6 +277,36 @@ public class FoodService {
             throw new FavoriteException(ResponseCode.FAVORITE_NOT_FOUND);
     }
 
+    // 1주일동안 먹은 음식들의 영양성분 총합을 요일을 Key로 한 Map을 통해 반환
+    private HashMap<LocalDate, List<BaseNutrition>> getNutritionSumByDateMap(Long userId, LocalDate startDate, LocalDate endDate) {
+        HashMap<LocalDate, List<BaseNutrition>> maps = new HashMap<>();
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate);
+        for (Food food : foodList) {
+            if (maps.containsKey(food.getDate())) {
+                maps.get(food.getDate()).add(food.getBaseNutrition());
+            } else {
+                List<BaseNutrition> baseNutritions = new ArrayList<>();
+                baseNutritions.add(food.getBaseNutrition());
+                maps.put(food.getDate(), baseNutritions);
+            }
+        }
+        return maps;
+    }
+
+    // 영양성분 총합 대비 기준섭취량 비율을 계산하여 성분별 식습관 점수를 반환
+    private double calculateNutriRatioAndScore(double total, double standard, int type) {
+        double ratio = Math.round(((total / standard) * 100.0) * 10.0) / 10.0;
+        if (type == 0) { // 단백질
+            if (ratio <= 100.0) return ratio;
+            else if (ratio <= 150) return 100;
+            else return (-2 * ratio + 400 < 0) ? 0 : (-2 * ratio + 400);
+        } else { // 칼탄지
+            double gradient = 1.11; // (9분의 10)
+            if (ratio <= 90.0) return ratio * gradient;
+            else if (ratio <= 110) return 100;
+            else return (-gradient * (ratio - 200) < 0) ? 0 : (-gradient * (ratio - 200));
+        }
+    }
 
     /**
      * 메서드 구현 유의사항
