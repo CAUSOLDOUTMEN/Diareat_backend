@@ -49,6 +49,9 @@ dependencies {
 	// Jwt dependency
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'      // Spring Boot MyBatis
 	implementation "io.jsonwebtoken:jjwt:0.9.1"
+
+	// Redis dependency
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
