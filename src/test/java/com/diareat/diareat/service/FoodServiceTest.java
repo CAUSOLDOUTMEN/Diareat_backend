@@ -57,7 +57,7 @@ class FoodServiceTest {
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
         user.setId(1L);
 
-        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition);
+        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, LocalDate.now());
         Food food = Food.createFood("testFood", user, testBaseNutrition);
         food.setId(2L);
 
