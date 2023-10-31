@@ -14,6 +14,7 @@ public enum ResponseCode {
 
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, false, "권한이 없습니다."),
+    NOT_FOOD_OWNER(HttpStatus.FORBIDDEN, false, "음식의 주인 유저가 아닙니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, false, "사용자를 찾을 수 없습니다."),

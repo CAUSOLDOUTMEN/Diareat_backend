@@ -66,7 +66,7 @@ public class FoodService {
     @CacheEvict(value = "ResponseFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteFood(Long foodId, Long userId) {
-        validateFood(foodId);
+        validateFood(foodId, userId);
         foodRepository.deleteById(foodId);
     }
 
@@ -105,7 +105,7 @@ public class FoodService {
     @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteFavoriteFood(Long favoriteFoodId, Long userId) {
-        validateFavoriteFood(favoriteFoodId);
+        validateFavoriteFood(favoriteFoodId, userId);
         favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
@@ -281,14 +281,18 @@ public class FoodService {
             throw new UserException(ResponseCode.USER_NOT_FOUND);
     }
 
-    private void validateFood(Long foodId) {
-        if (!foodRepository.existsById(foodId))
+    private void validateFood(Long foodId, Long userId) {
+        if(!foodRepository.existsById(foodId))
             throw new FoodException(ResponseCode.FOOD_NOT_FOUND);
+        if (!foodRepository.existsByIdAndUserId(foodId, userId)) // 음식의 주인이 유저인지 아닌지 판정
+            throw new FoodException(ResponseCode.NOT_FOOD_OWNER);
     }
 
-    private void validateFavoriteFood(Long favoriteFoodId) {
-        if (!favoriteFoodRepository.existsById(favoriteFoodId))
+    private void validateFavoriteFood(Long favoriteFoodId, Long userId) {
+        if(!favoriteFoodRepository.existsById(favoriteFoodId))
             throw new FavoriteException(ResponseCode.FAVORITE_NOT_FOUND);
+        if(!favoriteFoodRepository.existsByIdAndUserId(favoriteFoodId, userId)) // 즐겨찾는 음식의 주인이 유저인지 아닌지 판정
+            throw new FavoriteException(ResponseCode.NOT_FOOD_OWNER);
     }
 
     // 1주일동안 먹은 음식들의 영양성분 총합을 요일을 Key로 한 Map을 통해 반환
