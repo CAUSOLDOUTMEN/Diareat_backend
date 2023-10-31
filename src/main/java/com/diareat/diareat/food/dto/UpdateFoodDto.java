@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 public class UpdateFoodDto {
 
     private Long foodId;
+    private Long userId;
     private String name;
     private BaseNutrition baseNutrition;
 
-    public static UpdateFoodDto of(Long foodId, String name, BaseNutrition baseNutrition) {
-        return new UpdateFoodDto(foodId, name, baseNutrition);
+    public static UpdateFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition) {
+        return new UpdateFoodDto(foodId, userId, name, baseNutrition);
     }
 }

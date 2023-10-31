@@ -89,7 +89,7 @@ class FoodServiceTest {
 
         //when
         BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
-        foodService.updateFood(UpdateFoodDto.of(food.getId(), "testChangedFood", testChangedBaseNutrition));
+        foodService.updateFood(UpdateFoodDto.of(food.getId(), 1L,"testChangedFood", testChangedBaseNutrition));
 
 
         assertEquals("testChangedFood", food.getName());
@@ -110,7 +110,7 @@ class FoodServiceTest {
         given(foodRepository.existsById(food.getId())).willReturn(true);
 
         //when
-        foodService.deleteFood(food.getId());
+        foodService.deleteFood(food.getId(), user.getId());
 
         verify(foodRepository, times(1)).deleteById(food.getId());
     }
@@ -152,7 +152,7 @@ class FoodServiceTest {
 
         //when
         BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
-        foodService.updateFavoriteFood(UpdateFavoriteFoodDto.of(favoriteFood.getId(), "testChangedFood", testChangedBaseNutrition));
+        foodService.updateFavoriteFood(UpdateFavoriteFoodDto.of(favoriteFood.getId(), 1L,"testChangedFood", testChangedBaseNutrition));
 
         assertEquals("testChangedFood", favoriteFood.getName());
         assertEquals(2,favoriteFood.getBaseNutrition().getKcal());
@@ -172,7 +172,7 @@ class FoodServiceTest {
         given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
 
         //when
-        foodService.deleteFavoriteFood(favoriteFood.getId());
+        foodService.deleteFavoriteFood(favoriteFood.getId(), user.getId());
 
         verify(favoriteFoodRepository, times(1)).deleteById(favoriteFood.getId());
     }
