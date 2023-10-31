@@ -10,6 +10,8 @@ import com.diareat.diareat.util.UserTypeUtil;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ public class UserService {
     }
 
     // 회원 기본정보 조회
+    @Cacheable(value = "ResponseSimpleUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
@@ -48,6 +51,7 @@ public class UserService {
     }
 
     // 회원정보 조회
+    @Cacheable(value = "ResponseUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseUserDto getUserInfo(Long userId) {
         User user = getUserById(userId);
@@ -55,6 +59,7 @@ public class UserService {
     }
 
     // 회원정보 수정
+    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
@@ -63,6 +68,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 조회
+    @Cacheable(value = "ResponseUserNutritionDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
@@ -71,6 +77,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 직접 수정
+    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());
@@ -80,13 +87,14 @@ public class UserService {
     }
 
     // 회원 탈퇴
+    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto", "ResponseUserNutritionDto"}, key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteUser(Long userId) {
         validateUser(userId);
         userRepository.deleteById(userId);
     }
 
-    // 회원의 친구 검색 결과 조회
+    // 회원의 친구 검색 결과 조회 -> 검색 및 팔로우는 굉장히 돌발적으로 이루어질 가능성이 높아 캐시 적용 X
     @Transactional(readOnly = true)
     public List<ResponseSearchUserDto> searchUser(Long hostId, String name) {
         validateUser(hostId);
@@ -116,15 +124,6 @@ public class UserService {
         if (!followRepository.existsByFromUserAndToUser(userId, unfollowId))
             throw new UserException(ResponseCode.UNFOLLOWED_ALREADY);
         followRepository.delete(Follow.makeFollow(userId, unfollowId));
-    }
-
-    // 회원의 팔로우 목록 조회 (현재 외부 Dto 변환은 Food에서 위임받아 진행할지 협의하지 않았기에 일단 User 리스트로 반환)
-    @Transactional(readOnly = true)
-    public List<User> getFollowList(Long userId) {
-        validateUser(userId);
-        List<User> users = followRepository.findAllByFromUser(userId);
-        users.add(getUserById(userId)); // 자기 자신도 랭킹에 포함
-        return users;
     }
 
     private void validateUser(Long userId) {
