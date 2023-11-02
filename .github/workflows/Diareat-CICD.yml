@@ -69,7 +69,7 @@ jobs:
         - name: Checkout kustomize repository
           uses: actions/checkout@v3
           with:
-            repository: CAUSOLDOUTMAN/Diareat_backend
+            repository: CAUSOLDOUTMEN/Diareat_backend
             ref: master
             token: ${{ secrets.ACCESS_TOKEN }}
             path: Diareat_backend
