@@ -1,10 +1,11 @@
 package com.diareat.diareat.user.dto.request;
 
+import com.diareat.diareat.util.MessageUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -12,10 +13,10 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class SearchUserDto {
 
-    @NotNull(message = "userId는 null이 될 수 없습니다.")
+    @NotNull(message = MessageUtil.NOT_NULL)
     private Long userId;
 
-    @NotEmpty(message = "검색 문자열은 비어있을 수 없습니다.")
+    @NotBlank(message = MessageUtil.NOT_BLANK)
     private String inputName;
 
     public static SearchUserDto of(Long userId, String inputName) {
