@@ -49,7 +49,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`diareat.${DDNS}`)
+    - match: Host(`diareat.thisiswandol.com`)
       kind: Rule
       services:
         - name: diareat-svc
