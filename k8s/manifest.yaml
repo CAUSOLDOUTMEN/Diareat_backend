@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: diareat-deployment
+  namespace: diareat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: diareat
+  template:
+    metadata:
+      labels:
+        app: diareat
+    spec:
+      containers:
+      - name: diareat
+        image: synoti21/diareat-backend:latest
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: diareat-secret
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: 1
+        ports:
+        - containerPort: 8719
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: diareat-svc
+  namespace: diareat
+spec:
+  selector:
+    app: diareat
+  ports:
+    - protocol: TCP
+      port: 2938
+      targetPort: 8719
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: diareat-route
+  namespace: diareat
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`diareat.${DDNS}`)
+      kind: Rule
+      services:
+        - name: diareat-svc
+          port: 2938
+  tls:
+    certResolver: myresolver
