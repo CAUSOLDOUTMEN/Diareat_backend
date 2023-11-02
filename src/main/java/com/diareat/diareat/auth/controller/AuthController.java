@@ -2,7 +2,7 @@ package com.diareat.diareat.auth.controller;
 
 import com.diareat.diareat.auth.component.JwtTokenProvider;
 import com.diareat.diareat.auth.service.KakaoAuthService;
-import com.diareat.diareat.user.dto.JoinUserDto;
+import com.diareat.diareat.user.dto.request.JoinUserDto;
 import com.diareat.diareat.user.service.UserService;
 import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 
 @Api(tags = "2. Auth")
@@ -36,7 +37,7 @@ public class AuthController {
     // 회원가입 (성공 시 Jwt 토큰 발급)
     @Operation(summary = "[회원가입] 회원가입 및 토큰 발급", description = "신규 회원가입을 처리하고, 회원가입 성공 시 Jwt 토큰을 발급합니다.")
     @PostMapping("/join")
-    public ApiResponse<HashMap<Long, String>> saveUser(JoinUserDto joinUserDto) {
+    public ApiResponse<HashMap<Long, String>> saveUser(@Valid @RequestBody JoinUserDto joinUserDto) {
         Long userId = userService.saveUser(kakaoAuthService.createUserDto(joinUserDto));
         HashMap<Long, String> map = new HashMap<>();
         map.put(userId, jwtTokenProvider.createToken(userId.toString()));
