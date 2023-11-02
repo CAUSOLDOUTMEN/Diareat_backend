@@ -49,8 +49,8 @@ public class FoodController {
     //음식 삭제
     @Operation(summary = "[음식] 음식 정보 삭제",description = "음식에 대한 정보를 삭제합니다.")
     @DeleteMapping("/{foodId}/delete")
-    public ApiResponse<Void> deleteFood(@PathVariable Long foodId){
-        foodService.deleteFood(foodId);
+    public ApiResponse<Void> deleteFood(@PathVariable Long foodId, @RequestHeader Long userId){
+        foodService.deleteFood(foodId, userId);
         return ApiResponse.success(null, ResponseCode.FOOD_DELETE_SUCCESS.getMessage());
     }
 
@@ -79,8 +79,8 @@ public class FoodController {
     //즐겨찾기 음식 해제
     @Operation(summary = "[즐겨찾기] 즐겨찾기 해제",description = "유저의 즐겨찾기에 등록된 음식을 해제합니다.")
     @DeleteMapping("/favorite/{favoriteFoodId}")
-    public ApiResponse<Void> deleteFavoriteFood(@PathVariable Long favoriteFoodId){
-        foodService.deleteFavoriteFood(favoriteFoodId);
+    public ApiResponse<Void> deleteFavoriteFood(@PathVariable Long favoriteFoodId, @RequestHeader Long userId){
+        foodService.deleteFavoriteFood(favoriteFoodId, userId);
         return ApiResponse.success(null, ResponseCode.FOOD_FAVORITE_DELETE_SUCCESS.getMessage());
     }
 

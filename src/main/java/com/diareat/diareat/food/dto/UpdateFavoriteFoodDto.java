@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 public class UpdateFavoriteFoodDto {
 
     private Long favoriteFoodId;
+    private Long userId;
     private String name;
     private BaseNutrition baseNutrition;
 
-    public static UpdateFavoriteFoodDto of(Long favoriteFoodId, String name, BaseNutrition baseNutrition) {
-        return new UpdateFavoriteFoodDto(favoriteFoodId, name, baseNutrition);
+    public static UpdateFavoriteFoodDto of(Long favoriteFoodId, Long userId, String name, BaseNutrition baseNutrition) {
+        return new UpdateFavoriteFoodDto(favoriteFoodId, userId, name, baseNutrition);
     }
 }
