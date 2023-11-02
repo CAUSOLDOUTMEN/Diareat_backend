@@ -7,7 +7,7 @@ import com.diareat.diareat.food.repository.FavoriteFoodRepository;
 import com.diareat.diareat.food.repository.FoodRepository;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
-import com.diareat.diareat.user.dto.ResponseRankUserDto;
+import com.diareat.diareat.user.dto.response.ResponseRankUserDto;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import com.diareat.diareat.util.api.ResponseCode;

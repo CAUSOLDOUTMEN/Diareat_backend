@@ -23,7 +23,7 @@ public class ApiResponse<T> {
         return new ApiResponse<T>(new ApiHeader(SUCCESS, "SUCCESS"), data, message);
     }
 
-    public static <T> ApiResponse<T> fail(ResponseCode responseCode) {
-        return new ApiResponse<T>(new ApiHeader(responseCode.getHttpStatusCode(), responseCode.getMessage()), null, responseCode.getMessage());
+    public static <T> ApiResponse<T> fail(ResponseCode responseCode, T data) {
+        return new ApiResponse<T>(new ApiHeader(responseCode.getHttpStatusCode(), responseCode.getMessage()), data, responseCode.getMessage());
     }
 }

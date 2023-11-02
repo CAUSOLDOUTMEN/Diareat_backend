@@ -4,8 +4,15 @@ import com.diareat.diareat.auth.service.KakaoAuthService;
 import com.diareat.diareat.user.controller.UserController;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
-import com.diareat.diareat.user.dto.*;
+import com.diareat.diareat.user.dto.request.SearchUserDto;
+import com.diareat.diareat.user.dto.request.UpdateUserDto;
+import com.diareat.diareat.user.dto.request.UpdateUserNutritionDto;
+import com.diareat.diareat.user.dto.response.ResponseSearchUserDto;
+import com.diareat.diareat.user.dto.response.ResponseSimpleUserDto;
+import com.diareat.diareat.user.dto.response.ResponseUserDto;
+import com.diareat.diareat.user.dto.response.ResponseUserNutritionDto;
 import com.diareat.diareat.user.service.UserService;
+import com.diareat.diareat.util.MessageUtil;
 import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
@@ -117,6 +125,29 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
     }
 
+    @DisplayName("회원정보 수정 - 유효성 검사 실패")
+    @Test
+    @WithMockUser("test")
+    void updateUserFail() throws Exception {
+        // Given
+        UpdateUserDto user = UpdateUserDto.of(testUserId, "", 300, 80, 500, true);
+        String json = mapper.writeValueAsString(user);
+
+        // When & Then
+        mockMvc.perform( MockMvcRequestBuilders
+                        .put("/api/user/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(MessageUtil.NOT_BLANK))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.height").value(MessageUtil.HEIGHT_RANGE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.age").value(MessageUtil.AGE_RANGE));
+    }
+
     @DisplayName("회원 기준섭취량 조회")
     @Test
     @WithMockUser("test")
@@ -164,6 +195,29 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
     }
 
+    @DisplayName("회원 기준섭취량 직접 수정 - 유효성 검사 실패")
+    @Test
+    @WithMockUser("test")
+    void updateUserNutritionFail() throws Exception {
+        // Given
+        UpdateUserNutritionDto nutrition = UpdateUserNutritionDto.of(testUserId, 12000, -1, 5000, -500);
+        String json = mapper.writeValueAsString(nutrition);
+
+        // When & Then
+        mockMvc.perform( MockMvcRequestBuilders
+                        .put("/api/user/1/nutrition")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorie").value(MessageUtil.CALORIE_RANGE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.protein").value(MessageUtil.PROTEIN_RANGE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.fat").value(MessageUtil.FAT_RANGE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(MessageUtil.CARBOHYDRATE_RANGE));
+    }
     @DisplayName("회원의 친구 검색 결과 조회")
     @Test
     @WithMockUser("test")
@@ -172,10 +226,14 @@ class UserControllerTest {
         when(userService.searchUser(testUserId, "test")).thenReturn(List.of(ResponseSearchUserDto.of(2L, "test2", "test2", true)));
         ApiResponse<List<ResponseSearchUserDto>> expectedResponse = ApiResponse.success(
                 List.of(ResponseSearchUserDto.of(2L, "test2", "test2", true)), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
+        SearchUserDto searchDto = SearchUserDto.of(testUserId, "test");
+        String json = mapper.writeValueAsString(searchDto);
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders
-                        .get("/api/user/1/search/test").param("name", "test")
+                        .get("/api/user/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
@@ -186,12 +244,33 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].follow").value(expectedResponse.getData().get(0).isFollow()));
     }
 
+    @DisplayName("회원의 친구 검색 결과 조회 - 유효성 검사 실패")
+    @Test
+    @WithMockUser("test")
+    void searchUserFail() throws Exception {
+        // Given
+        SearchUserDto searchDto = SearchUserDto.of(testUserId, "");
+        String json = mapper.writeValueAsString(searchDto);
+
+        // When & Then
+        mockMvc.perform( MockMvcRequestBuilders
+                        .get("/api/user/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.inputName").value(MessageUtil.NOT_BLANK));
+    }
+
     @DisplayName("회원이 특정 회원 팔로우 및 팔로우 취소")
     @Test
     @WithMockUser("test")
     void followUser() throws Exception {
         // Given
-        ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
+        ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.USER_FOLLOW_SUCCESS.getMessage());
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders

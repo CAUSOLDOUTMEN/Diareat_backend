@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class FoodController {
     //음식 정보 저장
     @Operation(summary = "[음식] 음식 정보 저장", description = "촬영한 음식 정보를 저장합니다.")
     @PostMapping("/save")
-    public ApiResponse<Long> saveFood(CreateFoodDto createFoodDto){
+    public ApiResponse<Long> saveFood(@RequestBody @Valid CreateFoodDto createFoodDto){
         return ApiResponse.success(foodService.saveFood(createFoodDto),ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
     }
 
@@ -42,7 +43,7 @@ public class FoodController {
     //음식 정보 수정
     @Operation(summary = "[음식] 음식 정보 수정",description = "음식에 대한 정보를 수정합니다.")
     @PostMapping("/update")
-    public ApiResponse<Void> updateFood(UpdateFoodDto updateFoodDto){
+    public ApiResponse<Void> updateFood(@RequestBody @Valid UpdateFoodDto updateFoodDto){
         foodService.updateFood(updateFoodDto);
         return ApiResponse.success(null,ResponseCode.FOOD_UPDATE_SUCCESS.getMessage());
     }
@@ -57,7 +58,7 @@ public class FoodController {
     //즐겨찾기에 음식 저장
     @Operation(summary = "[즐겨찾기] 즐겨찾기에 저장",description = "유저의 즐겨찾기에 음식을 저장합니다.")
     @PostMapping("/favorite")
-    public ApiResponse<Long> saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto){
+    public ApiResponse<Long> saveFavoriteFood(@RequestBody @Valid CreateFavoriteFoodDto createFavoriteFoodDto){
         return ApiResponse.success(foodService.saveFavoriteFood(createFavoriteFoodDto),ResponseCode.FOOD_FAVORITE_CREATE_SUCCESS.getMessage());
     }
 
@@ -71,7 +72,7 @@ public class FoodController {
     //즐겨찾기 음식 수정
     @Operation(summary = "[즐겨찾기] 즐겨찾기 수정",description = "유저의 즐겨찾기에 등록된 음식의 정보를 수정합니다.")
     @PostMapping("/favorite/update")
-    public ApiResponse<Void> updateFavoriteFood(UpdateFavoriteFoodDto updateFavoriteFoodDto){
+    public ApiResponse<Void> updateFavoriteFood(@RequestBody @Valid UpdateFavoriteFoodDto updateFavoriteFoodDto){
         foodService.updateFavoriteFood(updateFavoriteFoodDto);
         return ApiResponse.success(null, ResponseCode.FOOD_FAVORITE_UPDATE_SUCCESS.getMessage());
     }

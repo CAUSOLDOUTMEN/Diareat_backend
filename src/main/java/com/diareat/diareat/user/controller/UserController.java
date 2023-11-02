@@ -1,6 +1,12 @@
 package com.diareat.diareat.user.controller;
 
-import com.diareat.diareat.user.dto.*;
+import com.diareat.diareat.user.dto.request.SearchUserDto;
+import com.diareat.diareat.user.dto.request.UpdateUserDto;
+import com.diareat.diareat.user.dto.request.UpdateUserNutritionDto;
+import com.diareat.diareat.user.dto.response.ResponseSearchUserDto;
+import com.diareat.diareat.user.dto.response.ResponseSimpleUserDto;
+import com.diareat.diareat.user.dto.response.ResponseUserDto;
+import com.diareat.diareat.user.dto.response.ResponseUserNutritionDto;
 import com.diareat.diareat.user.service.UserService;
 import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
@@ -9,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Api(tags = "1. User")
@@ -36,7 +43,7 @@ public class UserController {
     // 회원정보 수정
     @Operation(summary = "[프로필] 회원 정보 수정", description = "회원 정보를 수정합니다.")
     @PutMapping("/update")
-    public ApiResponse<Void> updateUserInfo(UpdateUserDto updateUserDto) {
+    public ApiResponse<Void> updateUserInfo(@RequestBody @Valid UpdateUserDto updateUserDto) {
         userService.updateUserInfo(updateUserDto);
         return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
     }
@@ -51,26 +58,24 @@ public class UserController {
     // 회원 기준섭취량 직접 수정
     @Operation(summary = "[프로필] 회원 기준섭취량 직접 수정", description = "회원 기준섭취량을 직접 수정합니다.")
     @PutMapping("{userId}/nutrition")
-    public ApiResponse<Void> updateUserNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
+    public ApiResponse<Void> updateUserNutrition(@RequestBody @Valid UpdateUserNutritionDto updateUserNutritionDto) {
         userService.updateBaseNutrition(updateUserNutritionDto);
         return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
     }
 
     // 회원의 친구 검색 결과 조회
     @Operation(summary = "[주간 랭킹] 회원의 친구 검색 결과 조회", description = "회원의 친구 검색 결과를 조회합니다.")
-    @GetMapping("{userId}/search/{name}")
-    public ApiResponse<List<ResponseSearchUserDto>> searchUser(@PathVariable Long userId, @RequestParam String name) {
-        return ApiResponse.success(userService.searchUser(userId, name), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
+    @GetMapping("/search")
+    public ApiResponse<List<ResponseSearchUserDto>> searchUser(@RequestBody @Valid SearchUserDto searchUserDto) {
+        return ApiResponse.success(userService.searchUser(searchUserDto.getUserId(), searchUserDto.getInputName()), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
     }
-
-    // 실제 팔로잉 유저들의 점수 계산하여 랭킹 형태로 반환하는 API: FoodService에서 계산할지 UserService에서 FoodRepository를 콜해서 처리할지 협의 필요
 
     // 회원이 특정 회원 팔로우
     @Operation(summary = "[주간 랭킹] 회원이 특정 회원 팔로우", description = "회원이 특정 회원을 팔로우합니다.")
     @PostMapping("{userId}/follow/{followId}")
     public ApiResponse<Void> followUser(@PathVariable Long userId, @PathVariable Long followId) {
         userService.followUser(userId, followId);
-        return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
+        return ApiResponse.success(null, ResponseCode.USER_FOLLOW_SUCCESS.getMessage());
     }
 
     // 회원이 특정 회원 팔로우 취소
@@ -78,6 +83,6 @@ public class UserController {
     @DeleteMapping("{userId}/follow/{followId}")
     public ApiResponse<Void> unfollowUser(@PathVariable Long userId, @PathVariable Long followId) {
         userService.unfollowUser(userId, followId);
-        return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
+        return ApiResponse.success(null, ResponseCode.USER_UNFOLLOW_SUCCESS.getMessage());
     }
 }

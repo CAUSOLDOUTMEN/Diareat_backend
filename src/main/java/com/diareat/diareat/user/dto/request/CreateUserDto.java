@@ -1,4 +1,4 @@
-package com.diareat.diareat.user.dto;
+package com.diareat.diareat.user.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserDto {
+public class CreateUserDto { // JoinUserDto에서 검증 절차를 대행하기에 검증절차 생략
 
     private String name;
     private String image;

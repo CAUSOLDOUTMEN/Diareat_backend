@@ -1,4 +1,4 @@
-package com.diareat.diareat.user.dto;
+package com.diareat.diareat.user.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
