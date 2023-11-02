@@ -43,7 +43,7 @@ public class UserController {
     // 회원정보 수정
     @Operation(summary = "[프로필] 회원 정보 수정", description = "회원 정보를 수정합니다.")
     @PutMapping("/update")
-    public ApiResponse<Void> updateUserInfo(@Valid @RequestBody UpdateUserDto updateUserDto) {
+    public ApiResponse<Void> updateUserInfo(@RequestBody @Valid UpdateUserDto updateUserDto) {
         userService.updateUserInfo(updateUserDto);
         return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
     }
@@ -58,7 +58,7 @@ public class UserController {
     // 회원 기준섭취량 직접 수정
     @Operation(summary = "[프로필] 회원 기준섭취량 직접 수정", description = "회원 기준섭취량을 직접 수정합니다.")
     @PutMapping("{userId}/nutrition")
-    public ApiResponse<Void> updateUserNutrition(@Valid @RequestBody UpdateUserNutritionDto updateUserNutritionDto) {
+    public ApiResponse<Void> updateUserNutrition(@RequestBody @Valid UpdateUserNutritionDto updateUserNutritionDto) {
         userService.updateBaseNutrition(updateUserNutritionDto);
         return ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
     }
@@ -66,7 +66,7 @@ public class UserController {
     // 회원의 친구 검색 결과 조회
     @Operation(summary = "[주간 랭킹] 회원의 친구 검색 결과 조회", description = "회원의 친구 검색 결과를 조회합니다.")
     @GetMapping("/search")
-    public ApiResponse<List<ResponseSearchUserDto>> searchUser(@Valid @RequestBody SearchUserDto searchUserDto) {
+    public ApiResponse<List<ResponseSearchUserDto>> searchUser(@RequestBody @Valid SearchUserDto searchUserDto) {
         return ApiResponse.success(userService.searchUser(searchUserDto.getUserId(), searchUserDto.getInputName()), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
     }
 
