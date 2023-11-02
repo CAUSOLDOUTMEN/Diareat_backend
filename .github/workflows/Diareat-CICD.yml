@@ -64,6 +64,9 @@ jobs:
             
         - name: Setup Kustomize
           uses: imranismail/setup-kustomize@v2.1.0-rc
+          with:
+            github-token: ${{ secrets.ACCESS_TOKEN }}
+          
 
         - name: Checkout kustomize repository
           uses: actions/checkout@v3
