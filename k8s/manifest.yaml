@@ -22,7 +22,7 @@ spec:
             name: diareat-secret
         resources:
           limits:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: 0.3
         ports:
         - containerPort: 8080
@@ -67,8 +67,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: diareat-deployment
-  minReplicas: 1
-  maxReplicas: 3
+  minReplicas: 2
+  maxReplicas: 4
   metrics:
     - type: Resource
       resource:
