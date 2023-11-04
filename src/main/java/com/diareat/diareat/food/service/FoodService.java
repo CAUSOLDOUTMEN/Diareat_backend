@@ -133,7 +133,7 @@ public class FoodService {
     public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
         validateUser(userId);
         LocalDate endDate = LocalDate.now();
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusMonths(1), endDate);
 
         return calculateNutritionSumAndRatio(userId, foodList, endDate, 30);
     }
@@ -199,6 +199,8 @@ public class FoodService {
 
         //월요일부터 지금까지의 음식 정보 불러오기
         HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserFromMonday = getNutritionSumByDateMap(userId, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+        ResponseNutritionSumByDateDto nutritionSumOfUserFromLastMonth = getNutritionSumByMonth(userId);
+
         for (LocalDate date : nutritionSumOfUserFromMonday.keySet()) {
             // 해당 날짜에 먹은 음식들의 영양성분 총합 계산
             int totalKcal = nutritionSumOfUserFromMonday.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
@@ -229,7 +231,9 @@ public class FoodService {
         User user = userRepository.getReferenceById(userId);
 
         HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(1), LocalDate.now());
-        double totalScore = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()).getTotalScore();
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.now().minusMonths(1), LocalDate.now());
+
+        double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()).getTotalScore();
 
 
         List<Double> calorieLastSevenDays = new ArrayList<>();
@@ -241,6 +245,7 @@ public class FoodService {
         List<Double> fatLastSevenDays = new ArrayList<>();
         List<Double> fatLastFourWeek = new ArrayList<>();
 
+        //최근 7일의 식습관
         for (LocalDate date : nutritionSumOfUserByWeek.keySet()) {
             int totalKcal = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
             int totalCarbohydrate = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
@@ -252,7 +257,21 @@ public class FoodService {
             proteinLastSevenDays.add((double) totalProtein);
             fatLastSevenDays.add((double) totalFat);
         }
-        return null;
+
+        //최근 한달간의 식습관
+        for (LocalDate date : nutritionSumOfUserByMonth.keySet()) {
+            int totalKcal = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
+            int totalCarbohydrate = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+            int totalProtein = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
+            int totalFat = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
+
+            calorieLastFourWeek.add((double) totalKcal);
+            carbohydrateLastFourWeek.add((double) totalCarbohydrate);
+            proteinLastFourWeek.add((double) totalProtein);
+            fatLastFourWeek.add((double) totalFat);
+        }
+
+        return ResponseAnalysisDto.of(totalWeekScore, calorieLastSevenDays, calorieLastFourWeek, carbohydrateLastSevenDays, carbohydrateLastFourWeek, proteinLastSevenDays, proteinLastFourWeek, fatLastSevenDays, fatLastFourWeek);
     }
 
 
