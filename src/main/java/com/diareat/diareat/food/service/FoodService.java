@@ -153,8 +153,9 @@ public class FoodService {
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
         // ** Best 3 기준 논의 필요 **
 
-        List<ResponseFoodDto> top3FoodsDtoList = top3Foods.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+        List<ResponseSimpleFoodDto> top3FoodsDtoList = top3Foods.stream()
+                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
+                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
 
         return ResponseFoodRankDto.of(userId, top3FoodsDtoList, endDate, true);
     }
@@ -176,25 +177,27 @@ public class FoodService {
         // ** 이점은 논의가 필요할 듯? **
         // 우선 임시로 지방 비율을 높게 설정
 
-        List<ResponseFoodDto> worst3FoodDtoList = worst3Foods.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
-
+        List<ResponseSimpleFoodDto> worst3FoodDtoList = worst3Foods.stream()
+                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
+                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
 
         return ResponseFoodRankDto.of(userId, worst3FoodDtoList, endDate, false);
     }
 
     // 잔여 기능 구현 부분
 
+    //유저의 식습관 점수 및 Best 3와 Worst 3 계산
     @Transactional(readOnly = true)
     public ResponseScoreBestWorstDto getScoreOfUserWithBestAndWorstFoods(Long userId){
-        validateUser(userId);
+        validateUser(userId); //유저 객체 검증
         double kcalScore = 0.0;
         double carbohydrateScore = 0.0;
         double proteinScore = 0.0;
         double fatScore = 0.0;
 
-        User targetUser = userRepository.getReferenceById(userId);
+        User targetUser = userRepository.getReferenceById(userId); //검증된 id로 유저 객체 불러오기
 
+        //월요일부터 지금까지의 음식 정보 불러오기
         HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserFromMonday = getNutritionSumByDateMap(userId, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
         for (LocalDate date : nutritionSumOfUserFromMonday.keySet()) {
             // 해당 날짜에 먹은 음식들의 영양성분 총합 계산
@@ -210,11 +213,9 @@ public class FoodService {
             kcalScore += calculateNutriRatioAndScore(totalKcal, targetUser.getBaseNutrition().getKcal(), 1);
         }
 
-        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId).getRankFoodList().stream()
-                .map(food -> ResponseSimpleFoodDto.from(getFoodById(food.getFoodId()))).collect(Collectors.toList());
-
-        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId).getRankFoodList().stream()
-                .map(food -> ResponseSimpleFoodDto.from(getFoodById(food.getFoodId()))).collect(Collectors.toList());
+        //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
+        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId).getRankFoodList();
+        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId).getRankFoodList();
 
         return ResponseScoreBestWorstDto.of(kcalScore, carbohydrateScore, proteinScore, fatScore, kcalScore + carbohydrateScore + proteinScore + fatScore, simpleBestFoodList, simpleWorstFoodList);
     }
@@ -251,8 +252,7 @@ public class FoodService {
             proteinLastSevenDays.add((double) totalProtein);
             fatLastSevenDays.add((double) totalFat);
         }
-
-
+        return null;
     }
 
 

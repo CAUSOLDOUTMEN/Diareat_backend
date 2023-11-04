@@ -9,6 +9,7 @@ import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.response.ResponseRankUserDto;
+import com.diareat.diareat.user.dto.response.ResponseSimpleUserDto;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -282,7 +283,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId());
-        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -309,7 +310,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getWorstFoodByWeek(user.getId());
-        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -356,5 +357,42 @@ class FoodServiceTest {
         verify(followRepository, times(1)).findAllByFromUser(user1.getId());
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class));
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class));
+    }
+
+    @Test
+    void testGetScoreOfUserWithBestAndWorstFoods(){
+        // given
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2));
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3));
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4));
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5));
+        user.setId(1L);
+
+        List<Food> foodList = List.of(food1, food2, food3, food4, food5);
+
+        given(userRepository.existsById(user.getId())).willReturn(true);
+        given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+
+        // when
+        ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId());
+        List<ResponseSimpleFoodDto> top3Foods = response.getBest();
+        List<ResponseSimpleFoodDto> worst3Foods = response.getWorst();
+        double totalScore = response.getTotalScore();
+        double calorieScore = response.getCalorieScore();
+        double carbohydrateScore = response.getCarbohydrateScore();
+        double proteinScore = response.getProteinScore();
+        double fatScore = response.getFatScore();
+
+        // then
+        assertEquals(3, top3Foods.size());
+        assertEquals(3, worst3Foods.size());
+        assertEquals(174.3, totalScore);
+        assertEquals(27.750000000000004, calorieScore);
+        assertEquals(83.25000000000001, carbohydrateScore);
+        assertEquals(30.0, proteinScore);
+        assertEquals(33.300000000000004, fatScore);
     }
 }
