@@ -188,7 +188,7 @@ public class FoodControllerTest {
     @WithMockUser("test")
     void testGetFavoriteFoodList() throws Exception {
         //Given
-        ResponseFavoriteFoodDto food1 = ResponseFavoriteFoodDto.of(testUserId, testFavoriteFoodId,"test",testBaseNutrition,0);
+        ResponseFavoriteFoodDto food1 = ResponseFavoriteFoodDto.of(testFavoriteFoodId,"test",testBaseNutrition,0);
 
         ApiResponse<List<ResponseFavoriteFoodDto>> expectedResponse = ApiResponse.success(List.of(food1), ResponseCode.FOOD_FAVORITE_READ_SUCCESS.getMessage());
         when(foodService.getFavoriteFoodList(any(Long.class))).thenReturn(List.of(food1));
