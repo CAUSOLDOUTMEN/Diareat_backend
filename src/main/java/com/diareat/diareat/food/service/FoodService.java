@@ -203,24 +203,16 @@ public class FoodService {
 
         ResponseRankUserDto scoresOfUser = calculateUserScoreThisWeek(targetUser, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
 
-        totalScore = scoresOfUser.getTotalScore();
-        kcalScore = scoresOfUser.getCalorieScore();
-        carbohydrateScore = scoresOfUser.getCarbohydrateScore();
-        proteinScore = scoresOfUser.getProteinScore();
-        fatScore = scoresOfUser.getFatScore();
+        totalScore = Math.round((scoresOfUser.getTotalScore() * 100.0))/ 100.0;
+        kcalScore = Math.round((scoresOfUser.getCalorieScore() * 100.0)) / 100.0;
+        carbohydrateScore = Math.round((scoresOfUser.getCarbohydrateScore() * 100.0)) / 100.0;
+        proteinScore = Math.round((scoresOfUser.getProteinScore() * 100.0)) / 100.0;
+        fatScore = Math.round((scoresOfUser.getFatScore() * 100.0 ))/ 100.0;
 
 
         //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
         List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId).getRankFoodList();
         List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId).getRankFoodList();
-
-        //반올림
-        totalScore = Math.round(totalScore * 100.0) / 100.0;
-        kcalScore = Math.round(kcalScore * 100.0) / 100.0;
-        carbohydrateScore = Math.round(carbohydrateScore * 100.0) / 100.0;
-        proteinScore = Math.round(proteinScore * 100.0) / 100.0;
-        fatScore = Math.round(fatScore * 100.0) / 100.0;
-
 
         return ResponseScoreBestWorstDto.of(kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore, simpleBestFoodList, simpleWorstFoodList);
     }
