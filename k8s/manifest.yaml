@@ -4,6 +4,7 @@ metadata:
   name: diareat-deployment
   namespace: diareat
 spec:
+  revisionHistoryLimit: 3
   replicas: 2
   selector:
     matchLabels:
