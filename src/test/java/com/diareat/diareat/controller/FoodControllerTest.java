@@ -258,7 +258,6 @@ public class FoodControllerTest {
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto,ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByDate(any(Long.class),any(LocalDate.class))).thenReturn(responseNutritionSumByDateDto);
 
-        String json = mapper.writeValueAsString(responseNutritionSumByDateDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
@@ -295,7 +294,6 @@ public class FoodControllerTest {
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByWeek(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
 
-        String json = mapper.writeValueAsString(responseNutritionSumByDateDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
@@ -329,7 +327,6 @@ public class FoodControllerTest {
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByMonth(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
 
-        String json = mapper.writeValueAsString(responseNutritionSumByDateDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
@@ -369,7 +366,6 @@ public class FoodControllerTest {
         ApiResponse<ResponseScoreBestWorstDto> expectedResponse = ApiResponse.success(responseScoreBestWorstDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getScoreOfUserWithBestAndWorstFoods(any(Long.class))).thenReturn(responseScoreBestWorstDto);
 
-        String json = mapper.writeValueAsString(responseScoreBestWorstDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
@@ -399,7 +395,6 @@ public class FoodControllerTest {
 
         ApiResponse<ResponseAnalysisDto> expectedResponse = ApiResponse.success(responseAnalysisDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getAnalysisOfUser(any(Long.class))).thenReturn(responseAnalysisDto);
-        String json = mapper.writeValueAsString(responseAnalysisDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders

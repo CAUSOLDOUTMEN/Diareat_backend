@@ -38,6 +38,9 @@ public class FoodService {
     @CacheEvict(value = "ResponseFoodDto", key = "#createFoodDto.getUserId()+#createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
+        if (foodRepository.existsByName(createFoodDto.getName())){
+            throw new FoodException(ResponseCode.FOOD_NAME_ALREADY_EXIST);
+        }
         User user = getUserById(createFoodDto.getUserId());
         Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition());
         return foodRepository.save(food).getId();
