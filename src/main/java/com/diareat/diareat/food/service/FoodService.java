@@ -230,10 +230,21 @@ public class FoodService {
         validateUser(userId);
         User user = userRepository.getReferenceById(userId);
 
+        //최근 1주간 유저가 먹은 음식들의 날짜별 HashMap
         HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(1), LocalDate.now());
-        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.now().minusMonths(1), LocalDate.now());
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
 
         double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()).getTotalScore();
+
+
+        //날짜 기준으로 정렬 (가장 최근 날짜가 맨 앞으로 오도록)
+        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+
+        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
 
 
         List<Double> calorieLastSevenDays = new ArrayList<>();
@@ -258,6 +269,7 @@ public class FoodService {
             fatLastSevenDays.add((double) totalFat);
         }
 
+
         //최근 한달간의 식습관
         for (LocalDate date : nutritionSumOfUserByMonth.keySet()) {
             int totalKcal = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
@@ -270,6 +282,8 @@ public class FoodService {
             proteinLastFourWeek.add((double) totalProtein);
             fatLastFourWeek.add((double) totalFat);
         }
+
+        totalWeekScore = Math.round(totalWeekScore * 100.0) / 100.0; //3번째 자리에서 반올림
 
         return ResponseAnalysisDto.of(totalWeekScore, calorieLastSevenDays, calorieLastFourWeek, carbohydrateLastSevenDays, carbohydrateLastFourWeek, proteinLastSevenDays, proteinLastFourWeek, fatLastSevenDays, fatLastFourWeek);
     }
