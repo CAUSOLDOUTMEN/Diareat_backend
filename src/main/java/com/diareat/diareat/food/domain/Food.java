@@ -57,4 +57,6 @@ public class Food {
     }
 
     public void setId(long id) {this.id = id;}
+
+    public void setDate(LocalDate date) {this.date = date;} //food test를 위한 date
 }

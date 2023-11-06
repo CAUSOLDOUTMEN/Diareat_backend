@@ -38,6 +38,9 @@ public class FoodService {
     @CacheEvict(value = "ResponseFoodDto", key = "#createFoodDto.getUserId()+#createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
+        if (foodRepository.existsByName(createFoodDto.getName())){
+            throw new FoodException(ResponseCode.FOOD_NAME_ALREADY_EXIST);
+        }
         User user = getUserById(createFoodDto.getUserId());
         Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition());
         return foodRepository.save(food).getId();
@@ -88,7 +91,7 @@ public class FoodService {
         validateUser(userId);
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         return foodList.stream()
-                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(), favoriteFood.getName(),
+                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getUser().getId(),favoriteFood.getName(),
                         favoriteFood.getBaseNutrition(), favoriteFood.getCount())).collect(Collectors.toList());
     }
 
@@ -133,7 +136,7 @@ public class FoodService {
     public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
         validateUser(userId);
         LocalDate endDate = LocalDate.now();
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusMonths(1), endDate);
 
         return calculateNutritionSumAndRatio(userId, foodList, endDate, 30);
     }
@@ -153,8 +156,9 @@ public class FoodService {
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
         // ** Best 3 기준 논의 필요 **
 
-        List<ResponseFoodDto> top3FoodsDtoList = top3Foods.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+        List<ResponseSimpleFoodDto> top3FoodsDtoList = top3Foods.stream()
+                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
+                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
 
         return ResponseFoodRankDto.of(userId, top3FoodsDtoList, endDate, true);
     }
@@ -176,18 +180,109 @@ public class FoodService {
         // ** 이점은 논의가 필요할 듯? **
         // 우선 임시로 지방 비율을 높게 설정
 
-        List<ResponseFoodDto> worst3FoodDtoList = worst3Foods.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
-
+        List<ResponseSimpleFoodDto> worst3FoodDtoList = worst3Foods.stream()
+                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
+                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
 
         return ResponseFoodRankDto.of(userId, worst3FoodDtoList, endDate, false);
     }
 
     // 잔여 기능 구현 부분
 
-    // 유저의 구체적인 점수 현황과 Best3, Worst3 조회
+    //유저의 식습관 점수 및 Best 3와 Worst 3 계산
+    @Transactional(readOnly = true)
+    public ResponseScoreBestWorstDto getScoreOfUserWithBestAndWorstFoods(Long userId){
+        validateUser(userId); //유저 객체 검증
+        double totalScore = 0.0;
+        double kcalScore = 0.0;
+        double carbohydrateScore = 0.0;
+        double proteinScore = 0.0;
+        double fatScore = 0.0;
+
+        User targetUser = userRepository.getReferenceById(userId); //검증된 id로 유저 객체 불러오기
+
+        ResponseRankUserDto scoresOfUser = calculateUserScoreThisWeek(targetUser, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+
+        totalScore = Math.round((scoresOfUser.getTotalScore() * 100.0))/ 100.0;
+        kcalScore = Math.round((scoresOfUser.getCalorieScore() * 100.0)) / 100.0;
+        carbohydrateScore = Math.round((scoresOfUser.getCarbohydrateScore() * 100.0)) / 100.0;
+        proteinScore = Math.round((scoresOfUser.getProteinScore() * 100.0)) / 100.0;
+        fatScore = Math.round((scoresOfUser.getFatScore() * 100.0 ))/ 100.0;
+
+
+        //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
+        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId).getRankFoodList();
+        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId).getRankFoodList();
+
+        return ResponseScoreBestWorstDto.of(kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore, simpleBestFoodList, simpleWorstFoodList);
+    }
+
+
 
     // 유저의 일기 분석 그래프 데이터 및 식습관 totalScore 조회
+    @Transactional(readOnly = true)
+    public ResponseAnalysisDto getAnalysisOfUser(Long userId){
+        validateUser(userId);
+        User user = userRepository.getReferenceById(userId);
+
+        //최근 1주간 유저가 먹은 음식들의 날짜별 HashMap
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(1), LocalDate.now());
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
+
+        double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()).getTotalScore();
+
+
+        //날짜 기준으로 정렬 (가장 최근 날짜가 맨 앞으로 오도록)
+        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+
+        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+
+
+        List<Double> calorieLastSevenDays = new ArrayList<>();
+        List<Double> calorieLastFourWeek = new ArrayList<>();
+        List<Double> carbohydrateLastSevenDays = new ArrayList<>();
+        List<Double> carbohydrateLastFourWeek = new ArrayList<>();
+        List<Double> proteinLastSevenDays = new ArrayList<>();
+        List<Double> proteinLastFourWeek = new ArrayList<>();
+        List<Double> fatLastSevenDays = new ArrayList<>();
+        List<Double> fatLastFourWeek = new ArrayList<>();
+
+        //최근 7일의 식습관
+        for (LocalDate date : nutritionSumOfUserByWeek.keySet()) {
+            int totalKcal = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
+            int totalCarbohydrate = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+            int totalProtein = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
+            int totalFat = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
+
+            calorieLastSevenDays.add((double) totalKcal);
+            carbohydrateLastSevenDays.add((double) totalCarbohydrate);
+            proteinLastSevenDays.add((double) totalProtein);
+            fatLastSevenDays.add((double) totalFat);
+        }
+
+
+        //최근 한달간의 식습관
+        for (LocalDate date : nutritionSumOfUserByMonth.keySet()) {
+            int totalKcal = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
+            int totalCarbohydrate = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+            int totalProtein = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
+            int totalFat = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
+
+            calorieLastFourWeek.add((double) totalKcal);
+            carbohydrateLastFourWeek.add((double) totalCarbohydrate);
+            proteinLastFourWeek.add((double) totalProtein);
+            fatLastFourWeek.add((double) totalFat);
+        }
+
+        totalWeekScore = Math.round(totalWeekScore * 100.0) / 100.0;
+
+        return ResponseAnalysisDto.of(totalWeekScore, calorieLastSevenDays, calorieLastFourWeek, carbohydrateLastSevenDays, carbohydrateLastFourWeek, proteinLastSevenDays, proteinLastFourWeek, fatLastSevenDays, fatLastFourWeek);
+    }
+
 
 
     @Cacheable(value = "ResponseRankUserDto", key = "#userId", cacheManager = "diareatCacheManager")

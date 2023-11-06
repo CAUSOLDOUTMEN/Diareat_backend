@@ -9,6 +9,7 @@ import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.response.ResponseRankUserDto;
+import com.diareat.diareat.user.dto.response.ResponseSimpleUserDto;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -282,7 +284,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId());
-        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -309,7 +311,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getWorstFoodByWeek(user.getId());
-        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -356,5 +358,130 @@ class FoodServiceTest {
         verify(followRepository, times(1)).findAllByFromUser(user1.getId());
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class));
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class));
+    }
+
+    @Test
+    void testGetScoreOfUserWithBestAndWorstFoods(){
+        // given
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
+        user.setId(1L);
+
+        food1.setDate(LocalDate.now());
+        food1_1.setDate(LocalDate.now());
+        food2.setDate(LocalDate.now().minusDays(2));
+        food3.setDate(LocalDate.now().minusDays(3));
+
+        List<Food> foodList = List.of(food1, food1_1, food2, food3);
+
+        given(userRepository.existsById(user.getId())).willReturn(true);
+        given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+
+        // when
+        ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId());
+        List<ResponseSimpleFoodDto> top3Foods = response.getBest();
+        List<ResponseSimpleFoodDto> worst3Foods = response.getWorst();
+        double totalScore = response.getTotalScore();
+        double calorieScore = response.getCalorieScore();
+        double carbohydrateScore = response.getCarbohydrateScore();
+        double proteinScore = response.getProteinScore();
+        double fatScore = response.getFatScore();
+
+        // then
+        assertEquals(3, top3Foods.size());
+        assertEquals(3, worst3Foods.size());
+        assertEquals(192.95, totalScore);
+        assertEquals(32.19, calorieScore);
+        assertEquals(111.0, carbohydrateScore);
+        assertEquals(32.0, proteinScore);
+        assertEquals(17.76, fatScore);
+    }
+
+    @Test
+    void testGetAnalysisOfUser(){
+        // given
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(250, 100 ,4, 4));
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5));
+        user.setId(1L);
+
+        food1.setDate(LocalDate.now());
+        food1_1.setDate(LocalDate.now());
+        food2.setDate(LocalDate.now().minusDays(2));
+        food3.setDate(LocalDate.now().minusDays(3));
+        food4.setDate(LocalDate.now().minusWeeks(1));
+        food5.setDate(LocalDate.now().minusWeeks(2));
+
+
+
+        List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
+        List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
+
+
+
+        given(userRepository.existsById(user.getId())).willReturn(true);
+        given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now())).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfMonth);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfWeek);
+
+
+        // when
+        ResponseAnalysisDto response = foodService.getAnalysisOfUser(user.getId());
+
+        double totalScore = response.getTotalScore();
+        List<Double> calorieLastSevenDays = response.getCalorieLastSevenDays();
+        List<Double> proteinLastSevenDays = response.getProteinLastSevenDays();
+        List<Double> calorieLastFourWeeks = response.getCalorieLastFourWeek();
+        List<Double> proteinLastFourWeeks = response.getProteinLastFourWeek();
+
+
+        // then
+        assertEquals(192.95, totalScore);
+
+        //갯수 확인
+        assertEquals(3, calorieLastSevenDays.size()); //일주일동안의 음식 -> 3개
+        assertEquals(5, calorieLastFourWeeks.size()); //한달동안의 음식 -> 5개
+
+
+        //날짜 정렬 확인 (1주)
+        assertEquals(230, calorieLastSevenDays.get(0));
+        assertEquals(18, proteinLastSevenDays.get(0));
+
+        assertEquals(150, calorieLastSevenDays.get(1));
+        assertEquals(8, proteinLastSevenDays.get(1));
+
+        assertEquals(200, calorieLastSevenDays.get(2));
+        assertEquals(6, proteinLastSevenDays.get(2));
+
+        //날짜 정렬 확인 (2주)
+        assertEquals(230, calorieLastFourWeeks.get(0));
+        assertEquals(18, proteinLastFourWeeks.get(0));
+
+        assertEquals(150, calorieLastFourWeeks.get(1));
+        assertEquals(8, proteinLastFourWeeks.get(1));
+
+        assertEquals(200, calorieLastFourWeeks.get(2));
+        assertEquals(6, proteinLastFourWeeks.get(2));
+
+        assertEquals(250, calorieLastFourWeeks.get(3));
+        assertEquals(4, proteinLastFourWeeks.get(3));
+
+        assertEquals(300, calorieLastFourWeeks.get(4));
+        assertEquals(2, proteinLastFourWeeks.get(4));
+
+
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now());
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+
     }
 }

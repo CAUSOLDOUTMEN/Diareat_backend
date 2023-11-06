@@ -30,6 +30,7 @@ public enum ResponseCode {
     FOLLOWED_ALREADY(HttpStatus.CONFLICT, false, "이미 팔로우한 사용자입니다."),
     UNFOLLOWED_ALREADY(HttpStatus.CONFLICT, false, "이미 언팔로우한 사용자입니다."),
     FAVORITE_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 즐겨찾기에 존재하는 음식입니다."),
+    FOOD_NAME_ALREADY_EXIST(HttpStatus.CONFLICT, false, "이미 존재하는 음식 이름입니다."),
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, "서버에 오류가 발생하였습니다."),
@@ -48,6 +49,8 @@ public enum ResponseCode {
     FOOD_FAVORITE_READ_SUCCESS(HttpStatus.OK, true, "즐겨찾기 음식 조회 성공"),
     FOOD_FAVORITE_UPDATE_SUCCESS(HttpStatus.OK, true, "즐겨찾기 음식 수정 성공"),
     FOOD_FAVORITE_DELETE_SUCCESS(HttpStatus.OK, true, "즐겨찾기 음식 삭제 성공"),
+
+    FOOD_RANK_READ_SUCCESS(HttpStatus.OK, true, "식습관 점수 기반 랭킹 조회 성공"),
 
     TOKEN_CHECK_SUCCESS(HttpStatus.OK, true, "토큰 검증 완료"),
 
