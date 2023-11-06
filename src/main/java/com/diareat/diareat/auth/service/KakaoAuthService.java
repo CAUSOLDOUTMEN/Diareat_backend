@@ -29,7 +29,7 @@ public class KakaoAuthService {
     @Transactional(readOnly = true)
     public CreateUserDto createUserDto(JoinUserDto joinUserDto) { // 카카오로부터 프사 URL, 유저 고유ID를 얻어온 후, 이를 유저가 입력한 정보와 함께 CreateUserDto로 반환
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(joinUserDto.getToken());
-        return CreateUserDto.of(joinUserDto.getNickName(), userInfo.getKakaoAccount().getProfile().getProfileImageUrl(),
+        return CreateUserDto.of(joinUserDto.getNickName(), userInfo.getKakao_account().getProfile().getProfile_image_url(),
                 userInfo.getId().toString(), joinUserDto.getGender(), joinUserDto.getHeight(), joinUserDto.getWeight(), joinUserDto.getAge());
     }
 }
