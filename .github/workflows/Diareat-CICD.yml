@@ -51,7 +51,7 @@ jobs:
         docker push synoti21/${{ secrets.PROJECT_NAME }}:${{ steps.image.outputs.version }}
 
           
-  update-manifest:
+  CD:
       runs-on: ubuntu-latest
       needs: CI
       steps:
