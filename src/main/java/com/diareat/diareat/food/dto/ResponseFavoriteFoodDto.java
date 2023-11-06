@@ -9,17 +9,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ResponseFavoriteFoodDto {
 
+    private Long userId;
     private Long favoriteFoodId;
     private String name;
     private BaseNutrition baseNutrition;
     private int count;
 
-    public static ResponseFavoriteFoodDto of(Long favoriteFoodId, String name, BaseNutrition baseNutrition, int count) {
-        return new ResponseFavoriteFoodDto(favoriteFoodId, name, baseNutrition, count);
+    public static ResponseFavoriteFoodDto of(Long userId, Long favoriteFoodId, String name, BaseNutrition baseNutrition, int count) {
+        return new ResponseFavoriteFoodDto(userId, favoriteFoodId, name, baseNutrition, count);
     }
 
     public static ResponseFavoriteFoodDto from(FavoriteFood favoriteFood) {
         return new ResponseFavoriteFoodDto(
+                favoriteFood.getUser().getId(),
                 favoriteFood.getId(),
                 favoriteFood.getName(),
                 favoriteFood.getBaseNutrition(),

@@ -88,7 +88,7 @@ public class FoodService {
         validateUser(userId);
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         return foodList.stream()
-                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(), favoriteFood.getName(),
+                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getUser().getId(),favoriteFood.getId(), favoriteFood.getName(),
                         favoriteFood.getBaseNutrition(), favoriteFood.getCount())).collect(Collectors.toList());
     }
 
