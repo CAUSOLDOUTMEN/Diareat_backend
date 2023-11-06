@@ -363,19 +363,22 @@ class FoodServiceTest {
     @Test
     void testGetScoreOfUserWithBestAndWorstFoods(){
         // given
-        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,100));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 44));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,20, 33));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,30, 22));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,40, 11));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,50, 55));
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
         user.setId(1L);
 
-        List<Food> foodList = List.of(food1, food2, food3, food4, food5);
+        food1.setDate(LocalDate.now());
+        food1_1.setDate(LocalDate.now());
+        food2.setDate(LocalDate.now().minusDays(2));
+        food3.setDate(LocalDate.now().minusDays(3));
+
+        List<Food> foodList = List.of(food1, food1_1, food2, food3);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
 
         // when
@@ -391,11 +394,11 @@ class FoodServiceTest {
         // then
         assertEquals(3, top3Foods.size());
         assertEquals(3, worst3Foods.size());
-        assertEquals(249.85, totalScore);
-        assertEquals(27.750000000000004, calorieScore);
-        assertEquals(83.25000000000001, carbohydrateScore);
-        assertEquals(100.0, proteinScore);
-        assertEquals(38.85, fatScore);
+        assertEquals(192.95, totalScore);
+        assertEquals(32.19, calorieScore);
+        assertEquals(111.0, carbohydrateScore);
+        assertEquals(32.0, proteinScore);
+        assertEquals(17.76, fatScore);
     }
 
     @Test
