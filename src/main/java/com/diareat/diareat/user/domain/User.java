@@ -8,6 +8,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import reactor.util.annotation.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class User implements UserDetails {
     @Column(length = 100, nullable = false, unique = true)
     private String keyCode; // 로그인 식별키
 
+    @Nullable
     private String image; // 프로필 사진 경로
 
     private int height; // 키

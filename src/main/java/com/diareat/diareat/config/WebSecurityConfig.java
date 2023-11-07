@@ -28,7 +28,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers(AUTH_LIST).permitAll() // swagger 관련 URL은 인증 없이 접근 가능 (테스트용)
-                .antMatchers("/api/auth/**").permitAll() // 회원가입/로그인 관련 URL은 인증 없이 접근 가능
+                .antMatchers("/api/**").permitAll() // 회원가입/로그인 관련 URL은 인증 없이 접근 가능
                 .anyRequest().authenticated() // 나머지 모든 URL은 Jwt 인증 필요
                 .and()
                 .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
