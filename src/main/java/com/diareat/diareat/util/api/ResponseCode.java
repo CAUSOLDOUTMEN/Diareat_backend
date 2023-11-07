@@ -12,6 +12,9 @@ public enum ResponseCode {
     // 400 Bad Request
     BAD_REQUEST(HttpStatus.BAD_REQUEST, false, "잘못된 요청입니다."),
 
+    // 401 Unauthorized
+    TOKEN_VALIDATION_FAILURE(HttpStatus.UNAUTHORIZED, false, "토큰 검증 실패"),
+
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, false, "권한이 없습니다."),
     NOT_FOOD_OWNER(HttpStatus.FORBIDDEN, false, "음식의 주인 유저가 아닙니다."),

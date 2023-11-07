@@ -1,5 +1,7 @@
 package com.diareat.diareat.auth.component;
 
+import com.diareat.diareat.util.api.ResponseCode;
+import com.diareat.diareat.util.exception.UserException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -61,7 +63,7 @@ public class JwtTokenProvider {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            return false;
+            throw new UserException(ResponseCode.TOKEN_VALIDATION_FAILURE);
         }
     }
 
