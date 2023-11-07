@@ -6,11 +6,11 @@ import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.request.CreateUserDto;
 import com.diareat.diareat.user.dto.request.JoinUserDto;
 import com.diareat.diareat.user.repository.UserRepository;
-import com.diareat.diareat.util.api.ResponseCode;
-import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -20,10 +20,10 @@ public class KakaoAuthService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Long isSignedUp(String token) { // 클라이언트가 보낸 token을 이용해 카카오 API에 유저 정보를 요청, 유저가 존재하지 않으면 예외 발생, 존재하면 회원번호 반환
+    public Long isSignedUp(String token) { // 클라이언트가 보낸 token을 이용해 카카오 API에 유저 정보를 요청, 유저가 존재하지 않으면 null, 존재하면 회원번호 반환
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
-        User user = userRepository.findByKeyCode(userInfo.getId().toString()).orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
-        return user.getId();
+        Optional<User> userOptional = userRepository.findByKeyCode(userInfo.getId().toString());
+        return userOptional.map(User::getId).orElse(null);
     }
 
     @Transactional(readOnly = true)

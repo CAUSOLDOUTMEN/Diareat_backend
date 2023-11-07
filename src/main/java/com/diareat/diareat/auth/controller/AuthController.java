@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<ResponseJwtDto> authCheck(@RequestHeader String accessToken) {
         Long userId = kakaoAuthService.isSignedUp(accessToken); // 유저 고유번호 추출
-        String jwt = jwtTokenProvider.createToken(userId.toString());
+        String jwt = (userId == null) ? null : jwtTokenProvider.createToken(userId.toString()); // 고유번호가 null이 아니라면 Jwt 토큰 발급
         return ApiResponse.success(ResponseJwtDto.of(userId, jwt), ResponseCode.USER_LOGIN_SUCCESS.getMessage());
     }
 
