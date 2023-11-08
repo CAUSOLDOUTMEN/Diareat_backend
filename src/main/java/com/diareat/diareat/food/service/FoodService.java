@@ -368,7 +368,9 @@ public class FoodService {
         double ratioProtein = Math.round((((double) totalProtein / (double) targetUser.getBaseNutrition().getProtein()) * 100.0) * 10.0) / 10.0;
         double ratioFat = Math.round((((double) totalFat / (double) targetUser.getBaseNutrition().getFat()) * 100.0) * 10.0) / 10.0;
 
-        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal, totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,
+                                                totalCarbohydrate, totalProtein, totalFat, ratioKcal,
+                                                ratioCarbohydrate, ratioProtein, ratioFat, targetUser.getBaseNutrition());
     }
 
     private void validateUser(Long userId) {

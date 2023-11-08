@@ -1,5 +1,6 @@
 package com.diareat.diareat.food.dto;
 
+import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,7 +24,14 @@ public class ResponseNutritionSumByDateDto {
     double ratioProtein;
     double ratioFat;
 
-    public static ResponseNutritionSumByDateDto of (Long userId, LocalDate checkDate, int nutritionSumType, int totalKcal, int totalCarbohydrate, int totalProtein, int totalFat, double ratioKcal, double ratioCarbohydrate, double ratioProtein, double ratioFat){
-        return new ResponseNutritionSumByDateDto(userId, checkDate, nutritionSumType, totalKcal, totalCarbohydrate, totalProtein, totalFat, ratioKcal, ratioCarbohydrate, ratioProtein, ratioFat);
+    BaseNutrition baseNutrition;
+
+    public static ResponseNutritionSumByDateDto of (Long userId, LocalDate checkDate, int nutritionSumType, int totalKcal,
+                                                    int totalCarbohydrate, int totalProtein, int totalFat, double ratioKcal,
+                                                    double ratioCarbohydrate, double ratioProtein, double ratioFat,
+                                                    BaseNutrition baseNutrition){
+        return new ResponseNutritionSumByDateDto(userId, checkDate, nutritionSumType, totalKcal,
+                                                totalCarbohydrate, totalProtein, totalFat, ratioKcal,
+                                                ratioCarbohydrate, ratioProtein, ratioFat, baseNutrition);
     }
 }

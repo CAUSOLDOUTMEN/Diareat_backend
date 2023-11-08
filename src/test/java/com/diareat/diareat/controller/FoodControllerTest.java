@@ -254,7 +254,8 @@ public class FoodControllerTest {
         //Given
         LocalDate date = LocalDate.now();
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId,date,1
-                ,500,100,50,50,0.2,0.3,0.4,0.5);
+                ,500,100,50,50,0.2,0.3,0.4,0.5,
+                BaseNutrition.createNutrition(500,100,50,50));
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto,ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByDate(any(Long.class),any(LocalDate.class))).thenReturn(responseNutritionSumByDateDto);
 
@@ -279,6 +280,7 @@ public class FoodControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioCarbohydrate").value(expectedResponse.getData().getRatioCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioProtein").value(expectedResponse.getData().getRatioProtein()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioFat").value(expectedResponse.getData().getRatioFat()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.baseNutrition.carbohydrate").value(expectedResponse.getData().getBaseNutrition().getCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
     }
 
@@ -290,7 +292,8 @@ public class FoodControllerTest {
         //Given
         LocalDate date = LocalDate.now();
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 7
-                , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5);
+                , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
+                BaseNutrition.createNutrition(500, 100, 50, 50));
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByWeek(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
 
@@ -312,6 +315,7 @@ public class FoodControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioCarbohydrate").value(expectedResponse.getData().getRatioCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioProtein").value(expectedResponse.getData().getRatioProtein()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioFat").value(expectedResponse.getData().getRatioFat()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.baseNutrition.carbohydrate").value(expectedResponse.getData().getBaseNutrition().getCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
     }
 
@@ -323,7 +327,8 @@ public class FoodControllerTest {
         //Given
         LocalDate date = LocalDate.now();
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 30
-                , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5);
+                , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
+                BaseNutrition.createNutrition(500, 100, 50, 50));
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByMonth(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
 
@@ -345,6 +350,7 @@ public class FoodControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioCarbohydrate").value(expectedResponse.getData().getRatioCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioProtein").value(expectedResponse.getData().getRatioProtein()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.ratioFat").value(expectedResponse.getData().getRatioFat()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.baseNutrition.carbohydrate").value(expectedResponse.getData().getBaseNutrition().getCarbohydrate()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
     }
 
