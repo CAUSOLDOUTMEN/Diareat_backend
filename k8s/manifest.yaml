@@ -24,14 +24,14 @@ spec:
         resources:
           limits:
             memory: "512Mi"
-            cpu: 0.3
+            cpu: 0.5
         ports:
         - containerPort: 8080
         readinessProbe:
           httpGet:
             path: /swagger-ui/index.html
             port: 8080
-          initialDelaySeconds: 30
+          initialDelaySeconds: 40
           periodSeconds: 5
           failureThreshold: 24
 ---
