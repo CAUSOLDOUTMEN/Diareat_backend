@@ -47,7 +47,7 @@ public class FoodService {
     }
 
     // 회원이 특정 날짜에 먹은 음식 조회
-    @Cacheable(value = "ResponseFoodDto", key = "#userId+#date", cacheManager = "diareatCacheManager")
+    @Cacheable(value = "ResponseFoodDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         validateUser(userId);

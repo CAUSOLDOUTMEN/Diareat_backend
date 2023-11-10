@@ -96,7 +96,10 @@ public class FoodControllerTest {
     @WithMockUser("test")
     void testGetFoodListByDate() throws Exception {
         //Given
-        LocalDate date = LocalDate.now();
+        int yy = 2023;
+        int dd = 22;
+        int mm = 12;
+        LocalDate date = LocalDate.of(yy, mm, dd);
 
         ResponseFoodDto food1 = ResponseFoodDto.of(testFoodId, testUserId,"test", LocalDate.now(), LocalTime.now(),testBaseNutrition,false);
 
