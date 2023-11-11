@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 
 import java.time.DayOfWeek;
@@ -66,7 +67,7 @@ class FoodServiceTest {
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(foodRepository.save(any(Food.class))).willReturn(food);
-        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
         //when
         Long foodId = foodService.saveFood(createFoodDto);
@@ -192,7 +193,7 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
 
         //when
@@ -219,7 +220,7 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
 
 
@@ -248,7 +249,7 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food));
 
 
 
@@ -279,7 +280,7 @@ class FoodServiceTest {
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
 
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
@@ -306,7 +307,7 @@ class FoodServiceTest {
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
 
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
@@ -333,8 +334,8 @@ class FoodServiceTest {
 
         given(userRepository.findById(user1.getId())).willReturn(Optional.of(user1));
         given(followRepository.findAllByFromUser(user1.getId())).willReturn(List.of(user2));
-        given(foodRepository.findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food1));
-        given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food2));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food1));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food2));
 
         // when
         List<ResponseRankUserDto> response = foodService.getUserRankByWeek(user1.getId());
@@ -356,8 +357,8 @@ class FoodServiceTest {
         assertEquals(250, response.get(1).getTotalScore());
         verify(userRepository, times(1)).findById(user1.getId());
         verify(followRepository, times(1)).findAllByFromUser(user1.getId());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class));
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class),any(Sort.class));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class),any(Sort.class));
     }
 
     @Test
@@ -379,7 +380,7 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
 
         // when
         ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId());
@@ -424,14 +425,16 @@ class FoodServiceTest {
 
         List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
         List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
+        Sort sort = Sort.by(Sort.Direction.DESC, "addedTime");
+
 
 
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now())).willReturn(foodListOfWeek);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfMonth);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort)).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfMonth);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfWeek);
 
 
         // when
@@ -479,9 +482,9 @@ class FoodServiceTest {
         assertEquals(2, proteinLastFourWeeks.get(4));
 
 
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort);
 
     }
 }
