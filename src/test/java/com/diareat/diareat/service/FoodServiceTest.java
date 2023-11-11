@@ -59,8 +59,8 @@ class FoodServiceTest {
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
         user.setId(1L);
 
-        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, LocalDate.now());
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, 2010,1,1);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
@@ -83,7 +83,7 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(1L);
 
         given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
@@ -106,7 +106,7 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(1L);
 
         given(foodRepository.existsById(food.getId())).willReturn(true);
@@ -187,7 +187,7 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
@@ -214,7 +214,7 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
@@ -243,7 +243,7 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
@@ -270,11 +270,11 @@ class FoodServiceTest {
     void getBest3FoodTest() {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(1,1,1,1));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5), 2010,1,1);
         user.setId(1L);
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
@@ -297,11 +297,11 @@ class FoodServiceTest {
     void getWorst3FoodsTest() {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(1,1,1,1));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 50 ,10, 1));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 20));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 80 ,6, 7));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 5));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 90 ,2, 6));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 50 ,10, 1), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 20), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 80 ,6, 7), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 5), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 90 ,2, 6), 2010,1,1);
         user.setId(1L);
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
@@ -328,8 +328,8 @@ class FoodServiceTest {
         user1.setId(1L);
         user2.setId(2L);
 
-        Food food1 = Food.createFood( "Food1", user1, BaseNutrition.createNutrition(1000, 100 ,100, 100));
-        Food food2 = Food.createFood( "Food2", user2, BaseNutrition.createNutrition(2000, 110 ,50, 90));
+        Food food1 = Food.createFood( "Food1", user1, BaseNutrition.createNutrition(1000, 100 ,100, 100), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user2, BaseNutrition.createNutrition(2000, 110 ,50, 90), 2010,1,1);
 
         given(userRepository.findById(user1.getId())).willReturn(Optional.of(user1));
         given(followRepository.findAllByFromUser(user1.getId())).willReturn(List.of(user2));
@@ -364,10 +364,10 @@ class FoodServiceTest {
     void testGetScoreOfUserWithBestAndWorstFoods(){
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3), 2010,1,1);
         user.setId(1L);
 
         food1.setDate(LocalDate.now());
@@ -405,12 +405,12 @@ class FoodServiceTest {
     void testGetAnalysisOfUser(){
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(250, 100 ,4, 4));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(250, 100 ,4, 4), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5), 2010,1,1);
         user.setId(1L);
 
         food1.setDate(LocalDate.now());
