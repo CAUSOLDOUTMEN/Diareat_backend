@@ -25,10 +25,17 @@ public class CreateFoodDto {
     @NotNull(message = MessageUtil.NOT_NULL)
     private BaseNutrition baseNutrition;
 
-    @PastOrPresent(message = MessageUtil.PAST_OR_PRESENT)
-    private LocalDate date;
+    private int year;
 
-    public static CreateFoodDto of(Long userId, String name, BaseNutrition baseNutrition, LocalDate date) {
-        return new CreateFoodDto(userId, name, baseNutrition, date);
+    private int month;
+
+    private int day;
+
+    public static CreateFoodDto of(Long userId, String name, BaseNutrition baseNutrition, int year, int month, int day) {
+        return new CreateFoodDto(userId, name, baseNutrition, year, month, day);
+    }
+
+    public LocalDate getDate() {
+        return LocalDate.of(year, month, day);
     }
 }
