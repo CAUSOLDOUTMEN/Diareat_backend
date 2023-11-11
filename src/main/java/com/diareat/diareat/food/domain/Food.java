@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -31,17 +32,17 @@ public class Food {
 
     private LocalDate date;
 
-    private LocalTime time;
+    private LocalDateTime addedTime; //클라이언트에서 추가하도록 요청 보낸 timestamp
 
     private BaseNutrition baseNutrition;
 
     // 생성 메서드
-    public static Food createFood(String name, User user, BaseNutrition baseNutrition) {
+    public static Food createFood(String name, User user, BaseNutrition baseNutrition, int year, int month, int day) {
         Food food = new Food();
         food.name = name;
         food.user = user;
-        food.date = LocalDate.now();
-        food.time = LocalTime.now();
+        food.date = LocalDate.of(year, month, day);
+        food.addedTime = LocalDateTime.now();
         food.baseNutrition = baseNutrition;
         return food;
     }
