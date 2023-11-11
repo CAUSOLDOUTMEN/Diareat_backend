@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,7 +54,8 @@ public class FavoriteFood {
     // 즐겨찾기 음식 정보로 새 음식 정보 생성
     public static Food createFoodFromFavoriteFood(FavoriteFood favoriteFood) {
         favoriteFood.addCount();
-        return Food.createFood(favoriteFood.getName(), favoriteFood.getUser(), favoriteFood.getBaseNutrition());
+        LocalDate createdDate = LocalDate.now();
+        return Food.createFood(favoriteFood.getName(), favoriteFood.getUser(), favoriteFood.getBaseNutrition(), createdDate.getYear(), createdDate.getMonthValue(), createdDate.getDayOfMonth());
     }
 
     public void setId(Long id) {
