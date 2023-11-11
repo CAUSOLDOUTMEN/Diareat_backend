@@ -42,7 +42,7 @@ public class FoodService {
             throw new FoodException(ResponseCode.FOOD_NAME_ALREADY_EXIST);
         }
         User user = getUserById(createFoodDto.getUserId());
-        Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition());
+        Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition(), createFoodDto.getYear(), createFoodDto.getMonth(), createFoodDto.getDay());
         return foodRepository.save(food).getId();
     }
 
@@ -53,7 +53,7 @@ public class FoodService {
         validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date);
         return foodList.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getDate(), food.getTime(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
     }
 
     // 음식 정보 수정
