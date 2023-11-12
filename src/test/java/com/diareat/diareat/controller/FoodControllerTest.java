@@ -51,7 +51,7 @@ public class FoodControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final User testUser = User.createUser("test", "test", "test", 180, 70, 0, 20, BaseNutrition.createNutrition(2000, 300, 80, 80));
-    private final Food testFood = Food.createFood("testFood", testUser, BaseNutrition.createNutrition(500, 50, 30, 10));
+    private final Food testFood = Food.createFood("testFood", testUser, BaseNutrition.createNutrition(500, 50, 30, 10), 2021, 10, 10);
     private final FavoriteFood testFavoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", testUser, BaseNutrition.createNutrition(500, 50, 30, 10));
     private final BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(500, 50, 30, 10);
 
@@ -69,7 +69,7 @@ public class FoodControllerTest {
     @WithMockUser("test")
     void testSaveFood() throws Exception {
         //Given
-        CreateFoodDto createFoodDto = CreateFoodDto.of(testUserId, "test", testBaseNutrition, LocalDate.now());
+        CreateFoodDto createFoodDto = CreateFoodDto.of(testUserId, "test", testBaseNutrition, 2021, 10, 10);
 
         when(foodService.saveFood(any(CreateFoodDto.class))).thenReturn(testFoodId);
         ApiResponse<Long> expectedResponse = ApiResponse.success(foodService.saveFood(createFoodDto), ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
@@ -101,7 +101,7 @@ public class FoodControllerTest {
         int mm = 12;
         LocalDate date = LocalDate.of(yy, mm, dd);
 
-        ResponseFoodDto food1 = ResponseFoodDto.of(testFoodId, testUserId,"test", LocalDate.now(), LocalTime.now(),testBaseNutrition,false);
+        ResponseFoodDto food1 = ResponseFoodDto.of(testFoodId, testUserId,"test",testBaseNutrition,false);
 
         when(foodService.getFoodListByDate(any(Long.class), any(LocalDate.class))).thenReturn(List.of(food1));
         ApiResponse<List<ResponseFoodDto>> expectedResponse = ApiResponse.success(List.of(food1), ResponseCode.FOOD_READ_SUCCESS.getMessage());

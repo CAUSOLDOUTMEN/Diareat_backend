@@ -15,12 +15,10 @@ public class ResponseFoodDto {
     private Long foodId;
     private Long userId;
     private String name;
-    //private LocalDate date;
-    //private LocalTime time;
     private BaseNutrition baseNutrition;
     private boolean isFavorite;
 
-    public static ResponseFoodDto of(Long foodId, Long userId, String name, LocalDate date, LocalTime time, BaseNutrition baseNutrition, boolean isFavorite) {
+    public static ResponseFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition, boolean isFavorite) {
         return new ResponseFoodDto(foodId, userId, name, baseNutrition, isFavorite);
     }
 

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 
 import java.time.DayOfWeek;
@@ -59,14 +60,14 @@ class FoodServiceTest {
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
         user.setId(1L);
 
-        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, LocalDate.now());
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, 2010,1,1);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(foodRepository.save(any(Food.class))).willReturn(food);
-        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
         //when
         Long foodId = foodService.saveFood(createFoodDto);
@@ -83,7 +84,7 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(1L);
 
         given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
@@ -106,7 +107,7 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        Food food = Food.createFood("testFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         food.setId(1L);
 
         given(foodRepository.existsById(food.getId())).willReturn(true);
@@ -187,12 +188,12 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDate(any(Long.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
 
         //when
@@ -214,12 +215,12 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class), any(Sort.class))).willReturn(List.of(food));
 
 
 
@@ -243,12 +244,12 @@ class FoodServiceTest {
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
-        Food food = Food.createFood("testFood", user, testFoodNutrition);
+        Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
         food.setId(2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food));
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food));
 
 
 
@@ -270,16 +271,16 @@ class FoodServiceTest {
     void getBest3FoodTest() {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(1,1,1,1));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 100 ,6, 3), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 4), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 100 ,2, 5), 2010,1,1);
         user.setId(1L);
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
 
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
@@ -297,16 +298,16 @@ class FoodServiceTest {
     void getWorst3FoodsTest() {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(1,1,1,1));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 50 ,10, 1));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 20));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 80 ,6, 7));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 5));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 90 ,2, 6));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 50 ,10, 1), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(100, 100 ,8, 20), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(100, 80 ,6, 7), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(100, 100 ,4, 5), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(100, 90 ,2, 6), 2010,1,1);
         user.setId(1L);
 
         List<Food> foodList = List.of(food1, food2, food3, food4, food5);
 
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
@@ -328,13 +329,13 @@ class FoodServiceTest {
         user1.setId(1L);
         user2.setId(2L);
 
-        Food food1 = Food.createFood( "Food1", user1, BaseNutrition.createNutrition(1000, 100 ,100, 100));
-        Food food2 = Food.createFood( "Food2", user2, BaseNutrition.createNutrition(2000, 110 ,50, 90));
+        Food food1 = Food.createFood( "Food1", user1, BaseNutrition.createNutrition(1000, 100 ,100, 100), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user2, BaseNutrition.createNutrition(2000, 110 ,50, 90), 2010,1,1);
 
         given(userRepository.findById(user1.getId())).willReturn(Optional.of(user1));
         given(followRepository.findAllByFromUser(user1.getId())).willReturn(List.of(user2));
-        given(foodRepository.findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food1));
-        given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class))).willReturn(List.of(food2));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food1));
+        given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food2));
 
         // when
         List<ResponseRankUserDto> response = foodService.getUserRankByWeek(user1.getId());
@@ -356,18 +357,18 @@ class FoodServiceTest {
         assertEquals(250, response.get(1).getTotalScore());
         verify(userRepository, times(1)).findById(user1.getId());
         verify(followRepository, times(1)).findAllByFromUser(user1.getId());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class));
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(1L), any(LocalDate.class), any(LocalDate.class),any(Sort.class));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class),any(Sort.class));
     }
 
     @Test
     void testGetScoreOfUserWithBestAndWorstFoods(){
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3), 2010,1,1);
         user.setId(1L);
 
         food1.setDate(LocalDate.now());
@@ -379,7 +380,7 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class))).willReturn(foodList);
+        given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
 
         // when
         ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId());
@@ -405,12 +406,12 @@ class FoodServiceTest {
     void testGetAnalysisOfUser(){
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
-        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1));
-        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2));
-        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2));
-        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3));
-        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(250, 100 ,4, 4));
-        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5));
+        Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        Food food1_1 = Food.createFood( "Food1_1", user, BaseNutrition.createNutrition(130, 100 ,8, 2), 2010,1,1);
+        Food food2 = Food.createFood( "Food2", user, BaseNutrition.createNutrition(150, 100 ,8, 2), 2010,1,1);
+        Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3), 2010,1,1);
+        Food food4 = Food.createFood( "Food4", user, BaseNutrition.createNutrition(250, 100 ,4, 4), 2010,1,1);
+        Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5), 2010,1,1);
         user.setId(1L);
 
         food1.setDate(LocalDate.now());
@@ -424,14 +425,16 @@ class FoodServiceTest {
 
         List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
         List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
+        Sort sort = Sort.by(Sort.Direction.DESC, "addedTime");
+
 
 
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now())).willReturn(foodListOfWeek);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfMonth);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now())).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort)).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfMonth);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfWeek);
 
 
         // when
@@ -479,9 +482,9 @@ class FoodServiceTest {
         assertEquals(2, proteinLastFourWeeks.get(4));
 
 
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort);
 
     }
 }
