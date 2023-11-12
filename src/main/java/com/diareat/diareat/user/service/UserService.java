@@ -52,8 +52,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
-        double nutritionScore = 100; // 점수 계산 로직 확정 전 기본값 -> 추후 수정 필요
-        return ResponseSimpleUserDto.of(user.getName(), user.getImage(), nutritionScore);
+        return ResponseSimpleUserDto.of(user.getName(), user.getImage());
     }
 
     // 회원정보 조회
