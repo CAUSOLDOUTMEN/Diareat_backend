@@ -5,7 +5,6 @@ metadata:
   namespace: diareat
 spec:
   revisionHistoryLimit: 3
-  replicas: 2
   selector:
     matchLabels:
       app: diareat
@@ -23,8 +22,8 @@ spec:
             name: diareat-secret
         resources:
           limits:
-            memory: "512Mi"
-            cpu: 0.5
+            memory: "4G"
+            cpu: 1
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -75,8 +74,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: diareat-deployment
-  minReplicas: 2
-  maxReplicas: 4
+  minReplicas: 1
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
