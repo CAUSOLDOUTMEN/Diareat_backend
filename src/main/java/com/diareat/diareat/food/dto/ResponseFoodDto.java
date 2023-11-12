@@ -18,10 +18,10 @@ public class ResponseFoodDto {
     private Long userId;
     private String name;
     private BaseNutrition baseNutrition;
-    private boolean isFavorite;
+    private boolean favoriteChecked;
 
-    public static ResponseFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition, boolean isFavorite) {
-        return new ResponseFoodDto(foodId, userId, name, baseNutrition, isFavorite);
+    public static ResponseFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition, boolean favoriteChecked) {
+        return new ResponseFoodDto(foodId, userId, name, baseNutrition, favoriteChecked);
     }
 
     public static ResponseFoodDto from(Food food) {
