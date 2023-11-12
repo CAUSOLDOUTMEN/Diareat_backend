@@ -32,6 +32,7 @@ public class Food {
 
     private LocalDate date;
 
+    @Column(name = "added_time") //테이블과 매핑
     private LocalDateTime addedTime; //클라이언트에서 추가하도록 요청 보낸 timestamp
 
     private BaseNutrition baseNutrition;
