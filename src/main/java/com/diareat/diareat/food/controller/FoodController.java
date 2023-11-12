@@ -7,7 +7,6 @@ import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,15 +44,23 @@ public class FoodController {
     //음식 정보 수정
     @Operation(summary = "[음식] 음식 정보 수정",description = "음식에 대한 정보를 수정합니다.")
     @PostMapping("/update")
-    public ApiResponse<Void> updateFood(@RequestBody @Valid UpdateFoodDto updateFoodDto){
-        foodService.updateFood(updateFoodDto);
+    public ApiResponse<Void> updateFood(@RequestBody @Valid UpdateFoodDto updateFoodDto,
+                                        @RequestParam int yy,
+                                        @RequestParam int mm,
+                                        @RequestParam int dd){
+        LocalDate date = LocalDate.of(yy,mm,dd);
+        foodService.updateFood(updateFoodDto, date);
         return ApiResponse.success(null,ResponseCode.FOOD_UPDATE_SUCCESS.getMessage());
     }
     //음식 삭제
     @Operation(summary = "[음식] 음식 정보 삭제",description = "음식에 대한 정보를 삭제합니다.")
     @DeleteMapping("/{foodId}/delete")
-    public ApiResponse<Void> deleteFood(@PathVariable Long foodId, @RequestHeader Long userId){
-        foodService.deleteFood(foodId, userId);
+    public ApiResponse<Void> deleteFood(@PathVariable Long foodId, @RequestHeader Long userId,
+                                        @RequestParam int yy,
+                                        @RequestParam int mm,
+                                        @RequestParam int dd){
+        LocalDate date = LocalDate.of(yy,mm,dd);
+        foodService.deleteFood(foodId, userId, date);
         return ApiResponse.success(null, ResponseCode.FOOD_DELETE_SUCCESS.getMessage());
     }
 
