@@ -4,12 +4,14 @@ import com.diareat.diareat.food.domain.Food;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ResponseFoodDto {
 
     private Long foodId;
