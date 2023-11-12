@@ -425,7 +425,7 @@ class FoodServiceTest {
 
         List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
         List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
-        Sort sort = Sort.by(Sort.Direction.DESC, "added_time");
+        Sort sort = Sort.by(Sort.Direction.DESC, "addedTime");
 
 
 
