@@ -65,7 +65,7 @@ public class UserService {
     }
 
     // 회원정보 수정
-    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.userId", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
@@ -83,7 +83,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 직접 수정
-    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.userId", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());
