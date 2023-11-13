@@ -37,7 +37,7 @@ public class FoodService {
     private final UserRepository userRepository;
 
     // 촬영 후, 음식 정보 저장
-    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+date.toString()", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
         if (foodRepository.existsByName(createFoodDto.getName())){
