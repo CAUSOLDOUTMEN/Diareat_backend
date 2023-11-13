@@ -37,9 +37,10 @@ public class FavoriteFood {
     }
 
     // 생성 메서드
-    public static FavoriteFood createFavoriteFood(String name, User user, BaseNutrition baseNutrition) {
+    public static FavoriteFood createFavoriteFood(String name, User user, Food food, BaseNutrition baseNutrition) {
         FavoriteFood favoriteFood = new FavoriteFood();
         favoriteFood.name = name;
+        favoriteFood.food = food;
         favoriteFood.user = user;
         favoriteFood.baseNutrition = baseNutrition;
         return favoriteFood;

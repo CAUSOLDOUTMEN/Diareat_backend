@@ -80,10 +80,14 @@ public class FoodService {
     @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#createFavoriteFoodDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
+        validateFood(createFavoriteFoodDto.getFoodId(), createFavoriteFoodDto.getUserId());
         User user = getUserById(createFavoriteFoodDto.getUserId());
+        Food food = getFoodById(createFavoriteFoodDto.getFoodId());
+
         if (favoriteFoodRepository.existsByFoodId(createFavoriteFoodDto.getFoodId()))
             throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
-        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, createFavoriteFoodDto.getBaseNutrition());
+
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, food, createFavoriteFoodDto.getBaseNutrition());
         return favoriteFoodRepository.save(favoriteFood).getId();
     }
 
