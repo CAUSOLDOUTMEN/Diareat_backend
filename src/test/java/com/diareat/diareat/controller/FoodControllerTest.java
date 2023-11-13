@@ -51,7 +51,7 @@ class FoodControllerTest {
 
     private final User testUser = User.createUser("test", "test", "test", 180, 70, 0, 20, BaseNutrition.createNutrition(2000, 300, 80, 80));
     private final Food testFood = Food.createFood("testFood", testUser, BaseNutrition.createNutrition(500, 50, 30, 10), 2021, 10, 10);
-    private final FavoriteFood testFavoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", testUser, BaseNutrition.createNutrition(500, 50, 30, 10));
+    private final FavoriteFood testFavoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", testUser, testFood, BaseNutrition.createNutrition(500, 50, 30, 10));
     private final BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(500, 50, 30, 10);
 
     @BeforeEach

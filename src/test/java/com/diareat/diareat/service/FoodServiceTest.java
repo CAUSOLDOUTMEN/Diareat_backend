@@ -122,23 +122,28 @@ class FoodServiceTest {
     void testSaveAndGetFavoriteFood() {
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
-        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user,food, testBaseNutrition);
         user.setId(1L);
+        food.setId(2L);
         favoriteFood.setId(3L);
 
-        CreateFavoriteFoodDto createFavoriteFoodDto = CreateFavoriteFoodDto.of(favoriteFood.getId(), user.getId(),"testFood", testBaseNutrition);
+        CreateFavoriteFoodDto createFavoriteFoodDto = CreateFavoriteFoodDto.of(food.getId(), user.getId(),"testFood", testBaseNutrition);
 
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(userRepository.existsById(user.getId())).willReturn(true);
+        given(foodRepository.existsById(food.getId())).willReturn(true);
+        given(foodRepository.existsByIdAndUserId(food.getId(), user.getId())).willReturn(true);
+        given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
         given(favoriteFoodRepository.save(any(FavoriteFood.class))).willReturn(favoriteFood);
         given(favoriteFoodRepository.findAllByUserId(any(Long.class))).willReturn(List.of(favoriteFood));
 
         //when
-        Long foodId = foodService.saveFavoriteFood(createFavoriteFoodDto);
+        Long favoriteFoodId = foodService.saveFavoriteFood(createFavoriteFoodDto);
 
         List<ResponseFavoriteFoodDto> responseFavoriteFoodDtoList = foodService.getFavoriteFoodList(user.getId());
 
-        assertEquals(3L, foodId);
+        assertEquals(3L, favoriteFoodId);
         assertEquals("testFavoriteFood",responseFavoriteFoodDtoList.get(0).getName());
         verify(favoriteFoodRepository, times(1)).save(any(FavoriteFood.class));
     }
@@ -147,7 +152,8 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user, food,testBaseNutrition);
         favoriteFood.setId(1L);
 
         given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
@@ -169,7 +175,8 @@ class FoodServiceTest {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
-        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFood", user, testBaseNutrition);
+        Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFood", user, food, testBaseNutrition);
         favoriteFood.setId(1L);
 
         given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
