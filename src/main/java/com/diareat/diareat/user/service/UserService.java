@@ -52,8 +52,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
-        double nutritionScore = 100; // 점수 계산 로직 확정 전 기본값 -> 추후 수정 필요
-        return ResponseSimpleUserDto.of(user.getName(), user.getImage(), nutritionScore);
+        return ResponseSimpleUserDto.of(user.getName(), user.getImage());
     }
 
     // 회원정보 조회
@@ -65,7 +64,7 @@ public class UserService {
     }
 
     // 회원정보 수정
-    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.userId", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
@@ -83,7 +82,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 직접 수정
-    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.userId", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());

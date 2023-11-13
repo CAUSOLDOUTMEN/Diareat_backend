@@ -9,7 +9,6 @@ import com.diareat.diareat.food.service.FoodService;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.response.ResponseRankUserDto;
-import com.diareat.diareat.user.dto.response.ResponseSimpleUserDto;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -92,7 +91,7 @@ class FoodServiceTest {
 
         //when
         BaseNutrition testChangedBaseNutrition = BaseNutrition.createNutrition(2,3,4,5);
-        foodService.updateFood(UpdateFoodDto.of(food.getId(), 1L,"testChangedFood", testChangedBaseNutrition));
+        foodService.updateFood(UpdateFoodDto.of(food.getId(), 1L,"testChangedFood", testChangedBaseNutrition), LocalDate.of(2010, 1, 1));
 
 
         assertEquals("testChangedFood", food.getName());
@@ -114,7 +113,7 @@ class FoodServiceTest {
         given(foodRepository.existsByIdAndUserId(food.getId(), 1L)).willReturn(true);
 
         //when
-        foodService.deleteFood(food.getId(), 1L);
+        foodService.deleteFood(food.getId(), 1L, LocalDate.of(2010, 1, 1));
 
         verify(foodRepository, times(1)).deleteById(food.getId());
     }

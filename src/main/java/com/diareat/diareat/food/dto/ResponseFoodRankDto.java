@@ -1,15 +1,14 @@
 package com.diareat.diareat.food.dto;
 
-import com.diareat.diareat.food.domain.Food;
-import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResponseFoodRankDto {
 

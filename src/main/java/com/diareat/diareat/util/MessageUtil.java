@@ -20,4 +20,5 @@ public class MessageUtil { // 반복되는 메시지의 형식을 저장하고 �
     public static final String FAT_RANGE = "지방은 25 이상, 500 이하의 값을 입력해주세요.";
 
     public static final String PAST_OR_PRESENT = "과거 또는 오늘 날짜여야 합니다.";
+    public static final String TIME_STAMP = "addedTime";
 }

@@ -59,7 +59,7 @@ class UserControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
-        when(userService.getSimpleUserInfo(testUserId)).thenReturn(ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage(), 100.0));
+        when(userService.getSimpleUserInfo(testUserId)).thenReturn(ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage()));
         when(userService.getUserInfo(testUserId)).thenReturn(ResponseUserDto.from(testUser));
     }
 
@@ -69,7 +69,7 @@ class UserControllerTest {
     void testGetSimpleUserInfo() throws Exception {
         // Given
         ApiResponse<ResponseSimpleUserDto> expectedResponse = ApiResponse.success(
-                ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage(), 100.0), ResponseCode.USER_CREATE_SUCCESS.getMessage());
+                ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage()), ResponseCode.USER_CREATE_SUCCESS.getMessage());
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders
@@ -79,8 +79,7 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(expectedResponse.getData().getName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.image").value(expectedResponse.getData().getImage()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.nutritionScore").value(expectedResponse.getData().getNutritionScore()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.image").value(expectedResponse.getData().getImage()));
     }
 
     @DisplayName("회원정보 조회")

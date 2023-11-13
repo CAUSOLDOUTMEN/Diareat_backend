@@ -4,8 +4,10 @@ import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResponseFavoriteFoodDto {
 

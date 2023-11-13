@@ -27,14 +27,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(controllers = FoodController.class)
-public class FoodControllerTest {
+class FoodControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -131,12 +130,20 @@ public class FoodControllerTest {
     @WithMockUser("test")
     void testUpdateFood() throws Exception {
         //Given
+        int yy = 2023;
+        int dd = 22;
+        int mm = 12;
+        LocalDate date = LocalDate.of(yy, mm, dd);
+
         ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.FOOD_UPDATE_SUCCESS.getMessage());
         UpdateFoodDto updateFoodDto = UpdateFoodDto.of(testFoodId, testUserId, "testFood", testBaseNutrition);
         String json = mapper.writeValueAsString(updateFoodDto);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/food/update")
+                        .param("yy", String.valueOf(date.getYear()))
+                        .param("mm", String.valueOf(date.getMonthValue()))
+                        .param("dd", String.valueOf(date.getDayOfMonth()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .accept(MediaType.APPLICATION_JSON))
@@ -152,10 +159,18 @@ public class FoodControllerTest {
     @WithMockUser("test")
     void testDeleteFood() throws Exception {
         //Given
+        int yy = 2023;
+        int dd = 22;
+        int mm = 12;
+        LocalDate date = LocalDate.of(yy, mm, dd);
+
         ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.FOOD_DELETE_SUCCESS.getMessage());
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/api/food/{foodId}/delete", testFoodId)
+                        .param("yy", String.valueOf(date.getYear()))
+                        .param("mm", String.valueOf(date.getMonthValue()))
+                        .param("dd", String.valueOf(date.getDayOfMonth()))
                         .header("userId", testUserId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
