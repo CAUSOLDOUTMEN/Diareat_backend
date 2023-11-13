@@ -37,6 +37,7 @@ public class FoodService {
     private final UserRepository userRepository;
 
     // 촬영 후, 음식 정보 저장
+    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
         if (foodRepository.existsByName(createFoodDto.getName())){
@@ -47,7 +48,7 @@ public class FoodService {
         return foodRepository.save(food).getId();
     }
 
-    // 회원이 특정 날짜에 먹은 음식 조회
+    // 회원이 특정 날짜에 먹은 음식 조회 -> 돌발적인 행동이 많아 캐시 일관성 유지의 가치가 낮아서 캐싱 배제
     @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         validateUser(userId);
@@ -58,7 +59,7 @@ public class FoodService {
     }
 
     // 음식 정보 수정
-    @CacheEvict(value = "ResponseFoodDto, ResponseNutritionSumByDateDto", key = "#updateFoodDto.getUserId()+date.toString()", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#updateFoodDto.getUserId()+date.toString()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateFood(UpdateFoodDto updateFoodDto, LocalDate date) {
         Food food = getFoodById(updateFoodDto.getFoodId());
@@ -67,7 +68,7 @@ public class FoodService {
     }
 
     // 음식 삭제
-    @CacheEvict(value = "ResponseFoodDto, ResponseNutritionSumByDateDto", key = "#userId+date.toString()", cacheManager = "diareatCacheManager")
+    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+date.toString()", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteFood(Long foodId, Long userId, LocalDate date) {
         validateFood(foodId, userId);
