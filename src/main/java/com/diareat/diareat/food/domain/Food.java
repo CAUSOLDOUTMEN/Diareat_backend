@@ -26,7 +26,7 @@ public class Food {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = false) // 음식이 삭제되어도 즐찾음식은 삭제되지 않음
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 음식이 삭제되어도 즐찾음식은 삭제되지 않음
     @JoinColumn(name = "favorite_food_id")
     private FavoriteFood favoriteFood;
 
@@ -45,6 +45,7 @@ public class Food {
         food.date = LocalDate.of(year, month, day);
         food.addedTime = LocalDateTime.now();
         food.baseNutrition = baseNutrition;
+
         return food;
     }
 
@@ -61,4 +62,8 @@ public class Food {
     public void setId(long id) {this.id = id;}
 
     public void setDate(LocalDate date) {this.date = date;} //food test를 위한 date
+
+    public void setFavoriteFood(FavoriteFood favoriteFood){
+        this.favoriteFood = favoriteFood;
+    }
 }
