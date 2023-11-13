@@ -37,7 +37,6 @@ public class FoodService {
     private final UserRepository userRepository;
 
     // 촬영 후, 음식 정보 저장
-    @CacheEvict(value = "ResponseFoodDto, ResponseNutritionSumByDateDto", key = "#createFoodDto.getUserId()+#createFoodDto.getDate().toString()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
         if (foodRepository.existsByName(createFoodDto.getName())){
@@ -49,7 +48,6 @@ public class FoodService {
     }
 
     // 회원이 특정 날짜에 먹은 음식 조회
-    @Cacheable(value = "ResponseFoodDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         validateUser(userId);
@@ -319,6 +317,12 @@ public class FoodService {
         return rankUserDtos;
     }
 
+    @Transactional()
+    public Long createFoodFromFavoriteFood(Long favoriteFoodId) {
+        FavoriteFood favoriteFood = getFavoriteFoodById(favoriteFoodId);
+        Food food = FavoriteFood.createFoodFromFavoriteFood(favoriteFood);
+        return foodRepository.save(food).getId();
+    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
