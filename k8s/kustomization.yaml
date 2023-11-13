@@ -5,4 +5,4 @@ resources:
 images:
 - name: synoti21/diareat-backend
   newName: synoti21/diareat-backend
-  newTag: ad81bcb9
+  newTag: 0b13c413
