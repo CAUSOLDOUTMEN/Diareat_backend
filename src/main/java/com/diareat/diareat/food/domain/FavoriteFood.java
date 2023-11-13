@@ -20,7 +20,7 @@ public class FavoriteFood {
 
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = false) // 즐찾음식이 삭제되어도 음식은 삭제되지 않음
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 즐찾음식이 삭제되어도 음식은 삭제되지 않음
     @JoinColumn(name = "food_id")
     private Food food;
 
@@ -43,6 +43,7 @@ public class FavoriteFood {
         favoriteFood.food = food;
         favoriteFood.user = user;
         favoriteFood.baseNutrition = baseNutrition;
+        food.setFavoriteFood(favoriteFood);
         return favoriteFood;
     }
 
