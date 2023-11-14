@@ -142,8 +142,8 @@ public class FoodController {
     }
 
     @Operation(summary = "[음식] 즐겨찾기 음식으로 음식 생성",description = "즐겨찾기 음식으로 음식을 생성합니다.")
-    @PostMapping("/{userId}/from/{favoriteFoodId}")
-    public ApiResponse<Long> createFoodFromFavoriteFood(@PathVariable Long userId, @PathVariable Long favoriteFoodId){
-        return ApiResponse.success(foodService.createFoodFromFavoriteFood(userId, favoriteFoodId),ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
+    @PostMapping("/favorite/createfrom")
+    public ApiResponse<Long> createFoodFromFavoriteFood(@RequestBody @Valid CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto){
+        return ApiResponse.success(foodService.createFoodFromFavoriteFood(createFoodFromFavoriteFoodDto),ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
     }
 }

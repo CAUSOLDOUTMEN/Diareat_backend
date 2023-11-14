@@ -319,9 +319,9 @@ public class FoodService {
     }
 
     @Transactional()
-    public Long createFoodFromFavoriteFood(Long userId, Long favoriteFoodId) {
-        validateFavoriteFood(userId, favoriteFoodId);
-        FavoriteFood favoriteFood = getFavoriteFoodById(favoriteFoodId);
+    public Long createFoodFromFavoriteFood(CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto) {
+        validateFavoriteFood(createFoodFromFavoriteFoodDto.getFavoriteFoodId(), createFoodFromFavoriteFoodDto.getUserId());
+        FavoriteFood favoriteFood = getFavoriteFoodById(createFoodFromFavoriteFoodDto.getFavoriteFoodId());
         Food food = FavoriteFood.createFoodFromFavoriteFood(favoriteFood);
         return foodRepository.save(food).getId();
     }
