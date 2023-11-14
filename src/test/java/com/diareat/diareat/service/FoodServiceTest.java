@@ -493,4 +493,31 @@ class FoodServiceTest {
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort);
 
     }
+
+    @Test
+    void testCreateFoodFromFavoriteFood() {
+        // given
+        User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
+        Food food = Food.createFood( "Food", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("FavoriteFood", user, food, BaseNutrition.createNutrition(100, 100 ,10, 1));
+        Food newFood = Food.createFood("FoodFromFavorite", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
+        user.setId(1L);
+        food.setId(2L);
+        favoriteFood.setId(3L);
+        newFood.setId(4L);
+        CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto = CreateFoodFromFavoriteFoodDto.of(user.getId(), favoriteFood.getId());
+
+
+        given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
+        given(favoriteFoodRepository.existsByIdAndUserId(favoriteFood.getId(),user.getId())).willReturn(true);
+        given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
+        given(foodRepository.save(any(Food.class))).willReturn(newFood);
+
+        // when
+        Long foodId = foodService.createFoodFromFavoriteFood(createFoodFromFavoriteFoodDto);
+
+        // then
+        assertEquals(4L, foodId);
+        verify(foodRepository, times(1)).save(any(Food.class));
+    }
 }

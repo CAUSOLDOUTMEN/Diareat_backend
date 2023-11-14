@@ -466,4 +466,29 @@ class FoodControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].proteinScore").value(expectedResponse.getData().get(0).getProteinScore()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].fatScore").value(expectedResponse.getData().get(0).getFatScore()));
     }
+
+    @DisplayName("즐겨찾기 음식으로 음식 생성")
+    @Test
+    @WithMockUser("test")
+    void testCreateFoodFromFavoriteFood() throws Exception{
+        //Given
+        Long testNewFoodId = 1L;
+        CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto = CreateFoodFromFavoriteFoodDto.of(testUserId, testFavoriteFoodId);
+        when(foodService.createFoodFromFavoriteFood(any(CreateFoodFromFavoriteFoodDto.class))).thenReturn(testNewFoodId);
+        ApiResponse<Long> expectedResponse = ApiResponse.success(foodService.createFoodFromFavoriteFood(createFoodFromFavoriteFoodDto), ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
+        String json = mapper.writeValueAsString(createFoodFromFavoriteFoodDto);
+
+
+        //When
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/food/favorite/createfrom")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(expectedResponse.getData()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(expectedResponse.getMsg()));
+    }
 }
