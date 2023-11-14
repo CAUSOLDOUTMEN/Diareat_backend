@@ -118,7 +118,7 @@ public class FoodService {
         favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
-    @Cacheable(value = "ResponseNutritionSumByDateDto", key = "#userId + #date.toString()", cacheManager = "diareatCacheManager")
+    @Cacheable(value = "ResponseNutritionSumByDateDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
