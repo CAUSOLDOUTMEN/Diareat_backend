@@ -140,4 +140,10 @@ public class FoodController {
     public ApiResponse<List<ResponseRankUserDto>> getUserRankByWeek(@PathVariable Long userId){
         return ApiResponse.success(foodService.getUserRankByWeek(userId),ResponseCode.FOOD_RANK_READ_SUCCESS.getMessage());
     }
+
+    @Operation(summary = "[음식] 즐겨찾기 음식으로 음식 생성",description = "즐겨찾기 음식으로 음식을 생성합니다.")
+    @PostMapping("/favorite/createfrom")
+    public ApiResponse<Long> createFoodFromFavoriteFood(@RequestBody @Valid CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto){
+        return ApiResponse.success(foodService.createFoodFromFavoriteFood(createFoodFromFavoriteFoodDto),ResponseCode.FOOD_CREATE_SUCCESS.getMessage());
+    }
 }
