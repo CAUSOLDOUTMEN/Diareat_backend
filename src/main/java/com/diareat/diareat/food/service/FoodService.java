@@ -323,6 +323,7 @@ public class FoodService {
         validateFavoriteFood(createFoodFromFavoriteFoodDto.getFavoriteFoodId(), createFoodFromFavoriteFoodDto.getUserId());
         FavoriteFood favoriteFood = getFavoriteFoodById(createFoodFromFavoriteFoodDto.getFavoriteFoodId());
         Food food = FavoriteFood.createFoodFromFavoriteFood(favoriteFood);
+        food.setFavoriteFood(favoriteFood);
         return foodRepository.save(food).getId();
     }
 
