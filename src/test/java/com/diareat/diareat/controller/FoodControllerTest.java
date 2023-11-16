@@ -313,7 +313,7 @@ class FoodControllerTest {
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
                 BaseNutrition.createNutrition(500, 100, 50, 50));
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
-        when(foodService.getNutritionSumByWeek(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
+        when(foodService.getNutritionSumByWeek(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseNutritionSumByDateDto);
 
 
         //When
@@ -348,7 +348,7 @@ class FoodControllerTest {
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
                 BaseNutrition.createNutrition(500, 100, 50, 50));
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
-        when(foodService.getNutritionSumByMonth(any(Long.class))).thenReturn(responseNutritionSumByDateDto);
+        when(foodService.getNutritionSumByMonth(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseNutritionSumByDateDto);
 
 
         //When
@@ -388,7 +388,7 @@ class FoodControllerTest {
         ResponseScoreBestWorstDto responseScoreBestWorstDto = ResponseScoreBestWorstDto.of(testUserId, 100, 80
                 , 60, 240, List.of(food1, food2,food3), List.of(food4, food5, food6));
         ApiResponse<ResponseScoreBestWorstDto> expectedResponse = ApiResponse.success(responseScoreBestWorstDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
-        when(foodService.getScoreOfUserWithBestAndWorstFoods(any(Long.class))).thenReturn(responseScoreBestWorstDto);
+        when(foodService.getScoreOfUserWithBestAndWorstFoods(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseScoreBestWorstDto);
 
 
         //When
@@ -418,7 +418,7 @@ class FoodControllerTest {
                 List.of(100.0, 100.0), List.of(100.0, 100.0), List.of(100.0, 100.0));
 
         ApiResponse<ResponseAnalysisDto> expectedResponse = ApiResponse.success(responseAnalysisDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
-        when(foodService.getAnalysisOfUser(any(Long.class))).thenReturn(responseAnalysisDto);
+        when(foodService.getAnalysisOfUser(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseAnalysisDto);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
@@ -450,7 +450,7 @@ class FoodControllerTest {
         List<ResponseRankUserDto> responseRankUserDtoList = List.of(responseRankUserDto1, responseRankUserDto2);
 
         ApiResponse<List<ResponseRankUserDto>> expectedResponse = ApiResponse.success(responseRankUserDtoList, ResponseCode.FOOD_READ_SUCCESS.getMessage());
-        when(foodService.getUserRankByWeek(testUserId)).thenReturn(responseRankUserDtoList);
+        when(foodService.getUserRankByWeek(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseRankUserDtoList);
 
         //When
         mockMvc.perform(MockMvcRequestBuilders

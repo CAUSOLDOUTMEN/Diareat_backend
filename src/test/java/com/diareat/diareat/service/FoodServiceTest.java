@@ -231,7 +231,7 @@ class FoodServiceTest {
 
 
         //when
-        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByWeek(user.getId());
+        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByWeek(user.getId(), 2010,1,1);
         assertEquals(1400, responseNutritionSumByDateDto.getTotalKcal());
         assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
         assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
@@ -260,7 +260,7 @@ class FoodServiceTest {
 
 
         //when
-        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByMonth(user.getId());
+        ResponseNutritionSumByDateDto responseNutritionSumByDateDto = foodService.getNutritionSumByMonth(user.getId(), 2010,1,1);
         assertEquals(1400, responseNutritionSumByDateDto.getTotalKcal());
         assertEquals(150, responseNutritionSumByDateDto.getTotalCarbohydrate());
         assertEquals(200, responseNutritionSumByDateDto.getTotalProtein());
@@ -290,7 +290,7 @@ class FoodServiceTest {
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
-        ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId());
+        ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId(), 2010,1,1);
         List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
@@ -317,7 +317,7 @@ class FoodServiceTest {
         given(userRepository.existsById(user.getId())).willReturn(true);
 
         // when
-        ResponseFoodRankDto response = foodService.getWorstFoodByWeek(user.getId());
+        ResponseFoodRankDto response = foodService.getWorstFoodByWeek(user.getId(), 2010,1,1);
         List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
 
         // then
@@ -344,7 +344,7 @@ class FoodServiceTest {
         given(foodRepository.findAllByUserIdAndDateBetween(eq(2L), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(List.of(food2));
 
         // when
-        List<ResponseRankUserDto> response = foodService.getUserRankByWeek(user1.getId());
+        List<ResponseRankUserDto> response = foodService.getUserRankByWeek(user1.getId(), 2010,1,1);
 
         // then
         assertEquals(2, response.size());
@@ -377,10 +377,12 @@ class FoodServiceTest {
         Food food3 = Food.createFood( "Food3", user, BaseNutrition.createNutrition(200, 100 ,6, 3), 2010,1,1);
         user.setId(1L);
 
-        food1.setDate(LocalDate.now());
-        food1_1.setDate(LocalDate.now());
-        food2.setDate(LocalDate.now().minusDays(2));
-        food3.setDate(LocalDate.now().minusDays(3));
+        LocalDate fixedDate = LocalDate.of(2010, 1, 1);
+
+        food1.setDate(fixedDate);
+        food1_1.setDate(fixedDate);
+        food2.setDate(fixedDate.minusDays(2));
+        food3.setDate(fixedDate.minusDays(3));
 
         List<Food> foodList = List.of(food1, food1_1, food2, food3);
 
@@ -389,7 +391,7 @@ class FoodServiceTest {
         given(foodRepository.findAllByUserIdAndDateBetween(any(Long.class), any(LocalDate.class), any(LocalDate.class),any(Sort.class))).willReturn(foodList);
 
         // when
-        ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId());
+        ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId(), 2010, 1, 1);
         List<ResponseSimpleFoodDto> top3Foods = response.getBest();
         List<ResponseSimpleFoodDto> worst3Foods = response.getWorst();
         double totalScore = response.getTotalScore();
@@ -420,31 +422,33 @@ class FoodServiceTest {
         Food food5 = Food.createFood( "Food5", user, BaseNutrition.createNutrition(300, 100 ,2, 5), 2010,1,1);
         user.setId(1L);
 
-        food1.setDate(LocalDate.now());
-        food1_1.setDate(LocalDate.now());
-        food2.setDate(LocalDate.now().minusDays(2));
-        food3.setDate(LocalDate.now().minusDays(3));
-        food4.setDate(LocalDate.now().minusWeeks(1));
-        food5.setDate(LocalDate.now().minusWeeks(2));
+        LocalDate fixedDate = LocalDate.of(2010, 5, 1);
+
+        food1.setDate(fixedDate);
+        food1_1.setDate(fixedDate);
+        food2.setDate(fixedDate.minusDays(2));
+        food3.setDate(fixedDate.minusDays(3));
+        food4.setDate(fixedDate.minusWeeks(1));
+        food5.setDate(fixedDate.minusWeeks(2));
 
 
 
         List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
         List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
-        Sort sort = Sort.by(Sort.Direction.DESC, "addedTime");
+        Sort sort = Sort.by(Sort.Direction.DESC, "added_time");
 
 
 
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort)).willReturn(foodListOfWeek);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfMonth);
-        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort)).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), fixedDate.minusWeeks(1), fixedDate,sort)).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY), fixedDate,sort)).willReturn(foodListOfMonth);
+        given(foodRepository.findAllByUserIdAndDateBetween(user.getId(), fixedDate.with(DayOfWeek.MONDAY), fixedDate,sort)).willReturn(foodListOfWeek);
 
 
         // when
-        ResponseAnalysisDto response = foodService.getAnalysisOfUser(user.getId());
+        ResponseAnalysisDto response = foodService.getAnalysisOfUser(user.getId(), fixedDate.getYear(), fixedDate.getMonthValue(), fixedDate.getDayOfMonth());
 
         double totalScore = response.getTotalScore();
         List<Double> calorieLastSevenDays = response.getCalorieLastSevenDays();
@@ -459,6 +463,7 @@ class FoodServiceTest {
         //갯수 확인
         assertEquals(3, calorieLastSevenDays.size()); //일주일동안의 음식 -> 3개
         assertEquals(5, calorieLastFourWeeks.size()); //한달동안의 음식 -> 5개
+
 
 
         //날짜 정렬 확인 (1주)
@@ -488,9 +493,9 @@ class FoodServiceTest {
         assertEquals(2, proteinLastFourWeeks.get(4));
 
 
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(1), LocalDate.now(),sort);
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now(),sort);
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now(),sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), fixedDate.minusWeeks(1), fixedDate,sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY), fixedDate,sort);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetween(user.getId(), fixedDate.with(DayOfWeek.MONDAY), fixedDate,sort);
 
     }
 
