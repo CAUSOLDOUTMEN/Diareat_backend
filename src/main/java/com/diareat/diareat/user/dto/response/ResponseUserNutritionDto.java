@@ -1,14 +1,20 @@
 package com.diareat.diareat.user.dto.response;
 
 import com.diareat.diareat.user.domain.User;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseUserNutritionDto {
+@JsonSerialize
+@JsonDeserialize
+public class ResponseUserNutritionDto implements Serializable {
 
     private int calorie; // 유저가 설정한(할 수 있는) 현재 영양소 기준섭취량
     private int carbohydrate;
