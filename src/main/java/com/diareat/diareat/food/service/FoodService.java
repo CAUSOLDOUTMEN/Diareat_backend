@@ -37,7 +37,7 @@ public class FoodService {
     private final UserRepository userRepository;
 
     // 촬영 후, 음식 정보 저장
-    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+createFoodDto.getDate()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
         if (foodRepository.existsByName(createFoodDto.getName())){
@@ -59,7 +59,7 @@ public class FoodService {
     }
 
     // 음식 정보 수정
-    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#updateFoodDto.getUserId()+date.toString()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#updateFoodDto.getUserId()+date.toString()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateFood(UpdateFoodDto updateFoodDto, LocalDate date) {
         Food food = getFoodById(updateFoodDto.getFoodId());
@@ -68,7 +68,7 @@ public class FoodService {
     }
 
     // 음식 삭제
-    @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+date.toString()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+date.toString()", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteFood(Long foodId, Long userId, LocalDate date) {
         validateFood(foodId, userId);
@@ -76,7 +76,7 @@ public class FoodService {
     }
 
     // 즐겨찾기에 음식 저장
-    @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#createFavoriteFoodDto.getUserId()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#createFavoriteFoodDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFavoriteFood(CreateFavoriteFoodDto createFavoriteFoodDto) {
         validateFood(createFavoriteFoodDto.getFoodId(), createFavoriteFoodDto.getUserId());
@@ -91,7 +91,7 @@ public class FoodService {
     }
 
     //즐겨찾기 음식 리스트 반환
-    @Cacheable(value = "ResponseFavoriteFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseFavoriteFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public List<ResponseFavoriteFoodDto> getFavoriteFoodList(Long userId){
         validateUser(userId);
@@ -102,7 +102,7 @@ public class FoodService {
     }
 
     // 즐겨찾기 음식 수정
-    @CacheEvict(value = "ResponseFavoriteFoodDto", key = "updateFavoriteFoodDto.getUserId()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = "ResponseFavoriteFoodDto", key = "updateFavoriteFoodDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateFavoriteFood(UpdateFavoriteFoodDto updateFavoriteFoodDto) {
         FavoriteFood food = getFavoriteFoodById(updateFavoriteFoodDto.getFavoriteFoodId());
@@ -111,14 +111,14 @@ public class FoodService {
     }
 
     // 즐겨찾기 해제
-    @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = "ResponseFavoriteFoodDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteFavoriteFood(Long favoriteFoodId, Long userId) {
         validateFavoriteFood(favoriteFoodId, userId);
         favoriteFoodRepository.deleteById(favoriteFoodId);
     }
 
-    @Cacheable(value = "ResponseNutritionSumByDateDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseNutritionSumByDateDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
@@ -296,7 +296,7 @@ public class FoodService {
 
 
 
-    @Cacheable(value = "ResponseRankUserDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseRankUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     // 유저의 식습관 점수를 기반으로 한 주간 랭킹 조회
     public List<ResponseRankUserDto> getUserRankByWeek(Long userId) {
@@ -318,7 +318,7 @@ public class FoodService {
         return rankUserDtos;
     }
 
-    @Transactional()
+    @Transactional
     public Long createFoodFromFavoriteFood(CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto) {
         validateFavoriteFood(createFoodFromFavoriteFoodDto.getFavoriteFoodId(), createFoodFromFavoriteFoodDto.getUserId());
         FavoriteFood favoriteFood = getFavoriteFoodById(createFoodFromFavoriteFoodDto.getFavoriteFoodId());

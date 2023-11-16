@@ -48,7 +48,7 @@ public class UserService {
     }
 
     // 회원 기본정보 조회
-    @Cacheable(value = "ResponseSimpleUserDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseSimpleUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
@@ -56,7 +56,7 @@ public class UserService {
     }
 
     // 회원정보 조회
-    @Cacheable(value = "ResponseUserDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseUserDto getUserInfo(Long userId) {
         User user = getUserById(userId);
@@ -64,7 +64,7 @@ public class UserService {
     }
 
     // 회원정보 수정
-    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.getUserId()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto"}, key = "#updateUserDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
@@ -73,7 +73,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 조회
-    @Cacheable(value = "ResponseUserNutritionDto", key = "#userId", cacheManager = "diareatCacheManager")
+    // @Cacheable(value = "ResponseUserNutritionDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
@@ -82,7 +82,7 @@ public class UserService {
     }
 
     // 회원 기준섭취량 직접 수정
-    @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.getUserId()", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = "ResponseUserNutritionDto", key = "#updateUserNutritionDto.getUserId()", cacheManager = "diareatCacheManager")
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());
@@ -92,7 +92,7 @@ public class UserService {
     }
 
     // 회원 탈퇴
-    @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto", "ResponseUserNutritionDto"}, key = "#userId", cacheManager = "diareatCacheManager")
+    // @CacheEvict(value = {"ResponseSimpleUserDto", "ResponseUserDto", "ResponseUserNutritionDto"}, key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional
     public void deleteUser(Long userId) {
         validateUser(userId);
