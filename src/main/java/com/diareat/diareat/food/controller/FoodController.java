@@ -108,37 +108,53 @@ public class FoodController {
     //"" 7일간 총합 조회
     @Operation(summary = "[음식] 최근 7일간 먹은 음식들의 영양성분 총합 조회",description = "최근 7일 간 유저가 먹은 음식들의 영양성분별 총합 및 권장섭취량에 대한 비율을 조회합니다.")
     @GetMapping("/{userId}/nutrition/recentWeek")
-    public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByWeek(@PathVariable Long userId){
-        return ApiResponse.success(foodService.getNutritionSumByWeek(userId),ResponseCode.FOOD_READ_SUCCESS.getMessage());
+    public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByWeek(@PathVariable Long userId,
+                                                                            @RequestParam int yy,
+                                                                            @RequestParam int mm,
+                                                                            @RequestParam int dd){
+        return ApiResponse.success(foodService.getNutritionSumByWeek(userId, yy, mm, dd),ResponseCode.FOOD_READ_SUCCESS.getMessage());
     }
 
     //"" 30일간 (1달간) 총합 조회
     @Operation(summary = "[음식] 최근 한달 간 먹은 음식들의 영양성분 총합 조회",description = "최근 한달 간 유저가 먹은 음식들의 영양성분별 총합 및 권장섭취량에 대한 비율을 조회합니다.")
     @GetMapping("/{userId}/nutrition/recentMonth")
-    public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByMonth(@PathVariable Long userId){
-        return ApiResponse.success(foodService.getNutritionSumByMonth(userId),ResponseCode.FOOD_READ_SUCCESS.getMessage());
+    public ApiResponse<ResponseNutritionSumByDateDto> getNutritionSumByMonth(@PathVariable Long userId,
+                                                                             @RequestParam int yy,
+                                                                             @RequestParam int mm,
+                                                                             @RequestParam int dd){
+        return ApiResponse.success(foodService.getNutritionSumByMonth(userId, yy, mm, dd),ResponseCode.FOOD_READ_SUCCESS.getMessage());
 
     }
 
     //유저의 주간 식습관 점수와 best3, worst3 음식 조회
     @Operation(summary = "[음식] 유저의 주간 식습관 점수와 best3, worst3 음식 조회",description = "유저의 주간 식습관 점수와 best3, worst3 음식을 조회합니다.")
     @GetMapping("/{userId}/score")
-    public ApiResponse<ResponseScoreBestWorstDto> getScoreOfUserWithBestAndWorstFoods(@PathVariable Long userId){
-        return ApiResponse.success(foodService.getScoreOfUserWithBestAndWorstFoods(userId),ResponseCode.FOOD_READ_SUCCESS.getMessage());
+    public ApiResponse<ResponseScoreBestWorstDto> getScoreOfUserWithBestAndWorstFoods(@PathVariable Long userId,
+                                                                                      @RequestParam int yy,
+                                                                                      @RequestParam int mm,
+                                                                                      @RequestParam int dd
+    ){
+        return ApiResponse.success(foodService.getScoreOfUserWithBestAndWorstFoods(userId, yy, mm, dd),ResponseCode.FOOD_READ_SUCCESS.getMessage());
     }
 
     //유저의 일기 분석 그래프 데이터 및 식습관 totalScore 조회
     @Operation(summary = "[음식] 유저의 일기 분석 그래프 데이터 및 주간 식습관 점수 조회",description = "유저의 일기 분석 그래프 데이터 및 식습관 점수를 조회합니다.")
     @GetMapping("/{userId}/analysis")
-    public ApiResponse<ResponseAnalysisDto> getAnalysisOfUser(@PathVariable Long userId){
-        return ApiResponse.success(foodService.getAnalysisOfUser(userId),ResponseCode.FOOD_READ_SUCCESS.getMessage());
+    public ApiResponse<ResponseAnalysisDto> getAnalysisOfUser(@PathVariable Long userId,
+                                                              @RequestParam int yy,
+                                                              @RequestParam int mm,
+                                                              @RequestParam int dd){
+        return ApiResponse.success(foodService.getAnalysisOfUser(userId, yy, mm, dd),ResponseCode.FOOD_READ_SUCCESS.getMessage());
     }
 
     //유저의 식습관 점수를 기반으로 한 주간 랭킹 조회
     @Operation(summary = "[음식] 유저의 식습관 점수를 기반으로 한 주간 랭킹 조회",description = "유저의 식습관 점수를 기반으로 한 주간 랭킹을 조회합니다. (팔로잉 상대 기반)")
     @GetMapping("/{userId}/rank")
-    public ApiResponse<List<ResponseRankUserDto>> getUserRankByWeek(@PathVariable Long userId){
-        return ApiResponse.success(foodService.getUserRankByWeek(userId),ResponseCode.FOOD_RANK_READ_SUCCESS.getMessage());
+    public ApiResponse<List<ResponseRankUserDto>> getUserRankByWeek(@PathVariable Long userId,
+                                                                    @RequestParam int yy,
+                                                                    @RequestParam int mm,
+                                                                    @RequestParam int dd){
+        return ApiResponse.success(foodService.getUserRankByWeek(userId, yy, mm, dd),ResponseCode.FOOD_RANK_READ_SUCCESS.getMessage());
     }
 
     @Operation(summary = "[음식] 즐겨찾기 음식으로 음식 생성",description = "즐겨찾기 음식으로 음식을 생성합니다.")
