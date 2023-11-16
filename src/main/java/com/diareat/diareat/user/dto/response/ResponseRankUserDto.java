@@ -1,13 +1,19 @@
 package com.diareat.diareat.user.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseRankUserDto {
+@JsonSerialize
+@JsonDeserialize
+public class ResponseRankUserDto implements Serializable {
 
     private Long userId;
     private String name;
