@@ -52,8 +52,7 @@ public class FoodService {
     @Transactional(readOnly = true)
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         validateUser(userId);
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date, sort);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         return foodList.stream()
                 .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
     }
@@ -123,40 +122,36 @@ public class FoodService {
     // 유저의 특정 날짜에 먹은 음식들의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
         validateUser(userId);
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDate(userId, date, sort);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         return calculateNutritionSumAndRatio(userId, foodList, date, 1);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
-    public ResponseNutritionSumByDateDto getNutritionSumByWeek(Long userId) {
+    public ResponseNutritionSumByDateDto getNutritionSumByWeek(Long userId, int year, int month, int day) {
         validateUser(userId);
-        LocalDate endDate = LocalDate.now();
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate, sort);
+        LocalDate endDate = LocalDate.of(year, month, day);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusWeeks(1), endDate);
 
         return calculateNutritionSumAndRatio(userId, foodList, endDate, 7);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 1개월간의 영양성분별 총합 조회 (섭취영양소/기준영양소 및 비율까지 계산해서 반환, dto 구체적 협의 필요)
-    public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId) {
+    public ResponseNutritionSumByDateDto getNutritionSumByMonth(Long userId, int year, int month, int day) {
         validateUser(userId);
-        LocalDate endDate = LocalDate.now();
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusMonths(1), endDate, sort);
+        LocalDate endDate = LocalDate.of(year, month, day);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusMonths(1), endDate);
 
         return calculateNutritionSumAndRatio(userId, foodList, endDate, 30);
     }
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Best 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getBestFoodByWeek(Long userId) {
+    public ResponseFoodRankDto getBestFoodByWeek(Long userId, int year, int month, int day) {
         validateUser(userId);
-        LocalDate endDate = LocalDate.now();
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate, sort);
+        LocalDate endDate = LocalDate.of(year, month, day);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> top3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
@@ -175,11 +170,10 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     // 유저의 최근 7일간의 Worst 3 음식 조회 (dto 구체적 협의 필요)
-    public ResponseFoodRankDto getWorstFoodByWeek(Long userId) {
+    public ResponseFoodRankDto getWorstFoodByWeek(Long userId, int year, int month, int day) {
         validateUser(userId);
-        LocalDate endDate = LocalDate.now();
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, endDate.minusWeeks(1), endDate, sort);
+        LocalDate endDate = LocalDate.of(year, month, day);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusWeeks(1), endDate);
 
         List<Food> worst3Foods = foodList.stream()
                 .sorted(Comparator.comparingDouble((Food food) ->
@@ -202,7 +196,7 @@ public class FoodService {
 
     //유저의 식습관 점수 및 Best 3와 Worst 3 계산
     @Transactional(readOnly = true)
-    public ResponseScoreBestWorstDto getScoreOfUserWithBestAndWorstFoods(Long userId){
+    public ResponseScoreBestWorstDto getScoreOfUserWithBestAndWorstFoods(Long userId, int year, int month, int day){
         validateUser(userId); //유저 객체 검증
         double totalScore = 0.0;
         double kcalScore = 0.0;
@@ -212,7 +206,7 @@ public class FoodService {
 
         User targetUser = userRepository.getReferenceById(userId); //검증된 id로 유저 객체 불러오기
 
-        ResponseRankUserDto scoresOfUser = calculateUserScoreThisWeek(targetUser, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+        ResponseRankUserDto scoresOfUser = calculateUserScoreThisWeek(targetUser, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day));
 
         totalScore = Math.round((scoresOfUser.getTotalScore() * 100.0))/ 100.0;
         kcalScore = Math.round((scoresOfUser.getCalorieScore() * 100.0)) / 100.0;
@@ -222,8 +216,8 @@ public class FoodService {
 
 
         //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
-        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId).getRankFoodList();
-        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId).getRankFoodList();
+        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId, year, month, day).getRankFoodList();
+        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId, year, month, day).getRankFoodList();
 
         return ResponseScoreBestWorstDto.of(kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore, simpleBestFoodList, simpleWorstFoodList);
     }
@@ -232,15 +226,15 @@ public class FoodService {
 
     // 유저의 일기 분석 그래프 데이터 및 식습관 totalScore 조회
     @Transactional(readOnly = true)
-    public ResponseAnalysisDto getAnalysisOfUser(Long userId){
+    public ResponseAnalysisDto getAnalysisOfUser(Long userId, int year, int month, int day){
         validateUser(userId);
         User user = userRepository.getReferenceById(userId);
 
         //최근 1주간 유저가 먹은 음식들의 날짜별 HashMap
-        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(1), LocalDate.now());
-        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.now().minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.now());
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.of(year,month,day).minusWeeks(1), LocalDate.of(year, month, day));
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.of(year,month,day).minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.of(year, month ,day));
 
-        double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()).getTotalScore();
+        double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day)).getTotalScore();
 
 
         //날짜 기준으로 정렬 (가장 최근 날짜가 맨 앞으로 오도록)
@@ -299,17 +293,17 @@ public class FoodService {
     // @Cacheable(value = "ResponseRankUserDto", key = "#userId", cacheManager = "diareatCacheManager")
     @Transactional(readOnly = true)
     // 유저의 식습관 점수를 기반으로 한 주간 랭킹 조회
-    public List<ResponseRankUserDto> getUserRankByWeek(Long userId) {
+    public List<ResponseRankUserDto> getUserRankByWeek(Long userId, int year, int month, int day) {
         List<ResponseRankUserDto> rankUserDtos = new ArrayList<>();
         List<User> users = followRepository.findAllByFromUser(userId); // 유저의 팔로우 유저 명단
-        rankUserDtos.add(calculateUserScoreThisWeek(getUserById(userId), LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now()));
+        rankUserDtos.add(calculateUserScoreThisWeek(getUserById(userId), LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month ,day)));
         if (users.isEmpty()) { // 팔로우한 유저가 없는 경우 본인의 점수 및 정보만 반환함
             return rankUserDtos;
         }
 
         // 팔로우한 유저들의 점수를 계산하여 rankUserDtos에 추가
         for (User user : users) {
-            ResponseRankUserDto userDto = calculateUserScoreThisWeek(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+            ResponseRankUserDto userDto = calculateUserScoreThisWeek(user, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day));
             rankUserDtos.add(userDto);
         }
 
@@ -414,8 +408,7 @@ public class FoodService {
     // 1주일동안 먹은 음식들의 영양성분 총합을 요일을 Key로 한 Map을 통해 반환
     private HashMap<LocalDate, List<BaseNutrition>> getNutritionSumByDateMap(Long userId, LocalDate startDate, LocalDate endDate) {
         HashMap<LocalDate, List<BaseNutrition>> maps = new HashMap<>();
-        Sort sort = Sort.by(Sort.Direction.DESC, MessageUtil.TIME_STAMP);
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetween(userId, startDate, endDate, sort);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, startDate, endDate);
         for (Food food : foodList) {
             if (maps.containsKey(food.getDate())) {
                 maps.get(food.getDate()).add(food.getBaseNutrition());
