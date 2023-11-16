@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -270,7 +271,7 @@ class FoodControllerTest {
     @WithMockUser("test")
     void testGetNutritionSumByDate() throws Exception{
         //Given
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.of(2021,10,10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId,date,1
                 ,500,100,50,50,0.2,0.3,0.4,0.5,
                 BaseNutrition.createNutrition(500,100,50,50));
@@ -308,7 +309,7 @@ class FoodControllerTest {
     @WithMockUser("test")
     void testGetNutritionSumByWeek() throws Exception {
         //Given
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.of(2021, 10, 10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 7
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
                 BaseNutrition.createNutrition(500, 100, 50, 50));
@@ -318,7 +319,10 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/nutrition/recentWeek", testUserId))
+                        .get("/api/food/{userId}/nutrition/recentWeek", testUserId)
+                        .param("yy", String.valueOf(date.getYear()))
+                        .param("mm", String.valueOf(date.getMonthValue()))
+                        .param("dd", String.valueOf(date.getDayOfMonth())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -343,7 +347,7 @@ class FoodControllerTest {
     @WithMockUser("test")
     void testGetNutritionSumByMonth() throws Exception {
         //Given
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.of(2021, 10, 10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 30
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
                 BaseNutrition.createNutrition(500, 100, 50, 50));
@@ -353,7 +357,10 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/nutrition/recentMonth", testUserId))
+                        .get("/api/food/{userId}/nutrition/recentMonth", testUserId )
+                .param("yy", String.valueOf(date.getYear()))
+                .param("mm", String.valueOf(date.getMonthValue()))
+                .param("dd", String.valueOf(date.getDayOfMonth())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -378,12 +385,13 @@ class FoodControllerTest {
     @WithMockUser("test")
     void testGetScoreOfUserWithBestAndWorstFoods() throws Exception{
         //Given
-        ResponseSimpleFoodDto food1 = ResponseSimpleFoodDto.of("test1", 100, 100, 100, 100, LocalDate.now());
-        ResponseSimpleFoodDto food2 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, LocalDate.now());
-        ResponseSimpleFoodDto food3 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, LocalDate.now());
-        ResponseSimpleFoodDto food4 = ResponseSimpleFoodDto.of("test4", 100, 100, 100, 100, LocalDate.now());
-        ResponseSimpleFoodDto food5 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, LocalDate.now());
-        ResponseSimpleFoodDto food6 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, LocalDate.now());
+        LocalDate date = LocalDate.of(2021, 10, 10);
+        ResponseSimpleFoodDto food1 = ResponseSimpleFoodDto.of("test1", 100, 100, 100, 100, date);
+        ResponseSimpleFoodDto food2 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
+        ResponseSimpleFoodDto food3 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
+        ResponseSimpleFoodDto food4 = ResponseSimpleFoodDto.of("test4", 100, 100, 100, 100, date);
+        ResponseSimpleFoodDto food5 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
+        ResponseSimpleFoodDto food6 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
 
         ResponseScoreBestWorstDto responseScoreBestWorstDto = ResponseScoreBestWorstDto.of(testUserId, 100, 80
                 , 60, 240, List.of(food1, food2,food3), List.of(food4, food5, food6));
@@ -393,7 +401,10 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/score", testUserId))
+                        .get("/api/food/{userId}/score", testUserId, date.getYear(), date.getMonthValue(), date.getDayOfMonth())
+                .param("yy", String.valueOf(date.getYear()))
+                .param("mm", String.valueOf(date.getMonthValue()))
+                .param("dd", String.valueOf(date.getDayOfMonth())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -422,7 +433,10 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/analysis", testUserId))
+                        .get("/api/food/{userId}/analysis", testUserId)
+                        .param("yy", String.valueOf(2021))
+                        .param("mm", String.valueOf(10))
+                        .param("dd", String.valueOf(10)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -454,7 +468,10 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/rank", testUserId))
+                        .get("/api/food/{userId}/rank", testUserId)
+                        .param("yy", String.valueOf(2021))
+                        .param("mm", String.valueOf(10))
+                        .param("dd", String.valueOf(10)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
