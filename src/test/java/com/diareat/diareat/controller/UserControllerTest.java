@@ -1,6 +1,5 @@
 package com.diareat.diareat.controller;
 
-import com.diareat.diareat.auth.service.KakaoAuthService;
 import com.diareat.diareat.user.controller.UserController;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
@@ -47,9 +46,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private KakaoAuthService kakaoAuthService;
 
     private final Long testUserId = 1L;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -230,7 +226,7 @@ class UserControllerTest {
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders
-                        .get("/api/user/search")
+                        .post("/api/user/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .accept(MediaType.APPLICATION_JSON))
@@ -253,7 +249,7 @@ class UserControllerTest {
 
         // When & Then
         mockMvc.perform( MockMvcRequestBuilders
-                        .get("/api/user/search")
+                        .post("/api/user/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .accept(MediaType.APPLICATION_JSON))
