@@ -16,6 +16,7 @@ import com.diareat.diareat.util.UserTypeUtil;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -35,12 +37,17 @@ public class UserService {
     // 회원정보 저장
     @Transactional
     public Long saveUser(CreateUserDto createUserDto) {
-        if (userRepository.existsByName(createUserDto.getName()))
+        if (userRepository.existsByName(createUserDto.getName())) {
+            log.info("이미 존재하는 닉네임입니다 by {}", createUserDto.getName());
             throw new UserException(ResponseCode.USER_NAME_ALREADY_EXIST);
-        if(userRepository.existsByKeyCode(createUserDto.getKeyCode()))
+        }
+        if(userRepository.existsByKeyCode(createUserDto.getKeyCode())) {
+            log.info("이미 존재하는 키코드입니다 by {}", createUserDto.getKeyCode());
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
+        }
 
         int type = UserTypeUtil.decideUserType(createUserDto.getGender(), createUserDto.getAge());
+        log.info("회원 타입: {}", type);
         List<Integer> standard = UserTypeUtil.getStanardByUserType(type); // 유저 타입에 따른 기본 기준섭취량 조회
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(standard.get(0), standard.get(2), createUserDto.getWeight(), standard.get(1)); // 단백질은 자신 체중 기준으로 계산
         User user = User.createUser(createUserDto.getName(), createUserDto.getImage(), createUserDto.getKeyCode(), createUserDto.getHeight(), createUserDto.getWeight(), createUserDto.getGender(), createUserDto.getAge(), baseNutrition);
@@ -52,6 +59,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
+        log.info("{} 회원 기본정보 조회 완료: ", user.getName());
         return ResponseSimpleUserDto.of(user.getName(), user.getImage());
     }
 
@@ -60,6 +68,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseUserDto getUserInfo(Long userId) {
         User user = getUserById(userId);
+        log.info("{} 회원정보 조회 완료: ", user.getName());
         return ResponseUserDto.from(user);
     }
 
@@ -68,8 +77,10 @@ public class UserService {
     @Transactional
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
+        log.info("{} 회원정보 조회 완료: ", user.getName());
         user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), updateUserDto.isAutoUpdateNutrition());
         userRepository.save(user);
+        log.info("{} 회원정보 수정 완료: ", user.getName());
     }
 
     // 회원 기준섭취량 조회
@@ -77,7 +88,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
+        log.info("{} user 객체 조회 완료: ", user.getName());
         List<Integer> standard = UserTypeUtil.getStanardByUserType(user.getType()); // 유저 타입에 따른 기본 기준섭취량 조회
+        log.info("{} 회원 기준섭취량 조회 완료: ", user.getName());
         return ResponseUserNutritionDto.from(user, standard.get(0), standard.get(2), user.getWeight(), standard.get(1)); // 단백질은 자신 체중 기준으로 계산
     }
 
@@ -86,9 +99,11 @@ public class UserService {
     @Transactional
     public void updateBaseNutrition(UpdateUserNutritionDto updateUserNutritionDto) {
         User user = getUserById(updateUserNutritionDto.getUserId());
+        log.info("{} user 객체 조회 완료: ", user.getName());
         BaseNutrition baseNutrition = BaseNutrition.createNutrition(updateUserNutritionDto.getCalorie(), updateUserNutritionDto.getCarbohydrate(), updateUserNutritionDto.getProtein(), updateUserNutritionDto.getFat());
         user.updateBaseNutrition(baseNutrition);
         userRepository.save(user);
+        log.info("{} 회원 기준섭취량 수정 완료: ", user.getName());
     }
 
     // 회원 탈퇴
@@ -97,13 +112,16 @@ public class UserService {
     public void deleteUser(Long userId) {
         validateUser(userId);
         userRepository.deleteById(userId);
+        log.info("PK {} 회원 탈퇴 완료: ", userId);
     }
 
     // 회원의 친구 검색 결과 조회 -> 검색 및 팔로우는 굉장히 돌발적으로 이루어질 가능성이 높아 캐시 적용 X
     @Transactional(readOnly = true)
     public List<ResponseSearchUserDto> searchUser(Long hostId, String name) {
         validateUser(hostId);
+        log.info("{} 회원 검증 완료", hostId);
         List<User> users = new ArrayList<>(userRepository.findAllByNameContaining(name));
+        log.info("{} 검색 결과 조회 완료", name);
         users.removeIf(user -> user.getId().equals(hostId)); // 검색 결과에서 자기 자신은 제외 (removeIf 메서드는 ArrayList에만 존재)
         return users.stream()
                 .map(user -> ResponseSearchUserDto.of(user.getId(), user.getName(), user.getImage(), followRepository.existsByFromUserAndToUser(hostId, user.getId()))).collect(Collectors.toList());
@@ -111,24 +129,32 @@ public class UserService {
 
     // 회원이 특정 회원 팔로우
     @Transactional
-    public void followUser(Long userId, Long followId) {
-        validateUser(userId);
-        validateUser(followId);
+    public void followUser(Long fromId, Long toId) {
+        validateUser(fromId);
+        validateUser(toId);
+        log.info("팔로우 대상 검증 완료");
         // 이미 팔로우 중인 경우
-        if (followRepository.existsByFromUserAndToUser(userId, followId))
+        if (followRepository.existsByFromUserAndToUser(fromId, toId)) {
+            log.info("{}는 이미 {}를 팔로우한 상태입니다.", fromId, toId);
             throw new UserException(ResponseCode.FOLLOWED_ALREADY);
-        followRepository.save(Follow.makeFollow(userId, followId));
+        }
+        followRepository.save(Follow.makeFollow(toId, fromId));
+        log.info("이제 {}가 {}를 팔로우합니다.", fromId, toId);
     }
 
     // 회원이 특정 회원 팔로우 취소
     @Transactional
-    public void unfollowUser(Long userId, Long unfollowId) {
-        validateUser(userId);
-        validateUser(unfollowId);
+    public void unfollowUser(Long fromId, Long toId) {
+        validateUser(fromId);
+        validateUser(toId);
+        log.info("팔로우 대상 검증 완료");
         // 이미 팔로우 취소한 경우
-        if (!followRepository.existsByFromUserAndToUser(userId, unfollowId))
+        if (!followRepository.existsByFromUserAndToUser(fromId, toId)) {
+            log.info("{}는 이미 {}를 팔로우 취소한 상태입니다.", fromId, toId);
             throw new UserException(ResponseCode.UNFOLLOWED_ALREADY);
-        followRepository.delete(Follow.makeFollow(userId, unfollowId));
+        }
+        followRepository.deleteByFromUserAndToUser(fromId, toId);
+        log.info("이제 {}가 {}를 언팔로우합니다.", fromId, toId);
     }
 
     private void validateUser(Long userId) {
