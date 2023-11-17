@@ -65,7 +65,7 @@ public class UserController {
 
     // 회원의 친구 검색 결과 조회
     @Operation(summary = "[주간 랭킹] 회원의 친구 검색 결과 조회", description = "회원의 친구 검색 결과를 조회합니다.")
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ApiResponse<List<ResponseSearchUserDto>> searchUser(@RequestBody @Valid SearchUserDto searchUserDto) {
         return ApiResponse.success(userService.searchUser(searchUserDto.getUserId(), searchUserDto.getInputName()), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
     }
