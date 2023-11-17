@@ -13,4 +13,5 @@ public interface FollowRepository extends JpaRepository<Follow, Follow.PK> {
     List<User> findAllByFromUser(@Param("userId") Long userId);
 
     boolean existsByFromUserAndToUser(Long fromUser, Long toUser); // 팔로우 여부 확인
+    void deleteByFromUserAndToUser(Long fromUser, Long toUser); // 팔로우 취소
 }

@@ -263,7 +263,7 @@ class UserServiceTest {
         userService.unfollowUser(userId, unfollowId);
 
         // Then
-        verify(followRepository, times(1)).delete(any(Follow.class));
+        verify(followRepository, times(1)).deleteByFromUserAndToUser(userId, unfollowId);
     }
 
     @DisplayName("회원이 특정 회원 팔로우 취소 중복 요청")
