@@ -236,17 +236,6 @@ public class FoodService {
 
         double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day)).getTotalScore();
 
-
-        //날짜 기준으로 정렬 (가장 최근 날짜가 맨 앞으로 오도록)
-        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
-
-        nutritionSumOfUserByMonth = nutritionSumOfUserByMonth.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
-
-
         List<Double> calorieLastSevenDays = new ArrayList<>();
         List<Double> calorieLastFourWeek = new ArrayList<>();
         List<Double> carbohydrateLastSevenDays = new ArrayList<>();
