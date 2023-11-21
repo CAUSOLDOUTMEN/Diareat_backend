@@ -8,5 +8,4 @@ import java.util.List;
 public interface FavoriteFoodRepository extends JpaRepository<FavoriteFood, Long> {
     List<FavoriteFood> findAllByUserId(Long userId);
     boolean existsByIdAndUserId(Long id, Long userId); // 유저가 즐겨찾기에 추가한 음식인지 확인
-    boolean existsByFoodId(Long foodId); // 이미 즐겨찾기에 추가된 음식인지 확인하기 위함
 }

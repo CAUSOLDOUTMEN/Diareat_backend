@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,7 +25,9 @@ public class Food {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 음식이 삭제되어도 즐찾음식은 삭제되지 않음
+    //@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 음식이 삭제되어도 즐찾음식은 삭제되지 않음
+    //@JoinColumn(name = "favorite_food_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}) // 다대일로 매핑하여 음식의 즐찾음식을 찾을 수 있도록 함
     @JoinColumn(name = "favorite_food_id")
     private FavoriteFood favoriteFood;
 

@@ -4,9 +4,8 @@ import com.diareat.diareat.util.MessageUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -21,16 +20,13 @@ public class UpdateUserDto {
     @NotBlank(message = MessageUtil.NOT_BLANK)
     private String name;
 
-    @DecimalMin(value = "100", message = MessageUtil.HEIGHT_RANGE)
-    @DecimalMax(value = "250", message = MessageUtil.HEIGHT_RANGE)
+    @Range(min = 100, max = 250, message = MessageUtil.HEIGHT_RANGE)
     private int height;
 
-    @DecimalMin(value = "30", message = MessageUtil.WEIGHT_RANGE)
-    @DecimalMax(value = "200", message = MessageUtil.WEIGHT_RANGE)
+    @Range(min = 30, max = 200, message = MessageUtil.WEIGHT_RANGE)
     private int weight;
 
-    @DecimalMin(value = "5", message = MessageUtil.AGE_RANGE)
-    @DecimalMax(value = "100", message = MessageUtil.AGE_RANGE)
+    @Range(min = 5, max = 100, message = MessageUtil.AGE_RANGE)
     private int age;
 
     private boolean isAutoUpdateNutrition; // 개인정보를 활용한 기준 영양소 자동계산 여부
