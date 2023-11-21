@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,9 +22,10 @@ public class FavoriteFood {
 
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 즐찾음식이 삭제되어도 음식은 삭제되지 않음
-    @JoinColumn(name = "food_id")
-    private Food food;
+    //@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST}, orphanRemoval = false) // 즐찾음식이 삭제되어도 음식은 삭제되지 않음
+    //@JoinColumn(name = "food_id")
+    @OneToMany(mappedBy = "favoriteFood", cascade = CascadeType.PERSIST, orphanRemoval = false) // 즐찾음식이 삭제되어도 음식은 삭제되지 않음
+    private List<Food> foods = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -40,10 +43,10 @@ public class FavoriteFood {
     public static FavoriteFood createFavoriteFood(String name, User user, Food food, BaseNutrition baseNutrition) {
         FavoriteFood favoriteFood = new FavoriteFood();
         favoriteFood.name = name;
-        favoriteFood.food = food;
+        favoriteFood.foods.add(food);
         favoriteFood.user = user;
         favoriteFood.baseNutrition = baseNutrition;
-        food.setFavoriteFood(favoriteFood);
+        //food.setFavoriteFood(favoriteFood); 관계의 주인이 즐겨찾기로 명확하게 정해졌기에 주석처리
         return favoriteFood;
     }
 

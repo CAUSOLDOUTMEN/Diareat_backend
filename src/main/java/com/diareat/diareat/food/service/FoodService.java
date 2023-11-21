@@ -82,7 +82,7 @@ public class FoodService {
         User user = getUserById(createFavoriteFoodDto.getUserId());
         Food food = getFoodById(createFavoriteFoodDto.getFoodId());
 
-        if (food.isFavorite())
+        if (food.isFavorite()) // 이미 즐겨찾기에 추가된 음식인 경우 중복 추가 불가능
             throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
 
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, food, createFavoriteFoodDto.getBaseNutrition());
