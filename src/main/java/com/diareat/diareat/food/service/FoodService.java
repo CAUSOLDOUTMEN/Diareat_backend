@@ -16,6 +16,7 @@ import com.diareat.diareat.util.exception.FavoriteException;
 import com.diareat.diareat.util.exception.FoodException;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FoodService {
@@ -41,10 +43,12 @@ public class FoodService {
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
         if (foodRepository.existsByName(createFoodDto.getName())){
+            log.info(createFoodDto.getName() + ": 이미 존재하는 음식 이름입니다.");
             throw new FoodException(ResponseCode.FOOD_NAME_ALREADY_EXIST);
         }
         User user = getUserById(createFoodDto.getUserId());
         Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition(), createFoodDto.getYear(), createFoodDto.getMonth(), createFoodDto.getDay());
+        log.info("신규 음식 저장: " + food.getName());
         return foodRepository.save(food).getId();
     }
 
@@ -53,6 +57,7 @@ public class FoodService {
     public List<ResponseFoodDto> getFoodListByDate(Long userId, LocalDate date){
         validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
+        log.info(date.toString() + "의 "+ userId + "에게 조회된 음식 개수: " + foodList.size() + "개");
         return foodList.stream()
                 .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
     }
@@ -63,6 +68,7 @@ public class FoodService {
     public void updateFood(UpdateFoodDto updateFoodDto, LocalDate date) {
         Food food = getFoodById(updateFoodDto.getFoodId());
         food.updateFood(updateFoodDto.getName(), updateFoodDto.getBaseNutrition());
+        log.info("음식 정보 수정 완료: " + food.getName());
         foodRepository.save(food);
     }
 
@@ -72,6 +78,7 @@ public class FoodService {
     public void deleteFood(Long foodId, Long userId, LocalDate date) {
         validateFood(foodId, userId);
         foodRepository.deleteById(foodId);
+        log.info("음식 삭제 완료: " + foodId);
     }
 
     // 즐겨찾기에 음식 저장
@@ -82,12 +89,15 @@ public class FoodService {
         User user = getUserById(createFavoriteFoodDto.getUserId());
         Food food = getFoodById(createFavoriteFoodDto.getFoodId());
 
-        if (food.isFavorite()) // 이미 즐겨찾기에 추가된 음식인 경우 중복 추가 불가능
+        if (food.isFavorite()) {// 이미 즐겨찾기에 추가된 음식인 경우 중복 추가 불가능
+            log.info(food.getId() + ": 이미 즐겨찾기에 추가된 음식입니다.");
             throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
+        }
 
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, food, createFavoriteFoodDto.getBaseNutrition());
         food.setFavoriteFood(favoriteFood);
         foodRepository.save(food);
+        log.info("즐겨찾기 음식 저장 완료: " + favoriteFood.getName());
         return favoriteFoodRepository.save(favoriteFood).getId();
     }
 
@@ -97,6 +107,7 @@ public class FoodService {
     public List<ResponseFavoriteFoodDto> getFavoriteFoodList(Long userId){
         validateUser(userId);
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
+        log.info(userId + "의 즐겨찾기 음식 개수: " + foodList.size() + "개 조회 완료");
         return foodList.stream()
                 .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(),favoriteFood.getName(),
                         favoriteFood.getBaseNutrition(), favoriteFood.getCount())).collect(Collectors.toList());
@@ -109,6 +120,7 @@ public class FoodService {
         FavoriteFood food = getFavoriteFoodById(updateFavoriteFoodDto.getFavoriteFoodId());
         food.updateFavoriteFood(updateFavoriteFoodDto.getName(), updateFavoriteFoodDto.getBaseNutrition());
         favoriteFoodRepository.save(food);
+        log.info("즐겨찾기 음식 수정 완료: " + food.getName());
     }
 
     // 즐겨찾기 해제
@@ -117,6 +129,7 @@ public class FoodService {
     public void deleteFavoriteFood(Long favoriteFoodId, Long userId) {
         validateFavoriteFood(favoriteFoodId, userId);
         favoriteFoodRepository.deleteById(favoriteFoodId);
+        log.info("즐겨찾기 음식 해제 완료: " + favoriteFoodId);
     }
 
     // @Cacheable(value = "ResponseNutritionSumByDateDto", key = "#userId+#date.toString()", cacheManager = "diareatCacheManager")
@@ -125,6 +138,7 @@ public class FoodService {
     public ResponseNutritionSumByDateDto getNutritionSumByDate(Long userId, LocalDate date) {
         validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
+        log.info(date.toString() + "기준 "+ userId + "의 음식들의 영양성분별 총합 조회 완료");
         return calculateNutritionSumAndRatio(userId, foodList, date, 1);
     }
 
@@ -134,7 +148,6 @@ public class FoodService {
         validateUser(userId);
         LocalDate endDate = LocalDate.of(year, month, day);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusWeeks(1), endDate);
-
         return calculateNutritionSumAndRatio(userId, foodList, endDate, 7);
     }
 
