@@ -4,6 +4,7 @@ import com.diareat.diareat.util.MessageUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
 
@@ -18,20 +19,15 @@ public class JoinUserDto {
     @NotBlank(message = MessageUtil.NOT_BLANK)
     private String nickName;
 
-    @DecimalMin(value = "0", message = MessageUtil.GENDER_RANGE)
-    @DecimalMax(value = "1", message = MessageUtil.GENDER_RANGE)
+    @Range(min = 0, max = 1, message = MessageUtil.GENDER_RANGE)
     private int gender;
 
-    @DecimalMin(value = "100", message = MessageUtil.HEIGHT_RANGE)
-    @DecimalMax(value = "250", message = MessageUtil.HEIGHT_RANGE)
+    @Range(min = 100, max = 250, message = MessageUtil.HEIGHT_RANGE)
     private int height;
 
-    @DecimalMin(value = "30", message = MessageUtil.WEIGHT_RANGE)
-    @DecimalMax(value = "150", message = MessageUtil.WEIGHT_RANGE)
+    @Range(min = 30, max = 150, message = MessageUtil.WEIGHT_RANGE)
     private int weight;
 
-    @DecimalMin(value = "5", message = MessageUtil.AGE_RANGE)
-    @DecimalMax(value = "100", message = MessageUtil.AGE_RANGE)
+    @Range(min = 5, max = 100, message = MessageUtil.AGE_RANGE)
     private int age;
-
 }
