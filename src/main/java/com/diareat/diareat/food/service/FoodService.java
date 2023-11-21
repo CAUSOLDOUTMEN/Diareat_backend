@@ -82,7 +82,7 @@ public class FoodService {
         User user = getUserById(createFavoriteFoodDto.getUserId());
         Food food = getFoodById(createFavoriteFoodDto.getFoodId());
 
-        if (favoriteFoodRepository.existsByFoodId(createFavoriteFoodDto.getFoodId()))
+        if (food.isFavorite())
             throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
 
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, food, createFavoriteFoodDto.getBaseNutrition());
