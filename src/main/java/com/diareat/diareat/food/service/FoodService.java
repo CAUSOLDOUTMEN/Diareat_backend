@@ -86,6 +86,8 @@ public class FoodService {
             throw new FavoriteException(ResponseCode.FAVORITE_ALREADY_EXIST);
 
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood(createFavoriteFoodDto.getName(), user, food, createFavoriteFoodDto.getBaseNutrition());
+        food.setFavoriteFood(favoriteFood);
+        foodRepository.save(food);
         return favoriteFoodRepository.save(favoriteFood).getId();
     }
 
@@ -302,6 +304,7 @@ public class FoodService {
     }
 
     @Transactional
+    // 즐겨찾기 음식으로부터 새로운 음식을 간편 등록
     public Long createFoodFromFavoriteFood(CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto) {
         validateFavoriteFood(createFoodFromFavoriteFoodDto.getFavoriteFoodId(), createFoodFromFavoriteFoodDto.getUserId());
         FavoriteFood favoriteFood = getFavoriteFoodById(createFoodFromFavoriteFoodDto.getFavoriteFoodId());
