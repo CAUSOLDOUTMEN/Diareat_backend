@@ -128,6 +128,8 @@ public class FoodService {
     @Transactional
     public void deleteFavoriteFood(Long favoriteFoodId, Long userId) {
         validateFavoriteFood(favoriteFoodId, userId);
+        FavoriteFood favoriteFood = getFavoriteFoodById(favoriteFoodId);
+        favoriteFood.getFoods().forEach(food -> food.setFavoriteFood(null)); // 즐겨찾기 음식으로부터 태어난 음식들의 즐겨찾기 정보를 null로 초기화
         favoriteFoodRepository.deleteById(favoriteFoodId);
         log.info("즐겨찾기 음식 해제 완료: " + favoriteFoodId);
     }
