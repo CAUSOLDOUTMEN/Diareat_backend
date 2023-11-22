@@ -177,10 +177,12 @@ class FoodServiceTest {
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFood", user, food, testBaseNutrition);
+        food.setFavoriteFood(favoriteFood);
         favoriteFood.setId(1L);
 
         given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
         given(favoriteFoodRepository.existsByIdAndUserId(favoriteFood.getId(), 1L)).willReturn(true);
+        given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
 
         //when
         foodService.deleteFavoriteFood(favoriteFood.getId(), 1L);
