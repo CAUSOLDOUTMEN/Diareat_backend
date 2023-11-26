@@ -18,6 +18,7 @@ import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -247,9 +248,12 @@ public class FoodService {
         validateUser(userId);
         User user = userRepository.getReferenceById(userId);
 
+        //현재 날짜
+        LocalDate currentDate = LocalDate.of(year,month,day);
+
         //최근 1주간 유저가 먹은 음식들의 날짜별 HashMap
-        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, LocalDate.of(year,month,day).minusWeeks(1), LocalDate.of(year, month, day));
-        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, LocalDate.of(year,month,day).minusWeeks(3).with(DayOfWeek.MONDAY), LocalDate.of(year, month ,day));
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, currentDate.minusWeeks(1), currentDate);
+        HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByMonth = getNutritionSumByDateMap(userId, currentDate.minusWeeks(3).with(DayOfWeek.MONDAY), currentDate);
 
         double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day)).getTotalScore();
 
@@ -262,27 +266,42 @@ public class FoodService {
         List<Double> fatLastSevenDays = new ArrayList<>();
         List<Double> fatLastFourWeek = new ArrayList<>();
 
-        //최근 7일의 식습관
-        for (LocalDate date : nutritionSumOfUserByWeek.keySet()) {
-            int totalKcal = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
-            int totalCarbohydrate = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
-            int totalProtein = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
-            int totalFat = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
+        //최근 7일간의 식습관, 비어있으면 0으로 반환
+        for (LocalDate date = currentDate.minusWeeks(1); date.isBefore(currentDate); date = date.plusDays(1)){
+            System.out.println(date);
+            if(!nutritionSumOfUserByWeek.containsKey(date)){ //해당 날짜에 먹은 음식이 없는 경우는 0으로 반환
+                calorieLastSevenDays.add(0.0);
+                carbohydrateLastSevenDays.add(0.0);
+                proteinLastSevenDays.add(0.0);
+                fatLastSevenDays.add(0.0);
+            }else{
+                int totalKcal = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
+                int totalCarbohydrate = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+                int totalProtein = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
+                int totalFat = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
 
-            calorieLastSevenDays.add((double) totalKcal);
-            carbohydrateLastSevenDays.add((double) totalCarbohydrate);
-            proteinLastSevenDays.add((double) totalProtein);
-            fatLastSevenDays.add((double) totalFat);
+                calorieLastSevenDays.add((double) totalKcal);
+                carbohydrateLastSevenDays.add((double) totalCarbohydrate);
+                proteinLastSevenDays.add((double) totalProtein);
+                fatLastSevenDays.add((double) totalFat);
+            }
         }
 
-
-        //최근 한달간의 식습관
-        for (LocalDate date : nutritionSumOfUserByMonth.keySet()) {
-            int totalKcal = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
-            int totalCarbohydrate = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
-            int totalProtein = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
-            int totalFat = nutritionSumOfUserByMonth.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
-
+        //최근 한달간의 식습관. 총 4주간의 데이터를 반환하며, 한주 단위로 묶어서 반환
+        for (LocalDate date = currentDate.minusWeeks(3).with(DayOfWeek.MONDAY); date.isBefore(currentDate); date = date.plusWeeks(1)){
+            int totalKcal = 0;
+            int totalCarbohydrate = 0;
+            int totalProtein = 0;
+            int totalFat = 0;
+            //해당 주에 먹은 음식들을 모두 합해서 계산
+            for (LocalDate inner_date = date; inner_date.isBefore(date.plusWeeks(1)); inner_date = inner_date.plusDays(1)){
+                if(nutritionSumOfUserByMonth.containsKey(inner_date)){
+                    totalKcal += nutritionSumOfUserByMonth.get(inner_date).stream().mapToInt(BaseNutrition::getKcal).sum();
+                    totalCarbohydrate += nutritionSumOfUserByMonth.get(inner_date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
+                    totalProtein += nutritionSumOfUserByMonth.get(inner_date).stream().mapToInt(BaseNutrition::getProtein).sum();
+                    totalFat += nutritionSumOfUserByMonth.get(inner_date).stream().mapToInt(BaseNutrition::getFat).sum();
+                }
+            }
             calorieLastFourWeek.add((double) totalKcal);
             carbohydrateLastFourWeek.add((double) totalCarbohydrate);
             proteinLastFourWeek.add((double) totalProtein);
