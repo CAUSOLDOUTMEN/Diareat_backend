@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -453,7 +454,7 @@ class FoodServiceTest {
         ResponseAnalysisDto response = foodService.getAnalysisOfUser(user.getId(), fixedDate.getYear(), fixedDate.getMonthValue(), fixedDate.getDayOfMonth());
 
         double totalScore = response.getTotalScore();
-        List<Double> calorieLastSevenDays = response.getCalorieLastSevenDays();
+        List<Map<LocalDate, Double>> calorieLastSevenDays = response.getCalorieLastSevenDays();
         List<Double> calorieLastFourWeeks = response.getCalorieLastFourWeek();
 
 
@@ -461,8 +462,8 @@ class FoodServiceTest {
         assertEquals(192.95, totalScore);
 
         //갯수 확인
-        assertEquals(3, calorieLastSevenDays.size()); //일주일동안의 음식 -> 3개
-        assertEquals(5, calorieLastFourWeeks.size()); //한달동안의 음식 -> 5개
+        assertEquals(7, calorieLastSevenDays.size()); //일주일동안의 음식 -> 7개 고정
+        assertEquals(4, calorieLastFourWeeks.size()); //한달동안의 음식 -> 5개
 
 
         verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(1), fixedDate);

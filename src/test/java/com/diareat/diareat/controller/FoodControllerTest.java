@@ -12,6 +12,7 @@ import com.diareat.diareat.util.api.ApiResponse;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -424,9 +426,9 @@ class FoodControllerTest {
     @WithMockUser("test")
     void testGetAnalysisOfUser() throws Exception {
         //Given
-        ResponseAnalysisDto responseAnalysisDto = ResponseAnalysisDto.of(100, List.of(100.0, 100.0),
-                List.of(100.0, 100.0), List.of(100.0, 100.0), List.of(100.0, 100.0), List.of(100.0, 100.0),
-                List.of(100.0, 100.0), List.of(100.0, 100.0), List.of(100.0, 100.0));
+        ResponseAnalysisDto responseAnalysisDto = ResponseAnalysisDto.of(100, List.of(Map.of(LocalDate.of(2021, 10, 10), 100.0)),
+                List.of(100.0, 100.0), List.of(Map.of(LocalDate.of(2021, 10, 10), 100.0)), List.of(100.0, 100.0), List.of(Map.of(LocalDate.of(2021, 10, 10), 100.0)),
+                List.of(100.0, 100.0), List.of(Map.of(LocalDate.of(2021, 10, 10), 100.0)), List.of(100.0, 100.0));
 
         ApiResponse<ResponseAnalysisDto> expectedResponse = ApiResponse.success(responseAnalysisDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getAnalysisOfUser(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseAnalysisDto);
@@ -440,10 +442,10 @@ class FoodControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorieLastSevenDays[0]").value(expectedResponse.getData().getCalorieLastSevenDays().get(0)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrateLastSevenDays[0]").value(expectedResponse.getData().getCarbohydrateLastSevenDays().get(0)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.proteinLastSevenDays[0]").value(expectedResponse.getData().getProteinLastSevenDays().get(0)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.fatLastSevenDays[0]").value(expectedResponse.getData().getFatLastSevenDays().get(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorieLastSevenDays[0]['2021-10-10']").value(expectedResponse.getData().getCalorieLastSevenDays().get(0).get(LocalDate.of(2021, 10, 10))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrateLastSevenDays[0]['2021-10-10']").value(expectedResponse.getData().getCarbohydrateLastSevenDays().get(0).get(LocalDate.of(2021, 10, 10))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.proteinLastSevenDays[0]['2021-10-10']").value(expectedResponse.getData().getProteinLastSevenDays().get(0).get(LocalDate.of(2021, 10, 10))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.fatLastSevenDays[0]['2021-10-10']").value(expectedResponse.getData().getFatLastSevenDays().get(0).get(LocalDate.of(2021, 10, 10))))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorieLastFourWeek[0]").value(expectedResponse.getData().getCalorieLastFourWeek().get(0)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrateLastFourWeek[0]").value(expectedResponse.getData().getCarbohydrateLastFourWeek().get(0)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.proteinLastFourWeek[0]").value(expectedResponse.getData().getProteinLastFourWeek().get(0)))
