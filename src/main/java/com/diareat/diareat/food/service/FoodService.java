@@ -257,33 +257,32 @@ public class FoodService {
 
         double totalWeekScore = calculateUserScoreThisWeek(user, LocalDate.of(year, month, day).with(DayOfWeek.MONDAY), LocalDate.of(year, month, day)).getTotalScore();
 
-        List<Double> calorieLastSevenDays = new ArrayList<>();
+        List<Map<LocalDate,Double>>calorieLastSevenDays = new ArrayList<>();
         List<Double> calorieLastFourWeek = new ArrayList<>();
-        List<Double> carbohydrateLastSevenDays = new ArrayList<>();
+        List<Map<LocalDate,Double>> carbohydrateLastSevenDays = new ArrayList<>();
         List<Double> carbohydrateLastFourWeek = new ArrayList<>();
-        List<Double> proteinLastSevenDays = new ArrayList<>();
+        List<Map<LocalDate,Double>> proteinLastSevenDays = new ArrayList<>();
         List<Double> proteinLastFourWeek = new ArrayList<>();
-        List<Double> fatLastSevenDays = new ArrayList<>();
+        List<Map<LocalDate,Double>> fatLastSevenDays = new ArrayList<>();
         List<Double> fatLastFourWeek = new ArrayList<>();
 
         //최근 7일간의 식습관, 비어있으면 0으로 반환
         for (LocalDate date = currentDate.minusWeeks(1); date.isBefore(currentDate); date = date.plusDays(1)){
-            System.out.println(date);
             if(!nutritionSumOfUserByWeek.containsKey(date)){ //해당 날짜에 먹은 음식이 없는 경우는 0으로 반환
-                calorieLastSevenDays.add(0.0);
-                carbohydrateLastSevenDays.add(0.0);
-                proteinLastSevenDays.add(0.0);
-                fatLastSevenDays.add(0.0);
+                calorieLastSevenDays.add(Map.of(date, 0.0));
+                carbohydrateLastSevenDays.add(Map.of(date, 0.0));
+                proteinLastSevenDays.add(Map.of(date, 0.0));
+                fatLastSevenDays.add(Map.of(date, 0.0));
             }else{
                 int totalKcal = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getKcal).sum();
                 int totalCarbohydrate = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getCarbohydrate).sum();
                 int totalProtein = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getProtein).sum();
                 int totalFat = nutritionSumOfUserByWeek.get(date).stream().mapToInt(BaseNutrition::getFat).sum();
 
-                calorieLastSevenDays.add((double) totalKcal);
-                carbohydrateLastSevenDays.add((double) totalCarbohydrate);
-                proteinLastSevenDays.add((double) totalProtein);
-                fatLastSevenDays.add((double) totalFat);
+                calorieLastSevenDays.add(Map.of(date, (double) totalKcal));
+                carbohydrateLastSevenDays.add(Map.of(date, (double) totalCarbohydrate));
+                proteinLastSevenDays.add(Map.of(date, (double) totalProtein));
+                fatLastSevenDays.add(Map.of(date, (double) totalFat));
             }
         }
 
