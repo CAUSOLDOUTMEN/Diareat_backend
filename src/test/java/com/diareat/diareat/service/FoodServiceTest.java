@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -453,7 +454,7 @@ class FoodServiceTest {
         ResponseAnalysisDto response = foodService.getAnalysisOfUser(user.getId(), fixedDate.getYear(), fixedDate.getMonthValue(), fixedDate.getDayOfMonth());
 
         double totalScore = response.getTotalScore();
-        List<Double> calorieLastSevenDays = response.getCalorieLastSevenDays();
+        List<Map<LocalDate, Double>> calorieLastSevenDays = response.getCalorieLastSevenDays();
         List<Double> calorieLastFourWeeks = response.getCalorieLastFourWeek();
 
 
