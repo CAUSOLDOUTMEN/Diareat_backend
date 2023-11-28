@@ -445,9 +445,9 @@ class FoodServiceTest {
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
-        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(1), fixedDate)).willReturn(foodListOfWeek);
-        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY), fixedDate)).willReturn(foodListOfMonth);
-        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.with(DayOfWeek.MONDAY), fixedDate)).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(1).plusDays(1), fixedDate.plusDays(1))).willReturn(foodListOfWeek);
+        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY).plusDays(1), fixedDate.plusDays(1))).willReturn(foodListOfMonth);
+        given(foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.with(DayOfWeek.MONDAY).plusDays(1), fixedDate.plusDays(1))).willReturn(foodListOfWeek);
 
 
         // when
@@ -466,9 +466,9 @@ class FoodServiceTest {
         assertEquals(4, calorieLastFourWeeks.size()); //한달동안의 음식 -> 5개
 
 
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(1), fixedDate);
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY), fixedDate);
-        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.with(DayOfWeek.MONDAY), fixedDate);
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(1).plusDays(1), fixedDate.plusDays(1));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.minusWeeks(3).with(DayOfWeek.MONDAY).plusDays(1), fixedDate.plusDays(1));
+        verify(foodRepository, times(1)).findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(user.getId(), fixedDate.with(DayOfWeek.MONDAY).plusDays(1), fixedDate.plusDays(1));
 
     }
 
