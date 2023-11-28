@@ -119,6 +119,8 @@ public class User implements UserDetails {
         this.age = age;
         if(autoUpdate == 1) {
             this.type = UserTypeUtil.decideUserType(this.gender, this.age);
+            List<Integer> standard = UserTypeUtil.getStanardByUserType(this.type);
+            this.baseNutrition = BaseNutrition.createNutrition(standard.get(0), standard.get(2), this.weight, standard.get(1));
         }
     }
 
