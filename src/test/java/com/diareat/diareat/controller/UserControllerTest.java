@@ -105,7 +105,7 @@ class UserControllerTest {
     void updateUser() throws Exception {
         // Given
         ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.USER_UPDATE_SUCCESS.getMessage());
-        UpdateUserDto user = UpdateUserDto.of(testUserId, "test2", 170, 80, 21, true);
+        UpdateUserDto user = UpdateUserDto.of(testUserId, "test2", 170, 80, 21, 1);
         String json = mapper.writeValueAsString(user);
 
         // When & Then
@@ -125,7 +125,7 @@ class UserControllerTest {
     @WithMockUser("test")
     void updateUserFail() throws Exception {
         // Given
-        UpdateUserDto user = UpdateUserDto.of(testUserId, "", 300, 80, 500, true);
+        UpdateUserDto user = UpdateUserDto.of(testUserId, "", 300, 80, 500, 1);
         String json = mapper.writeValueAsString(user);
 
         // When & Then

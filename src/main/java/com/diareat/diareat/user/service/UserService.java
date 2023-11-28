@@ -78,7 +78,7 @@ public class UserService {
     public void updateUserInfo(UpdateUserDto updateUserDto) {
         User user = getUserById(updateUserDto.getUserId());
         log.info("{} 회원정보 조회 완료: ", user.getName());
-        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), updateUserDto.isAutoUpdateNutrition());
+        user.updateUser(updateUserDto.getName(), updateUserDto.getHeight(), updateUserDto.getWeight(), updateUserDto.getAge(), updateUserDto.getAutoUpdateNutrition());
         userRepository.save(user);
         log.info("{} 회원정보 수정 완료: ", user.getName());
     }
