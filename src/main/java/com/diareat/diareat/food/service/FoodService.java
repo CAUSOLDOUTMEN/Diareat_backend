@@ -60,7 +60,7 @@ public class FoodService {
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         log.info(date.toString() + "의 "+ userId + "에게 조회된 음식 개수: " + foodList.size() + "개");
         return foodList.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().toLocalTime())).collect(Collectors.toList());
+                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().getHour(), food.getAddedTime().getMinute())).collect(Collectors.toList());
     }
 
     // 음식 정보 수정
@@ -433,7 +433,7 @@ public class FoodService {
     // 1주일동안 먹은 음식들의 영양성분 총합을 요일을 Key로 한 Map을 통해 반환
     private HashMap<LocalDate, List<BaseNutrition>> getNutritionSumByDateMap(Long userId, LocalDate startDate, LocalDate endDate) {
         HashMap<LocalDate, List<BaseNutrition>> maps = new HashMap<>();
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, startDate, endDate);
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, startDate.plusDays(1), endDate.plusDays(1));
         for (Food food : foodList) {
             if (maps.containsKey(food.getDate())) {
                 maps.get(food.getDate()).add(food.getBaseNutrition());
