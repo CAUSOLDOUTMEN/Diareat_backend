@@ -19,13 +19,14 @@ public class ResponseFoodDto {
     private String name;
     private BaseNutrition baseNutrition;
     private boolean favoriteChecked;
-    private LocalTime time;
+    private int hour;
+    private int minute;
 
-    public static ResponseFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition, boolean favoriteChecked, LocalTime time) {
-        return new ResponseFoodDto(foodId, userId, name, baseNutrition, favoriteChecked, time);
+    public static ResponseFoodDto of(Long foodId, Long userId, String name, BaseNutrition baseNutrition, boolean favoriteChecked, int hour, int minute) {
+        return new ResponseFoodDto(foodId, userId, name, baseNutrition, favoriteChecked, hour, minute);
     }
 
     public static ResponseFoodDto from(Food food) {
-        return new ResponseFoodDto(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().toLocalTime());
+        return new ResponseFoodDto(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().getHour(), food.getAddedTime().getMinute());
     }
 }
