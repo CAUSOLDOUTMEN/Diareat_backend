@@ -60,7 +60,7 @@ public class FoodService {
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         log.info(date.toString() + "의 "+ userId + "에게 조회된 음식 개수: " + foodList.size() + "개");
         return foodList.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite())).collect(Collectors.toList());
+                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().toLocalTime())).collect(Collectors.toList());
     }
 
     // 음식 정보 수정

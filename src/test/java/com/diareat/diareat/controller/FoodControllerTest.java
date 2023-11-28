@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -103,7 +104,7 @@ class FoodControllerTest {
         int mm = 12;
         LocalDate date = LocalDate.of(yy, mm, dd);
 
-        ResponseFoodDto food1 = ResponseFoodDto.of(testFoodId, testUserId,"test",testBaseNutrition,false);
+        ResponseFoodDto food1 = ResponseFoodDto.of(testFoodId, testUserId,"test",testBaseNutrition,false, LocalTime.of(12,0,0));
 
         when(foodService.getFoodListByDate(any(Long.class), any(LocalDate.class))).thenReturn(List.of(food1));
         ApiResponse<List<ResponseFoodDto>> expectedResponse = ApiResponse.success(List.of(food1), ResponseCode.FOOD_READ_SUCCESS.getMessage());
