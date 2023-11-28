@@ -112,7 +112,7 @@ class UserServiceTest {
     @Test
     void updateUserInfo() {
         // given
-        UpdateUserDto updateUserDto = UpdateUserDto.of(1L, "update", 180, 75, 25, false);
+        UpdateUserDto updateUserDto = UpdateUserDto.of(1L, "update", 180, 75, 25, 0);
         User user = User.createUser("test", "profile.jpg", "keycode123", 175, 70, 0, 30, BaseNutrition.createNutrition(2000, 300, 80, 80));
         given(userRepository.findById(updateUserDto.getUserId())).willReturn(Optional.of(user));
 

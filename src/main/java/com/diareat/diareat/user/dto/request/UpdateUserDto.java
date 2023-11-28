@@ -32,7 +32,7 @@ public class UpdateUserDto {
     @Range(min = 0, max = 1, message = MessageUtil.ZERO_OR_ONE)
     private int autoUpdateNutrition; // 개인정보를 활용한 기준 영양소 자동계산 여부 (0, 1)
 
-    public static UpdateUserDto of(Long userId, String userName, int userHeight, int userWeight, int userAge, boolean autoUpdateNutrition) {
-        return new UpdateUserDto(userId, userName, userHeight, userWeight, userAge, Integer.parseInt(String.valueOf(autoUpdateNutrition)));
+    public static UpdateUserDto of(Long userId, String userName, int userHeight, int userWeight, int userAge, int autoUpdateNutrition) {
+        return new UpdateUserDto(userId, userName, userHeight, userWeight, userAge, autoUpdateNutrition);
     }
 }
