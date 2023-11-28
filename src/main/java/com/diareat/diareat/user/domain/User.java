@@ -112,12 +112,12 @@ public class User implements UserDetails {
     }
 
     // 회원정보 수정
-    public void updateUser(String name, int height, int weight, int age, boolean autoUpdate) {
+    public void updateUser(String name, int height, int weight, int age, int autoUpdate) {
         this.name = name;
         this.height = height;
         this.weight = weight;
         this.age = age;
-        if(autoUpdate) {
+        if(autoUpdate == 1) {
             this.type = UserTypeUtil.decideUserType(this.gender, this.age);
         }
     }
