@@ -249,7 +249,7 @@ public class FoodService {
         User user = userRepository.getReferenceById(userId);
 
         //현재 날짜
-        LocalDate currentDate = LocalDate.of(year,month,day);
+        LocalDate currentDate = LocalDate.of(year,month,day).plusDays(1);
 
         //최근 1주간 유저가 먹은 음식들의 날짜별 HashMap
         HashMap<LocalDate, List<BaseNutrition>> nutritionSumOfUserByWeek = getNutritionSumByDateMap(userId, currentDate.minusWeeks(1), currentDate);
@@ -433,7 +433,7 @@ public class FoodService {
     // 1주일동안 먹은 음식들의 영양성분 총합을 요일을 Key로 한 Map을 통해 반환
     private HashMap<LocalDate, List<BaseNutrition>> getNutritionSumByDateMap(Long userId, LocalDate startDate, LocalDate endDate) {
         HashMap<LocalDate, List<BaseNutrition>> maps = new HashMap<>();
-        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, startDate.plusDays(1), endDate.plusDays(1));
+        List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, startDate, endDate);
         for (Food food : foodList) {
             if (maps.containsKey(food.getDate())) {
                 maps.get(food.getDate()).add(food.getBaseNutrition());
