@@ -29,12 +29,14 @@ public class ResponseNutritionSumByDateDto implements Serializable {
 
     BaseNutrition baseNutrition;
 
+    boolean isEmpty;
+
     public static ResponseNutritionSumByDateDto of (Long userId, LocalDate checkDate, int nutritionSumType, int totalKcal,
                                                     int totalCarbohydrate, int totalProtein, int totalFat, double ratioKcal,
                                                     double ratioCarbohydrate, double ratioProtein, double ratioFat,
-                                                    BaseNutrition baseNutrition){
+                                                    BaseNutrition baseNutrition, boolean isEmpty){
         return new ResponseNutritionSumByDateDto(userId, nutritionSumType, totalKcal,
                                                 totalCarbohydrate, totalProtein, totalFat, ratioKcal,
-                                                ratioCarbohydrate, ratioProtein, ratioFat, baseNutrition);
+                                                ratioCarbohydrate, ratioProtein, ratioFat, baseNutrition, isEmpty);
     }
 }

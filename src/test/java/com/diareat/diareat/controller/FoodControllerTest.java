@@ -277,7 +277,7 @@ class FoodControllerTest {
         LocalDate date = LocalDate.of(2021,10,10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId,date,1
                 ,500,100,50,50,0.2,0.3,0.4,0.5,
-                BaseNutrition.createNutrition(500,100,50,50));
+                BaseNutrition.createNutrition(500,100,50,50), false);
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto,ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByDate(any(Long.class),any(LocalDate.class))).thenReturn(responseNutritionSumByDateDto);
 
@@ -315,7 +315,7 @@ class FoodControllerTest {
         LocalDate date = LocalDate.of(2021, 10, 10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 7
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
-                BaseNutrition.createNutrition(500, 100, 50, 50));
+                BaseNutrition.createNutrition(500, 100, 50, 50), false);
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByWeek(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseNutritionSumByDateDto);
 
@@ -353,7 +353,7 @@ class FoodControllerTest {
         LocalDate date = LocalDate.of(2021, 10, 10);
         ResponseNutritionSumByDateDto responseNutritionSumByDateDto = ResponseNutritionSumByDateDto.of(testUserId, date, 30
                 , 500, 100, 50, 50, 0.2, 0.3, 0.4, 0.5,
-                BaseNutrition.createNutrition(500, 100, 50, 50));
+                BaseNutrition.createNutrition(500, 100, 50, 50), false);
         ApiResponse<ResponseNutritionSumByDateDto> expectedResponse = ApiResponse.success(responseNutritionSumByDateDto, ResponseCode.FOOD_READ_SUCCESS.getMessage());
         when(foodService.getNutritionSumByMonth(any(Long.class), any(int.class), any(int.class), any(int.class))).thenReturn(responseNutritionSumByDateDto);
 
