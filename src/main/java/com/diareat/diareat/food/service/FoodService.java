@@ -142,7 +142,7 @@ public class FoodService {
         validateUser(userId);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         log.info(date.toString() + "기준 "+ userId + "의 음식들의 영양성분별 총합 조회 완료");
-        return calculateNutritionSumAndRatio(userId, foodList, date, 1);
+        return calculateNutritionSumAndRatio(userId, foodList, date, 1, foodList.isEmpty());
     }
 
     @Transactional(readOnly = true)
@@ -151,7 +151,7 @@ public class FoodService {
         validateUser(userId);
         LocalDate endDate = LocalDate.of(year, month, day);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusWeeks(1), endDate);
-        return calculateNutritionSumAndRatio(userId, foodList, endDate, 7);
+        return calculateNutritionSumAndRatio(userId, foodList, endDate, 7, foodList.isEmpty());
     }
 
     @Transactional(readOnly = true)
@@ -161,7 +161,7 @@ public class FoodService {
         LocalDate endDate = LocalDate.of(year, month, day);
         List<Food> foodList = foodRepository.findAllByUserIdAndDateBetweenOrderByAddedTimeAsc(userId, endDate.minusMonths(1), endDate);
 
-        return calculateNutritionSumAndRatio(userId, foodList, endDate, 30);
+        return calculateNutritionSumAndRatio(userId, foodList, endDate, 30, foodList.isEmpty());
     }
 
     @Transactional(readOnly = true)
@@ -386,7 +386,8 @@ public class FoodService {
         return ResponseRankUserDto.of(targetUser.getId(), targetUser.getName(), targetUser.getImage(), kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore);
     }
 
-    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType) {
+    private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType,
+                                                                        boolean isEmpty) {
         User targetUser = getUserById(userId);
         int totalKcal = 0;
         int totalCarbohydrate = 0;
@@ -408,7 +409,7 @@ public class FoodService {
 
         return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,
                                                 totalCarbohydrate, totalProtein, totalFat, ratioKcal,
-                                                ratioCarbohydrate, ratioProtein, ratioFat, targetUser.getBaseNutrition());
+                                                ratioCarbohydrate, ratioProtein, ratioFat, targetUser.getBaseNutrition(), isEmpty);
     }
 
     private void validateUser(Long userId) {
