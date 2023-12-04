@@ -10,19 +10,14 @@ import com.diareat.diareat.user.domain.User;
 import com.diareat.diareat.user.dto.response.ResponseRankUserDto;
 import com.diareat.diareat.user.repository.FollowRepository;
 import com.diareat.diareat.user.repository.UserRepository;
-import com.diareat.diareat.util.MessageUtil;
 import com.diareat.diareat.util.api.ResponseCode;
 import com.diareat.diareat.util.exception.FavoriteException;
 import com.diareat.diareat.util.exception.FoodException;
 import com.diareat.diareat.util.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -43,10 +38,6 @@ public class FoodService {
     // @CacheEvict(value = {"ResponseNutritionSumByDateDto"}, key = "#userId+createFoodDto.getDate()", cacheManager = "diareatCacheManager")
     @Transactional
     public Long saveFood(CreateFoodDto createFoodDto) {
-        if (foodRepository.existsByName(createFoodDto.getName())){
-            log.info(createFoodDto.getName() + ": 이미 존재하는 음식 이름입니다.");
-            throw new FoodException(ResponseCode.FOOD_NAME_ALREADY_EXIST);
-        }
         User user = getUserById(createFoodDto.getUserId());
         Food food = Food.createFood(createFoodDto.getName(), user, createFoodDto.getBaseNutrition(), createFoodDto.getYear(), createFoodDto.getMonth(), createFoodDto.getDay());
         log.info("신규 음식 저장: " + food.getName());
