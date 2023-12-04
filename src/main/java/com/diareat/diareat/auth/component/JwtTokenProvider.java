@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + (360 * 60 * 1000L))) // 토큰 유효시각 설정 (360분)
+                .setExpiration(new Date(now.getTime() + (720 * 60 * 1000L))) // 토큰 유효시각 설정 (12시간)
                 .signWith(SignatureAlgorithm.HS256, secretKey)  // 암호화 알고리즘과, secret 값
                 .compact();
     }
