@@ -2,15 +2,13 @@ package com.diareat.diareat.user.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 @JsonSerialize
 @JsonDeserialize
 public class ResponseRankUserDto implements Serializable {
@@ -23,8 +21,4 @@ public class ResponseRankUserDto implements Serializable {
     private double proteinScore;
     private double fatScore;
     private double totalScore;
-
-    public static ResponseRankUserDto of(Long userId, String name, String image, double calorieScore, double carbohydrateScore, double proteinScore, double fatScore, double totalScore) {
-        return new ResponseRankUserDto(userId, name, image, calorieScore, carbohydrateScore, proteinScore, fatScore, totalScore);
-    }
 }

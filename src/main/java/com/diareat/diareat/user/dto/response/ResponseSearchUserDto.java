@@ -2,15 +2,13 @@ package com.diareat.diareat.user.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 @JsonSerialize
 @JsonDeserialize
 public class ResponseSearchUserDto implements Serializable {
@@ -19,8 +17,4 @@ public class ResponseSearchUserDto implements Serializable {
     private String name;
     private String image;
     private boolean follow; // 유저가 이미 팔로우한 유저인지 확인
-
-    public static ResponseSearchUserDto of(Long userId, String name, String image, boolean isFollow) {
-        return new ResponseSearchUserDto(userId, name, image, isFollow);
-    }
 }
