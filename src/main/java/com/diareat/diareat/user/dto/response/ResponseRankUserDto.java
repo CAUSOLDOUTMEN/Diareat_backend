@@ -21,4 +21,17 @@ public class ResponseRankUserDto implements Serializable {
     private double proteinScore;
     private double fatScore;
     private double totalScore;
+
+    public static ResponseRankUserDto of(Long userId, String name, String image, double calorieScore, double carbohydrateScore, double proteinScore, double fatScore, double totalScore) {
+        return ResponseRankUserDto.builder()
+                .userId(userId)
+                .name(name)
+                .image(image)
+                .calorieScore(calorieScore)
+                .carbohydrateScore(carbohydrateScore)
+                .proteinScore(proteinScore)
+                .fatScore(fatScore)
+                .totalScore(totalScore)
+                .build();
+    }
 }
