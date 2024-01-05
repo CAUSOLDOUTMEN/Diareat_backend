@@ -41,7 +41,7 @@ public class UserService {
             log.info("이미 존재하는 닉네임입니다 by {}", createUserDto.getName());
             throw new UserException(ResponseCode.USER_NAME_ALREADY_EXIST);
         }
-        if(userRepository.existsByKeyCode(createUserDto.getKeyCode())) {
+        if (userRepository.existsByKeyCode(createUserDto.getKeyCode())) {
             log.info("이미 존재하는 키코드입니다 by {}", createUserDto.getKeyCode());
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
         }
@@ -60,7 +60,10 @@ public class UserService {
     public ResponseSimpleUserDto getSimpleUserInfo(Long userId) {
         User user = getUserById(userId);
         log.info("{} 회원 기본정보 조회 완료: ", user.getName());
-        return ResponseSimpleUserDto.of(user.getName(), user.getImage());
+        return ResponseSimpleUserDto.builder()
+                .name(user.getName())
+                .image(user.getImage())
+                .build();
     }
 
     // 회원정보 조회
@@ -69,7 +72,12 @@ public class UserService {
     public ResponseUserDto getUserInfo(Long userId) {
         User user = getUserById(userId);
         log.info("{} 회원정보 조회 완료: ", user.getName());
-        return ResponseUserDto.from(user);
+        return ResponseUserDto.builder()
+                .name(user.getName())
+                .height(user.getHeight())
+                .weight(user.getWeight())
+                .age(user.getAge())
+                .build();
     }
 
     // 회원정보 수정
@@ -89,9 +97,12 @@ public class UserService {
     public ResponseUserNutritionDto getUserNutrition(Long userId) {
         User user = getUserById(userId);
         log.info("{} user 객체 조회 완료: ", user.getName());
-        List<Integer> standard = UserTypeUtil.getStanardByUserType(user.getType()); // 유저 타입에 따른 기본 기준섭취량 조회
-        log.info("{} 회원 기준섭취량 조회 완료: ", user.getName());
-        return ResponseUserNutritionDto.from(user, standard.get(0), standard.get(2), user.getWeight(), standard.get(1)); // 단백질은 자신 체중 기준으로 계산
+        return ResponseUserNutritionDto.builder()
+                .calorie(user.getBaseNutrition().getKcal())
+                .carbohydrate(user.getBaseNutrition().getCarbohydrate())
+                .protein(user.getBaseNutrition().getProtein())
+                .fat(user.getBaseNutrition().getFat())
+                .build();
     }
 
     // 회원 기준섭취량 직접 수정
@@ -124,7 +135,12 @@ public class UserService {
         log.info("{} 검색 결과 조회 완료", name);
         users.removeIf(user -> user.getId().equals(hostId)); // 검색 결과에서 자기 자신은 제외 (removeIf 메서드는 ArrayList에만 존재)
         return users.stream()
-                .map(user -> ResponseSearchUserDto.of(user.getId(), user.getName(), user.getImage(), followRepository.existsByFromUserAndToUser(hostId, user.getId()))).collect(Collectors.toList());
+                .map(user -> ResponseSearchUserDto.builder()
+                        .userId(user.getId())
+                        .name(user.getName())
+                        .image(user.getImage())
+                        .follow(followRepository.existsByFromUserAndToUser(hostId, user.getId()))
+                        .build()).collect(Collectors.toList());
     }
 
     // 회원이 특정 회원 팔로우

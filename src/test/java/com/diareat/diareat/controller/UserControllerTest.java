@@ -1,5 +1,7 @@
 package com.diareat.diareat.controller;
 
+import com.diareat.diareat.auth.component.JwtTokenProvider;
+import com.diareat.diareat.config.TestConfig;
 import com.diareat.diareat.user.controller.UserController;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
@@ -21,8 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -34,29 +39,45 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 @WebMvcTest(controllers = UserController.class)
+@Import(TestConfig.class)
 class UserControllerTest {
 
     @Autowired
-    private MockMvc  mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @MockBean
     private UserService userService;
 
     private final Long testUserId = 1L;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final User testUser = User.createUser("test", "test","test", 180, 70, 0, 20, BaseNutrition.createNutrition(2000, 300, 80, 80));
+    private final User testUser = User.createUser("test", "test", "test", 180, 70, 0, 20, BaseNutrition.createNutrition(2000, 300, 80, 80));
+    private final Authentication authentication = new TestingAuthenticationToken(1L, null, "ROLE_USER");
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
-        when(userService.getSimpleUserInfo(testUserId)).thenReturn(ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage()));
-        when(userService.getUserInfo(testUserId)).thenReturn(ResponseUserDto.from(testUser));
+        when(userService.getSimpleUserInfo(any(Long.class)))
+                .thenReturn(ResponseSimpleUserDto.builder()
+                        .name(testUser.getName())
+                        .image(testUser.getImage())
+                        .build());
+        when(userService.getUserInfo(any(Long.class)))
+                .thenReturn(ResponseUserDto.builder()
+                        .name(testUser.getName())
+                        .height(testUser.getHeight())
+                        .weight(testUser.getWeight())
+                        .age(testUser.getAge())
+                        .build());
     }
 
     @DisplayName("회원 기본정보 조회")
@@ -65,12 +86,18 @@ class UserControllerTest {
     void testGetSimpleUserInfo() throws Exception {
         // Given
         ApiResponse<ResponseSimpleUserDto> expectedResponse = ApiResponse.success(
-                ResponseSimpleUserDto.of(testUser.getName(), testUser.getImage()), ResponseCode.USER_CREATE_SUCCESS.getMessage());
+                ResponseSimpleUserDto.builder()
+                        .name(testUser.getName())
+                        .image(testUser.getImage())
+                        .build()
+                , ResponseCode.USER_CREATE_SUCCESS.getMessage());
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .get("/api/user/1/info/simple", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/user/info/simple")
+                        .header("accessToken", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MDQ0MzgxMDQsImV4cCI6MTczNTk3NDEwNCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.ApqSkkS8DqNG_H9abjJMRrzxONDj59cVGugJxPM_nBg")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(authentication)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -84,12 +111,20 @@ class UserControllerTest {
     void getUserInfo() throws Exception {
         // Given
         ApiResponse<ResponseUserDto> expectedResponse = ApiResponse.success(
-                ResponseUserDto.from(testUser), ResponseCode.USER_CREATE_SUCCESS.getMessage());
+                ResponseUserDto.builder()
+                        .name(testUser.getName())
+                        .height(testUser.getHeight())
+                        .weight(testUser.getWeight())
+                        .age(testUser.getAge())
+                        .build()
+                , ResponseCode.USER_CREATE_SUCCESS.getMessage());
 
         //  When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-            .get("/api/user/1/info", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/user/info")
+                        .header("accessToken", "test")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(authentication)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -109,7 +144,7 @@ class UserControllerTest {
         String json = mapper.writeValueAsString(user);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .put("/api/user/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
@@ -129,12 +164,12 @@ class UserControllerTest {
         String json = mapper.writeValueAsString(user);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .put("/api/user/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .accept(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
@@ -148,25 +183,36 @@ class UserControllerTest {
     @WithMockUser("test")
     void getUserNutrition() throws Exception {
         // Given
-        when(userService.getUserNutrition(testUserId)).thenReturn(ResponseUserNutritionDto.of(2000, 300, 300, 80, 1000, 200, 200, 60));
+        when(userService.getUserNutrition(any(Long.class))).thenReturn(
+                ResponseUserNutritionDto.builder()
+                        .calorie(2000)
+                        .protein(300)
+                        .fat(300)
+                        .carbohydrate(80)
+                        .build()
+        );
         ApiResponse<ResponseUserNutritionDto> expectedResponse = ApiResponse.success(
-               ResponseUserNutritionDto.of(2000, 300, 300, 80, 1000, 200, 200, 60), ResponseCode.USER_READ_SUCCESS.getMessage());
+                ResponseUserNutritionDto.builder()
+                        .calorie(2000)
+                        .protein(300)
+                        .fat(300)
+                        .carbohydrate(80)
+                        .build(),
+                ResponseCode.USER_READ_SUCCESS.getMessage());
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .get("/api/user/1/nutrition", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/user/info/nutrition")
+                        .header("accessToken", "test")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(authentication)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.calorie").value(expectedResponse.getData().getCalorie()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.protein").value(expectedResponse.getData().getProtein()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.fat").value(expectedResponse.getData().getFat()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(expectedResponse.getData().getCarbohydrate()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultCalorie").value(expectedResponse.getData().getDefaultCalorie()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultProtein").value(expectedResponse.getData().getDefaultProtein()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultFat").value(expectedResponse.getData().getDefaultFat()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.defaultCarbohydrate").value(expectedResponse.getData().getDefaultCarbohydrate()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(expectedResponse.getData().getCarbohydrate()));
     }
 
     @DisplayName("회원 기준섭취량 직접 수정")
@@ -179,11 +225,12 @@ class UserControllerTest {
         String json = mapper.writeValueAsString(nutrition);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .put("/api/user/1/nutrition")
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/user/info/nutrition")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(authentication)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(expectedResponse.getHeader().getMessage()))
@@ -199,12 +246,13 @@ class UserControllerTest {
         String json = mapper.writeValueAsString(nutrition);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .put("/api/user/1/nutrition")
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/user/info/nutrition")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-                        .accept(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(authentication)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
@@ -213,19 +261,33 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.fat").value(MessageUtil.FAT_RANGE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.carbohydrate").value(MessageUtil.CARBOHYDRATE_RANGE));
     }
+
     @DisplayName("회원의 친구 검색 결과 조회")
     @Test
     @WithMockUser("test")
     void searchUser() throws Exception {
         // Given
-        when(userService.searchUser(testUserId, "test")).thenReturn(List.of(ResponseSearchUserDto.of(2L, "test2", "test2", true)));
+        when(userService.searchUser(testUserId, "test"))
+                .thenReturn(List.of(ResponseSearchUserDto.builder()
+                        .userId(2L)
+                        .name("test2")
+                        .image("test2")
+                        .follow(true)
+                        .build()));
         ApiResponse<List<ResponseSearchUserDto>> expectedResponse = ApiResponse.success(
-                List.of(ResponseSearchUserDto.of(2L, "test2", "test2", true)), ResponseCode.USER_SEARCH_SUCCESS.getMessage());
+                List.of(ResponseSearchUserDto.builder()
+                        .userId(2L)
+                        .name("test2")
+                        .image("test2")
+                        .follow(true)
+                        .build()
+                ),
+                ResponseCode.USER_SEARCH_SUCCESS.getMessage());
         SearchUserDto searchDto = SearchUserDto.of(testUserId, "test");
         String json = mapper.writeValueAsString(searchDto);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/user/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
@@ -248,12 +310,13 @@ class UserControllerTest {
         String json = mapper.writeValueAsString(searchDto);
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
+        mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/user/search")
+                        .header("accessToken", "test")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .accept(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.message").value(ResponseCode.BAD_REQUEST.getMessage()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value(ResponseCode.BAD_REQUEST.getMessage()))
@@ -268,9 +331,9 @@ class UserControllerTest {
         ApiResponse<Void> expectedResponse = ApiResponse.success(null, ResponseCode.USER_FOLLOW_SUCCESS.getMessage());
 
         // When & Then
-        mockMvc.perform( MockMvcRequestBuilders
-                        .post("/api/user/1/follow/2")
-                        //.delete("/api/user/1/follow/2")
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/user/follow/2")
+                        .header("accessToken", "test")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
