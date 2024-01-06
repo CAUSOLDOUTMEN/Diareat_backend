@@ -2,12 +2,14 @@ package com.diareat.diareat.food.dto;
 
 import com.diareat.diareat.food.domain.Food;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseSimpleFoodDto { // Best 3 and Worst 3에 사용될 객체
