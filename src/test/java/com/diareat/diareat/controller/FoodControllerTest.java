@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -59,11 +60,18 @@ class FoodControllerTest {
     private final BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(500, 50, 30, 10);
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
-        testFood.setId(testFoodId);
-        testFavoriteFood.setId(testFavoriteFoodId);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(testFood, testFoodId);
+
+        Field favoriteId = FavoriteFood.class.getDeclaredField("id");
+        favoriteId.setAccessible(true);
+        favoriteId.set(testFavoriteFood, testFavoriteFoodId);
+
         mapper.registerModule(new JavaTimeModule());
     }
 

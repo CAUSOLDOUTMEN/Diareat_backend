@@ -62,8 +62,4 @@ public class FavoriteFood {
         LocalDate createdDate = LocalDate.now();
         return Food.createFood(favoriteFood.getName(), favoriteFood.getUser(), favoriteFood.getBaseNutrition(), createdDate.getYear(), createdDate.getMonthValue(), createdDate.getDayOfMonth());
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
