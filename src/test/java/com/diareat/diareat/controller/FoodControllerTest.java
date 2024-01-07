@@ -389,12 +389,12 @@ class FoodControllerTest {
     void testGetScoreOfUserWithBestAndWorstFoods() throws Exception{
         //Given
         LocalDate date = LocalDate.of(2021, 10, 10);
-        ResponseSimpleFoodDto food1 = ResponseSimpleFoodDto.of("test1", 100, 100, 100, 100, date);
-        ResponseSimpleFoodDto food2 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
-        ResponseSimpleFoodDto food3 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
-        ResponseSimpleFoodDto food4 = ResponseSimpleFoodDto.of("test4", 100, 100, 100, 100, date);
-        ResponseSimpleFoodDto food5 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
-        ResponseSimpleFoodDto food6 = ResponseSimpleFoodDto.of("test", 100, 100, 100, 100, date);
+        ResponseFoodDto food1 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
+        ResponseFoodDto food2 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
+        ResponseFoodDto food3 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
+        ResponseFoodDto food4 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
+        ResponseFoodDto food5 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
+        ResponseFoodDto food6 = ResponseFoodDto.builder().name("test").baseNutrition(BaseNutrition.createNutrition(100, 100, 100, 100)).build();
 
         ResponseScoreBestWorstDto responseScoreBestWorstDto = ResponseScoreBestWorstDto.of(testUserId, 100, 80
                 , 60, 240, List.of(food1, food2,food3), List.of(food4, food5, food6));
