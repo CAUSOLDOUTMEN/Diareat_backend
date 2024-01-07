@@ -184,14 +184,10 @@ public class FoodService {
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
         // ** Best 3 기준 논의 필요 **
 
-        List<ResponseSimpleFoodDto> top3FoodsDtoList = top3Foods.stream()
-                .map(food -> ResponseSimpleFoodDto.builder()
+        List<ResponseFoodDto> top3FoodsDtoList = top3Foods.stream()
+                .map(food -> ResponseFoodDto.builder()
                         .name(food.getName())
-                        .calorie(food.getBaseNutrition().getKcal())
-                        .carbohydrate(food.getBaseNutrition().getCarbohydrate())
-                        .protein(food.getBaseNutrition().getProtein())
-                        .fat(food.getBaseNutrition().getFat())
-                        .date(food.getDate())
+                        .baseNutrition(food.getBaseNutrition())
                         .build())
                         .collect(Collectors.toList());
 
@@ -220,14 +216,10 @@ public class FoodService {
         // ** 이점은 논의가 필요할 듯? **
         // 우선 임시로 지방 비율을 높게 설정
 
-        List<ResponseSimpleFoodDto> worst3FoodDtoList = worst3Foods.stream()
-                .map(food -> ResponseSimpleFoodDto.builder()
+        List<ResponseFoodDto> worst3FoodDtoList = worst3Foods.stream()
+                .map(food -> ResponseFoodDto.builder()
                         .name(food.getName())
-                        .calorie(food.getBaseNutrition().getKcal())
-                        .carbohydrate(food.getBaseNutrition().getCarbohydrate())
-                        .protein(food.getBaseNutrition().getProtein())
-                        .fat(food.getBaseNutrition().getFat())
-                        .date(food.getDate())
+                        .baseNutrition(food.getBaseNutrition())
                         .build())
                         .collect(Collectors.toList());
 
@@ -263,8 +255,8 @@ public class FoodService {
 
 
         //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
-        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId, year, month, day).getRankFoodList();
-        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId, year, month, day).getRankFoodList();
+        List<ResponseFoodDto> simpleBestFoodList = getBestFoodByWeek(userId, year, month, day).getRankFoodList();
+        List<ResponseFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId, year, month, day).getRankFoodList();
 
         return ResponseScoreBestWorstDto.builder()
                 .totalScore(totalScore)
