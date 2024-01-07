@@ -260,6 +260,7 @@ public class FoodService {
 
         return ResponseScoreBestWorstDto.builder()
                 .totalScore(totalScore)
+                .calorieScore(kcalScore)
                 .carbohydrateScore(carbohydrateScore)
                 .proteinScore(proteinScore)
                 .fatScore(fatScore)
@@ -423,6 +424,7 @@ public class FoodService {
         totalScore = (kcalScore + carbohydrateScore + proteinScore + fatScore);
         return ResponseRankUserDto.builder()
                 .userId(targetUser.getId())
+                .name(targetUser.getName())
                 .totalScore(totalScore)
                 .calorieScore(kcalScore)
                 .carbohydrateScore(carbohydrateScore)
