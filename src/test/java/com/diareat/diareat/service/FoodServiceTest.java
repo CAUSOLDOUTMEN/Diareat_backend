@@ -14,12 +14,14 @@ import com.diareat.diareat.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
 
+import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -54,7 +56,7 @@ class FoodServiceTest {
 
     @DisplayName("음식 정보 저장")
     @Test
-    void testSaveAndGetFood() { // 음식 정보 저장 및 해당 날짜 음식 리스트 불러오기
+    void testSaveAndGetFood() throws NoSuchFieldException, IllegalAccessException { // 음식 정보 저장 및 해당 날짜 음식 리스트 불러오기
         // given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
@@ -62,7 +64,15 @@ class FoodServiceTest {
 
         CreateFoodDto createFoodDto = CreateFoodDto.of(user.getId(), "testFood", testBaseNutrition, 2010,1,1);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
-        food.setId(2L);
+
+        Field f_id = Food.class.getDeclaredField("id");
+        f_id.setAccessible(true);
+        f_id.set(food, 2L);
+
+        //addedTime에 접근할 수 없으므로 Reflection 통한 값 설정
+        Field addedTime = Food.class.getDeclaredField("addedTime");
+        addedTime.setAccessible(true);
+        addedTime.set(food, LocalDate.of(2010,1,1).atTime(0,0));
 
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         given(userRepository.existsById(user.getId())).willReturn(true);
@@ -80,12 +90,15 @@ class FoodServiceTest {
     }
 
     @Test
-    void testUpdateFood() {
+    void testUpdateFood() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
-        food.setId(1L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
 
         given(foodRepository.findById(food.getId())).willReturn(Optional.of(food));
 
@@ -103,12 +116,15 @@ class FoodServiceTest {
     }
     //
     @Test
-    void testDeleteFood() {
+    void testDeleteFood() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
-        food.setId(1L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
 
         given(foodRepository.existsById(food.getId())).willReturn(true);
         given(foodRepository.existsByIdAndUserId(food.getId(), 1L)).willReturn(true);
@@ -120,14 +136,20 @@ class FoodServiceTest {
     }
 
     @Test
-    void testSaveAndGetFavoriteFood() {
+    void testSaveAndGetFavoriteFood() throws NoSuchFieldException, IllegalAccessException {
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","testPassword", 1,180, 80,18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user,food, testBaseNutrition);
         user.setId(1L);
-        food.setId(2L);
-        favoriteFood.setId(3L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
+
+        Field fav_Id = FavoriteFood.class.getDeclaredField("id");
+        fav_Id.setAccessible(true);
+        fav_Id.set(favoriteFood, 3L);
 
         CreateFavoriteFoodDto createFavoriteFoodDto = CreateFavoriteFoodDto.of(food.getId(), user.getId(),"testFood", testBaseNutrition);
 
@@ -149,13 +171,16 @@ class FoodServiceTest {
         verify(favoriteFoodRepository, times(1)).save(any(FavoriteFood.class));
     }
     @Test
-    void testUpdateFavoriteFood() {
+    void testUpdateFavoriteFood() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFavoriteFood", user, food,testBaseNutrition);
-        favoriteFood.setId(1L);
+
+        Field fav_Id = FavoriteFood.class.getDeclaredField("id");
+        fav_Id.setAccessible(true);
+        fav_Id.set(favoriteFood, 3L);
 
         given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
 
@@ -172,14 +197,17 @@ class FoodServiceTest {
     }
     //
     @Test
-    void testDeleteFavoriteFood() {
+    void testDeleteFavoriteFood() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testBaseNutrition = BaseNutrition.createNutrition(1,1,1,1);
         User user = User.createUser("testUser", "testImage","tessPassword", 1, 180, 80, 18, testBaseNutrition);
         Food food = Food.createFood("testFood", user, testBaseNutrition, 2010,1,1);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("testFood", user, food, testBaseNutrition);
         food.setFavoriteFood(favoriteFood);
-        favoriteFood.setId(1L);
+
+        Field fav_Id = FavoriteFood.class.getDeclaredField("id");
+        fav_Id.setAccessible(true);
+        fav_Id.set(favoriteFood, 3L);
 
         given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
         given(favoriteFoodRepository.existsByIdAndUserId(favoriteFood.getId(), 1L)).willReturn(true);
@@ -192,13 +220,16 @@ class FoodServiceTest {
     }
     //
     @Test
-    void testNutritionSumByDate(){
+    void testNutritionSumByDate() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
         Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
-        food.setId(2L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
@@ -219,13 +250,16 @@ class FoodServiceTest {
     }
     //
     @Test
-    void testNutritionSumByWeek(){
+    void testNutritionSumByWeek() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
         Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
-        food.setId(2L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
@@ -248,13 +282,16 @@ class FoodServiceTest {
     }
 
     @Test
-    void testNutritionSumByMonth(){
+    void testNutritionSumByMonth() throws NoSuchFieldException, IllegalAccessException {
         //given
         BaseNutrition testFoodNutrition = BaseNutrition.createNutrition(1400,150,200,250);
         User user = User.createUser("testUser", "testImage","testPassword",1, 180, 80, 18, BaseNutrition.createNutrition(2000,300,80,80));
         user.setId(1L);
         Food food = Food.createFood("testFood", user, testFoodNutrition, 2010,1,1);
-        food.setId(2L);
+
+        Field foodId = Food.class.getDeclaredField("id");
+        foodId.setAccessible(true);
+        foodId.set(food, 2L);
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
@@ -294,7 +331,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getBestFoodByWeek(user.getId(), 2010,1,1);
-        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -321,7 +358,7 @@ class FoodServiceTest {
 
         // when
         ResponseFoodRankDto response = foodService.getWorstFoodByWeek(user.getId(), 2010,1,1);
-        List<ResponseSimpleFoodDto> top3Foods = response.getRankFoodList();
+        List<ResponseFoodDto> top3Foods = response.getRankFoodList();
 
         // then
         assertEquals(3, top3Foods.size());
@@ -371,7 +408,7 @@ class FoodServiceTest {
     }
 
     @Test
-    void testGetScoreOfUserWithBestAndWorstFoods(){
+    void testGetScoreOfUserWithBestAndWorstFoods() throws NoSuchFieldException, IllegalAccessException {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
         Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
@@ -382,10 +419,12 @@ class FoodServiceTest {
 
         LocalDate fixedDate = LocalDate.of(2010, 1, 1);
 
-        food1.setDate(fixedDate);
-        food1_1.setDate(fixedDate);
-        food2.setDate(fixedDate.minusDays(2));
-        food3.setDate(fixedDate.minusDays(3));
+        Field date = Food.class.getDeclaredField("date");
+        date.setAccessible(true);
+        date.set(food1, fixedDate);
+        date.set(food1_1, fixedDate);
+        date.set(food2, fixedDate.minusDays(2));
+        date.set(food3, fixedDate.minusDays(3));
 
         List<Food> foodList = List.of(food1, food1_1, food2, food3);
 
@@ -395,8 +434,8 @@ class FoodServiceTest {
 
         // when
         ResponseScoreBestWorstDto response = foodService.getScoreOfUserWithBestAndWorstFoods(user.getId(), 2010, 1, 1);
-        List<ResponseSimpleFoodDto> top3Foods = response.getBest();
-        List<ResponseSimpleFoodDto> worst3Foods = response.getWorst();
+        List<ResponseFoodDto> top3Foods = response.getBest();
+        List<ResponseFoodDto> worst3Foods = response.getWorst();
         double totalScore = response.getTotalScore();
         double calorieScore = response.getCalorieScore();
         double carbohydrateScore = response.getCarbohydrateScore();
@@ -414,7 +453,7 @@ class FoodServiceTest {
     }
 
     @Test
-    void testGetAnalysisOfUser(){
+    void testGetAnalysisOfUser() throws NoSuchFieldException, IllegalAccessException {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
         Food food1 = Food.createFood( "Food1", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
@@ -427,21 +466,18 @@ class FoodServiceTest {
 
         LocalDate fixedDate = LocalDate.of(2010, 5, 1);
 
-        food1.setDate(fixedDate);
-        food1_1.setDate(fixedDate);
-        food2.setDate(fixedDate.minusDays(2));
-        food3.setDate(fixedDate.minusDays(3));
-        food4.setDate(fixedDate.minusWeeks(1));
-        food5.setDate(fixedDate.minusWeeks(2));
-
-
+        Field date = Food.class.getDeclaredField("date");
+        date.setAccessible(true);
+        date.set(food1, fixedDate);
+        date.set(food1_1, fixedDate);
+        date.set(food2, fixedDate.minusDays(2));
+        date.set(food3, fixedDate.minusDays(3));
+        date.set(food4, fixedDate.minusWeeks(1));
+        date.set(food5, fixedDate.minusWeeks(2));
 
         List<Food> foodListOfWeek = List.of(food1,food1_1, food2, food3);
         List<Food> foodListOfMonth = List.of(food1, food1_1,food2, food3, food4, food5);
         Sort sort = Sort.by(Sort.Direction.DESC, "added_time");
-
-
-
 
         given(userRepository.existsById(user.getId())).willReturn(true);
         given(userRepository.getReferenceById(any(Long.class))).willReturn(user);
@@ -473,16 +509,23 @@ class FoodServiceTest {
     }
 
     @Test
-    void testCreateFoodFromFavoriteFood() {
+    void testCreateFoodFromFavoriteFood() throws NoSuchFieldException, IllegalAccessException {
         // given
         User user = User.createUser("testUser", "testImage","testPassword", 1, 180, 80, 18, BaseNutrition.createNutrition(2000,400,100,50));
         Food food = Food.createFood( "Food", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
         FavoriteFood favoriteFood = FavoriteFood.createFavoriteFood("FavoriteFood", user, food, BaseNutrition.createNutrition(100, 100 ,10, 1));
         Food newFood = Food.createFood("FoodFromFavorite", user, BaseNutrition.createNutrition(100, 100 ,10, 1), 2010,1,1);
         user.setId(1L);
-        food.setId(2L);
-        favoriteFood.setId(3L);
-        newFood.setId(4L);
+
+        Field f_id = Food.class.getDeclaredField("id");
+        f_id.setAccessible(true);
+        f_id.set(food, 2L);
+        f_id.set(newFood, 4L);
+
+        Field fav_id = FavoriteFood.class.getDeclaredField("id");
+        fav_id.setAccessible(true);
+        fav_id.set(favoriteFood, 3L);
+
         CreateFoodFromFavoriteFoodDto createFoodFromFavoriteFoodDto = CreateFoodFromFavoriteFoodDto.of(user.getId(), favoriteFood.getId());
 
 

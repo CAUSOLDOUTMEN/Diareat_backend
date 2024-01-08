@@ -2,6 +2,7 @@ package com.diareat.diareat.food.dto;
 
 import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseNutritionSumByDateDto implements Serializable {

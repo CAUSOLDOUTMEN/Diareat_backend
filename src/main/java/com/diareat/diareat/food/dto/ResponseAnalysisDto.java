@@ -1,6 +1,7 @@
 package com.diareat.diareat.food.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseAnalysisDto { // 그래프 + 점수에 사용되는 DTO

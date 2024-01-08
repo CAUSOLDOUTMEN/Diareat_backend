@@ -3,10 +3,12 @@ package com.diareat.diareat.food.dto;
 import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseFavoriteFoodDto {

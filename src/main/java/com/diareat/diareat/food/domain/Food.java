@@ -3,8 +3,11 @@ package com.diareat.diareat.food.domain;
 import com.diareat.diareat.user.domain.BaseNutrition;
 import com.diareat.diareat.user.domain.User;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Food {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +37,7 @@ public class Food {
 
     private LocalDate date;
 
+    @CreatedDate
     @Column(name = "added_time") //테이블과 매핑
     private LocalDateTime addedTime; //클라이언트에서 추가하도록 요청 보낸 timestamp
 
@@ -44,7 +49,6 @@ public class Food {
         food.name = name;
         food.user = user;
         food.date = LocalDate.of(year, month, day);
-        food.addedTime = LocalDateTime.now();
         food.baseNutrition = baseNutrition;
 
         return food;
@@ -59,10 +63,6 @@ public class Food {
     public boolean isFavorite() {
         return this.favoriteFood != null;
     }
-
-    public void setId(long id) {this.id = id;}
-
-    public void setDate(LocalDate date) {this.date = date;} //food test를 위한 date
 
     public void setFavoriteFood(FavoriteFood favoriteFood){
         this.favoriteFood = favoriteFood;

@@ -51,7 +51,16 @@ public class FoodService {
         List<Food> foodList = foodRepository.findAllByUserIdAndDateOrderByAddedTimeAsc(userId, date);
         log.info(date.toString() + "의 "+ userId + "에게 조회된 음식 개수: " + foodList.size() + "개");
         return foodList.stream()
-                .map(food -> ResponseFoodDto.of(food.getId(), food.getUser().getId(), food.getName(), food.getBaseNutrition(), food.isFavorite(), food.getAddedTime().getHour(), food.getAddedTime().getMinute())).collect(Collectors.toList());
+                .map(food -> ResponseFoodDto.builder()
+                        .foodId(food.getId())
+                        .userId(food.getUser().getId())
+                        .name(food.getName())
+                        .baseNutrition(food.getBaseNutrition())
+                        .favoriteChecked(food.isFavorite())
+                        .hour(food.getAddedTime().getHour())
+                        .minute(food.getAddedTime().getMinute())
+                        .build())
+                        .collect(Collectors.toList());
     }
 
     // 음식 정보 수정
@@ -101,8 +110,13 @@ public class FoodService {
         List<FavoriteFood> foodList = favoriteFoodRepository.findAllByUserId(userId);
         log.info(userId + "의 즐겨찾기 음식 개수: " + foodList.size() + "개 조회 완료");
         return foodList.stream()
-                .map(favoriteFood -> ResponseFavoriteFoodDto.of(favoriteFood.getId(),favoriteFood.getName(),
-                        favoriteFood.getBaseNutrition(), favoriteFood.getCount())).collect(Collectors.toList());
+                .map(favoriteFood -> ResponseFavoriteFoodDto.builder()
+                        .favoriteFoodId(favoriteFood.getId())
+                        .name(favoriteFood.getName())
+                        .baseNutrition(favoriteFood.getBaseNutrition())
+                        .count(favoriteFood.getCount())
+                        .build())
+                        .collect(Collectors.toList());
     }
 
     // 즐겨찾기 음식 수정
@@ -170,11 +184,19 @@ public class FoodService {
         //사용한 기준은, 고단백과 저지방의 점수 반영 비율을 7:3으로 측정하고, 단백질량이 높을 수록, 지방량이 낮을 수록 점수가 높음. 이후, 내림차순 정렬
         // ** Best 3 기준 논의 필요 **
 
-        List<ResponseSimpleFoodDto> top3FoodsDtoList = top3Foods.stream()
-                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
-                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
+        List<ResponseFoodDto> top3FoodsDtoList = top3Foods.stream()
+                .map(food -> ResponseFoodDto.builder()
+                        .name(food.getName())
+                        .baseNutrition(food.getBaseNutrition())
+                        .build())
+                        .collect(Collectors.toList());
 
-        return ResponseFoodRankDto.of(userId, top3FoodsDtoList, endDate, true);
+        return ResponseFoodRankDto.builder()
+                .userId(userId)
+                .rankFoodList(top3FoodsDtoList)
+                .startDate(endDate.minusWeeks(1))
+                .isBest(true)
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -194,11 +216,19 @@ public class FoodService {
         // ** 이점은 논의가 필요할 듯? **
         // 우선 임시로 지방 비율을 높게 설정
 
-        List<ResponseSimpleFoodDto> worst3FoodDtoList = worst3Foods.stream()
-                .map(food -> ResponseSimpleFoodDto.of(food.getName(), food.getBaseNutrition().getKcal(), food.getBaseNutrition().getCarbohydrate(),
-                        food.getBaseNutrition().getProtein(), food.getBaseNutrition().getFat(), food.getDate())).collect(Collectors.toList());
+        List<ResponseFoodDto> worst3FoodDtoList = worst3Foods.stream()
+                .map(food -> ResponseFoodDto.builder()
+                        .name(food.getName())
+                        .baseNutrition(food.getBaseNutrition())
+                        .build())
+                        .collect(Collectors.toList());
 
-        return ResponseFoodRankDto.of(userId, worst3FoodDtoList, endDate, false);
+        return ResponseFoodRankDto.builder()
+                .userId(userId)
+                .rankFoodList(worst3FoodDtoList)
+                .startDate(endDate.minusWeeks(1))
+                .isBest(false)
+                .build();
     }
 
     // 잔여 기능 구현 부분
@@ -225,10 +255,18 @@ public class FoodService {
 
 
         //Dto의 형식에 맞게 Best3와 Worst3 음식 계산
-        List<ResponseSimpleFoodDto> simpleBestFoodList = getBestFoodByWeek(userId, year, month, day).getRankFoodList();
-        List<ResponseSimpleFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId, year, month, day).getRankFoodList();
+        List<ResponseFoodDto> simpleBestFoodList = getBestFoodByWeek(userId, year, month, day).getRankFoodList();
+        List<ResponseFoodDto> simpleWorstFoodList = getWorstFoodByWeek(userId, year, month, day).getRankFoodList();
 
-        return ResponseScoreBestWorstDto.of(kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore, simpleBestFoodList, simpleWorstFoodList);
+        return ResponseScoreBestWorstDto.builder()
+                .totalScore(totalScore)
+                .calorieScore(kcalScore)
+                .carbohydrateScore(carbohydrateScore)
+                .proteinScore(proteinScore)
+                .fatScore(fatScore)
+                .best(simpleBestFoodList)
+                .worst(simpleWorstFoodList)
+                .build();
     }
 
 
@@ -300,7 +338,17 @@ public class FoodService {
 
         totalWeekScore = Math.round(totalWeekScore * 100.0) / 100.0;
 
-        return ResponseAnalysisDto.of(totalWeekScore, calorieLastSevenDays, calorieLastFourWeek, carbohydrateLastSevenDays, carbohydrateLastFourWeek, proteinLastSevenDays, proteinLastFourWeek, fatLastSevenDays, fatLastFourWeek);
+        return ResponseAnalysisDto.builder()
+                .totalScore(totalWeekScore)
+                .calorieLastSevenDays(calorieLastSevenDays)
+                .calorieLastFourWeek(calorieLastFourWeek)
+                .carbohydrateLastSevenDays(carbohydrateLastSevenDays)
+                .carbohydrateLastFourWeek(carbohydrateLastFourWeek)
+                .proteinLastSevenDays(proteinLastSevenDays)
+                .proteinLastFourWeek(proteinLastFourWeek)
+                .fatLastSevenDays(fatLastSevenDays)
+                .fatLastFourWeek(fatLastFourWeek)
+                .build();
     }
 
 
@@ -374,7 +422,15 @@ public class FoodService {
             kcalScore += calculateNutriRatioAndScore(totalKcal, targetUser.getBaseNutrition().getKcal(), 1);
         }
         totalScore = (kcalScore + carbohydrateScore + proteinScore + fatScore);
-        return ResponseRankUserDto.of(targetUser.getId(), targetUser.getName(), targetUser.getImage(), kcalScore, carbohydrateScore, proteinScore, fatScore, totalScore);
+        return ResponseRankUserDto.builder()
+                .userId(targetUser.getId())
+                .name(targetUser.getName())
+                .totalScore(totalScore)
+                .calorieScore(kcalScore)
+                .carbohydrateScore(carbohydrateScore)
+                .proteinScore(proteinScore)
+                .fatScore(fatScore)
+                .build();
     }
 
     private ResponseNutritionSumByDateDto calculateNutritionSumAndRatio(Long userId, List<Food> foodList, LocalDate checkDate, int nutritionSumType,
@@ -398,9 +454,20 @@ public class FoodService {
         double ratioProtein = Math.round((((double) totalProtein / (double) targetUser.getBaseNutrition().getProtein()) * 100.0) * 10.0) / 10.0;
         double ratioFat = Math.round((((double) totalFat / (double) targetUser.getBaseNutrition().getFat()) * 100.0) * 10.0) / 10.0;
 
-        return ResponseNutritionSumByDateDto.of(userId, checkDate, nutritionSumType, totalKcal,
-                                                totalCarbohydrate, totalProtein, totalFat, ratioKcal,
-                                                ratioCarbohydrate, ratioProtein, ratioFat, targetUser.getBaseNutrition(), isEmpty);
+        return ResponseNutritionSumByDateDto.builder()
+                .userId(userId)
+                .nutritionSumType(nutritionSumType)
+                .totalKcal(totalKcal)
+                .totalCarbohydrate(totalCarbohydrate)
+                .totalProtein(totalProtein)
+                .totalFat(totalFat)
+                .ratioKcal(ratioKcal)
+                .ratioCarbohydrate(ratioCarbohydrate)
+                .ratioProtein(ratioProtein)
+                .ratioFat(ratioFat)
+                .baseNutrition(targetUser.getBaseNutrition())
+                .isEmpty(isEmpty)
+                .build();
     }
 
     private void validateUser(Long userId) {
