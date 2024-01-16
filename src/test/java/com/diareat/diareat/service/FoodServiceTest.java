@@ -211,7 +211,6 @@ class FoodServiceTest {
 
         given(favoriteFoodRepository.existsById(favoriteFood.getId())).willReturn(true);
         given(favoriteFoodRepository.existsByIdAndUserId(favoriteFood.getId(), 1L)).willReturn(true);
-        given(favoriteFoodRepository.findById(favoriteFood.getId())).willReturn(Optional.of(favoriteFood));
 
         //when
         foodService.deleteFavoriteFood(favoriteFood.getId(), 1L);

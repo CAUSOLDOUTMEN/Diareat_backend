@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import reactor.util.annotation.Nullable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +45,8 @@ public class User implements UserDetails {
 
     private int type; // 성별과 연령에 따른 유저 타입 (1~12)
 
+    private LocalDateTime createdTime; // 회원가입 시간
+
     private BaseNutrition baseNutrition; // 기준영양소
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) // 유저가 탈퇴하면 촬영한 음식도 삭제
@@ -54,7 +57,7 @@ public class User implements UserDetails {
 
     // Jwt 전용 설정 (UserDetails 인터페이스 구현)
 
-    @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+    @ElementCollection(fetch = FetchType.LAZY) //roles 컬렉션
     private List<String> roles = new ArrayList<>();
 
     @Override   //사용자의 권한 목록 리턴
@@ -108,6 +111,7 @@ public class User implements UserDetails {
         user.age = age;
         user.baseNutrition = baseNutrition;
         user.type = UserTypeUtil.decideUserType(gender, age);
+        user.createdTime = LocalDateTime.now();
         return user;
     }
 
