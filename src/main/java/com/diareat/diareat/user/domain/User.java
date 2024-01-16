@@ -57,7 +57,7 @@ public class User implements UserDetails {
 
     // Jwt 전용 설정 (UserDetails 인터페이스 구현)
 
-    @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+    @ElementCollection(fetch = FetchType.LAZY) //roles 컬렉션
     private List<String> roles = new ArrayList<>();
 
     @Override   //사용자의 권한 목록 리턴
