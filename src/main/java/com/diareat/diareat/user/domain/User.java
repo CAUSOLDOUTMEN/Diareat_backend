@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import reactor.util.annotation.Nullable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +44,8 @@ public class User implements UserDetails {
     private int age; // 나이
 
     private int type; // 성별과 연령에 따른 유저 타입 (1~12)
+
+    private LocalDateTime createdTime; // 회원가입 시간
 
     private BaseNutrition baseNutrition; // 기준영양소
 
@@ -108,6 +111,7 @@ public class User implements UserDetails {
         user.age = age;
         user.baseNutrition = baseNutrition;
         user.type = UserTypeUtil.decideUserType(gender, age);
+        user.createdTime = LocalDateTime.now();
         return user;
     }
 
