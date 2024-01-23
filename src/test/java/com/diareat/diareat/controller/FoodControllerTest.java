@@ -1,5 +1,6 @@
 package com.diareat.diareat.controller;
 
+import com.diareat.diareat.auth.component.JwtTokenProvider;
 import com.diareat.diareat.food.controller.FoodController;
 import com.diareat.diareat.food.domain.FavoriteFood;
 import com.diareat.diareat.food.domain.Food;
@@ -49,6 +50,9 @@ class FoodControllerTest {
     @MockBean
     private FoodService foodService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
     private final Long testUserId = 1L;
     private final Long testFoodId = 2L;
     private final Long testFavoriteFoodId = 3L;
@@ -63,6 +67,8 @@ class FoodControllerTest {
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
+        when(jwtTokenProvider.validateToken(any(String.class))).thenReturn(true);
+        when(jwtTokenProvider.getUserPk(any(String.class))).thenReturn(testUserId);
 
         Field foodId = Food.class.getDeclaredField("id");
         foodId.setAccessible(true);
@@ -119,7 +125,8 @@ class FoodControllerTest {
 
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}", testUserId)
+                        .get("/api/food")
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(date.getYear()))
                         .param("mm", String.valueOf(date.getMonthValue()))
                         .param("dd", String.valueOf(date.getDayOfMonth()))
@@ -153,6 +160,7 @@ class FoodControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/food/update")
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(date.getYear()))
                         .param("mm", String.valueOf(date.getMonthValue()))
                         .param("dd", String.valueOf(date.getDayOfMonth()))
@@ -180,10 +188,10 @@ class FoodControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/api/food/{foodId}/delete", testFoodId)
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(date.getYear()))
                         .param("mm", String.valueOf(date.getMonthValue()))
                         .param("dd", String.valueOf(date.getDayOfMonth()))
-                        .header("userId", testUserId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
@@ -225,7 +233,8 @@ class FoodControllerTest {
 
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/favorite/{userId}", testUserId)
+                        .get("/api/food/favorite")
+                        .header("accessToken", "test")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -268,7 +277,7 @@ class FoodControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/api/food/favorite/{favoriteFoodId}", testFavoriteFoodId)
-                        .header("userId", testUserId)
+                        .header("accessToken", "test")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.header.code").value(expectedResponse.getHeader().getCode()))
@@ -292,7 +301,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/food/{userId}/nutrition", testUserId)
+                .get("/api/food/nutrition")
+                        .header("accessToken", "test")
                 .param("yy", String.valueOf(date.getYear()))
                 .param("mm", String.valueOf(date.getMonthValue()))
                 .param("dd", String.valueOf(date.getDayOfMonth())))
@@ -330,7 +340,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/nutrition/recentWeek", testUserId)
+                        .get("/api/food/nutrition/recentWeek")
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(date.getYear()))
                         .param("mm", String.valueOf(date.getMonthValue()))
                         .param("dd", String.valueOf(date.getDayOfMonth())))
@@ -368,7 +379,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/nutrition/recentMonth", testUserId )
+                        .get("/api/food/nutrition/recentMonth")
+                        .header("accessToken", "test")
                 .param("yy", String.valueOf(date.getYear()))
                 .param("mm", String.valueOf(date.getMonthValue()))
                 .param("dd", String.valueOf(date.getDayOfMonth())))
@@ -412,7 +424,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/score", testUserId, date.getYear(), date.getMonthValue(), date.getDayOfMonth())
+                        .get("/api/food/score")
+                        .header("accessToken", "test")
                 .param("yy", String.valueOf(date.getYear()))
                 .param("mm", String.valueOf(date.getMonthValue()))
                 .param("dd", String.valueOf(date.getDayOfMonth())))
@@ -444,7 +457,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/analysis", testUserId)
+                        .get("/api/food/analysis")
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(2021))
                         .param("mm", String.valueOf(10))
                         .param("dd", String.valueOf(10)))
@@ -479,7 +493,8 @@ class FoodControllerTest {
 
         //When
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/food/{userId}/rank", testUserId)
+                        .get("/api/food/rank")
+                        .header("accessToken", "test")
                         .param("yy", String.valueOf(2021))
                         .param("mm", String.valueOf(10))
                         .param("dd", String.valueOf(10)))
