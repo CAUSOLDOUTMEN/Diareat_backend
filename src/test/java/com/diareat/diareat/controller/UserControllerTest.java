@@ -66,7 +66,7 @@ class UserControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
-        when(jwtTokenProvider.validateToken(any(String.class))).thenReturn(true);
+        when(jwtTokenProvider.validateAccessToken(any(String.class))).thenReturn(true);
         when(jwtTokenProvider.getUserPk(any(String.class))).thenReturn(testUserId);
         when(userService.getSimpleUserInfo(any(Long.class)))
                 .thenReturn(ResponseSimpleUserDto.builder()
