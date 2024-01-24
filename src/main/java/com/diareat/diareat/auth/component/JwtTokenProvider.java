@@ -1,5 +1,7 @@
 package com.diareat.diareat.auth.component;
 
+import com.diareat.diareat.util.api.ResponseCode;
+import com.diareat.diareat.util.exception.BaseException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -80,12 +82,19 @@ public class JwtTokenProvider {
     }
 
     // 토큰 유효성, 만료일자 확인
-    public boolean validateToken(String jwtToken) {
+    public boolean validateAccessToken(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public void validateRefreshToken(Long userPK, String refreshToken) {
+        String redisRefreshToken = redisTemplate.opsForValue().get(String.valueOf(userPK));
+        if (redisRefreshToken == null || !redisRefreshToken.equals(refreshToken)) {
+            throw new BaseException(ResponseCode.REFRESH_TOKEN_VALIDATION_FAILURE);
         }
     }
 
