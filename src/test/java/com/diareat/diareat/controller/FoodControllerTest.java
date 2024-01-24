@@ -67,7 +67,7 @@ class FoodControllerTest {
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         testUser.setId(testUserId);
-        when(jwtTokenProvider.validateToken(any(String.class))).thenReturn(true);
+        when(jwtTokenProvider.validateAccessToken(any(String.class))).thenReturn(true);
         when(jwtTokenProvider.getUserPk(any(String.class))).thenReturn(testUserId);
 
         Field foodId = Food.class.getDeclaredField("id");
