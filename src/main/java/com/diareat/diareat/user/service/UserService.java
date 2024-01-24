@@ -42,7 +42,8 @@ public class UserService {
             throw new UserException(ResponseCode.USER_NAME_ALREADY_EXIST);
         }
         if (userRepository.existsByKeyCode(createUserDto.getKeyCode())) {
-            log.info("이미 존재하는 키코드입니다 by {}", createUserDto.getKeyCode());
+            log.info("이미 존재하는 " +
+                    "con키코드입니다 by {}", createUserDto.getKeyCode());
             throw new UserException(ResponseCode.USER_ALREADY_EXIST);
         }
 

@@ -14,6 +14,7 @@ public enum ResponseCode {
 
     // 401 Unauthorized
     TOKEN_VALIDATION_FAILURE(HttpStatus.UNAUTHORIZED, false, "토큰 검증 실패"),
+    REFRESH_TOKEN_VALIDATION_FAILURE(HttpStatus.UNAUTHORIZED, false, "Refresh 토큰 검증 실패"),
 
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, false, "권한이 없습니다."),
@@ -56,6 +57,7 @@ public enum ResponseCode {
     FOOD_RANK_READ_SUCCESS(HttpStatus.OK, true, "식습관 점수 기반 랭킹 조회 성공"),
 
     TOKEN_CHECK_SUCCESS(HttpStatus.OK, true, "토큰 검증 완료"),
+    TOKEN_REISSUE_SUCCESS(HttpStatus.OK, true, "토큰 재발급 완료"),
 
 
     // 201 Created
