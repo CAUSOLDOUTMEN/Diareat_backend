@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<ResponseJwtDto> authCheck(@RequestHeader String accessToken) {
         Long userId = kakaoAuthService.isSignedUp(accessToken); // 유저 고유번호 추출
-        String jwt = (userId == null) ? null : jwtTokenProvider.createToken(userId.toString()); // 고유번호가 null이 아니라면 Jwt 토큰 발급
+        String jwt = (userId == null) ? null : jwtTokenProvider.createAccessToken(userId.toString()); // 고유번호가 null이 아니라면 Jwt 토큰 발급
         return ApiResponse.success(ResponseJwtDto.of(userId, jwt), ResponseCode.USER_LOGIN_SUCCESS.getMessage());
     }
 
@@ -38,7 +38,7 @@ public class AuthController {
     @PostMapping("/join")
     public ApiResponse<ResponseJwtDto> saveUser(@Valid @RequestBody JoinUserDto joinUserDto) {
         Long userId = userService.saveUser(kakaoAuthService.createUserDto(joinUserDto));
-        String jwt = jwtTokenProvider.createToken(userId.toString());
+        String jwt = jwtTokenProvider.createAccessToken(userId.toString());
         return ApiResponse.success(ResponseJwtDto.of(userId, jwt), ResponseCode.USER_CREATE_SUCCESS.getMessage());
     }
 
