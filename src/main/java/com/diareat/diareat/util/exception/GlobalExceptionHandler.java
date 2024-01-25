@@ -46,4 +46,11 @@ public class GlobalExceptionHandler {
         });
         return ApiResponse.fail(ResponseCode.BAD_REQUEST, errors);
     }
+
+    @ExceptionHandler(ValidException.class) // jwt 토큰 만료 관련 예외처리
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Void> handleValidException(ValidException e) {
+        log.info("Invalid Jwt Token: {}", e.getMessage());
+        return ApiResponse.fail(e.getResponseCode(), null);
+    }
 }

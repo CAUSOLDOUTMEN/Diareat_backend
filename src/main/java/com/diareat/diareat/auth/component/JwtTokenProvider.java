@@ -1,7 +1,7 @@
 package com.diareat.diareat.auth.component;
 
 import com.diareat.diareat.util.api.ResponseCode;
-import com.diareat.diareat.util.exception.BaseException;
+import com.diareat.diareat.util.exception.ValidException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -94,7 +94,7 @@ public class JwtTokenProvider {
     public void validateRefreshToken(Long userPK, String refreshToken) {
         String redisRefreshToken = redisTemplate.opsForValue().get(String.valueOf(userPK));
         if (redisRefreshToken == null || !redisRefreshToken.equals(refreshToken)) {
-            throw new BaseException(ResponseCode.REFRESH_TOKEN_VALIDATION_FAILURE);
+            throw new ValidException(ResponseCode.REFRESH_TOKEN_VALIDATION_FAILURE);
         }
     }
 
