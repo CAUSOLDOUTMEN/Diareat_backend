@@ -31,6 +31,7 @@ public class AuthController {
         Long userId = kakaoAuthService.isSignedUp(accessToken); // 유저 고유번호 추출
 
         ResponseJwtDto responseJwtDto = (userId == null) ? null : ResponseJwtDto.builder()
+                .userId(userId)
                 .accessToken(jwtTokenProvider.createAccessToken(userId.toString()))
                 .refreshToken(jwtTokenProvider.createRefreshToken(userId.toString()))
                 .build();
@@ -45,18 +46,12 @@ public class AuthController {
         Long userId = userService.saveUser(kakaoAuthService.createUserDto(joinUserDto));
 
         ResponseJwtDto responseJwtDto = (userId == null) ? null : ResponseJwtDto.builder()
+                .userId(userId)
                 .accessToken(jwtTokenProvider.createAccessToken(userId.toString()))
                 .refreshToken(jwtTokenProvider.createRefreshToken(userId.toString()))
                 .build();
 
         return ApiResponse.success(responseJwtDto, ResponseCode.USER_CREATE_SUCCESS.getMessage());
-    }
-
-    // 토큰 검증 (Jwt 토큰을 서버에 전송하여, 서버가 유효한 토큰인지 확인하고 True 혹은 예외 반환)
-    @Operation(summary = "[토큰 검증] 토큰 검증", description = "클라이언트가 가지고 있던 Jwt 토큰을 서버에 전송하여, 서버가 유효한 토큰인지 확인하고 OK 혹은 예외를 반환합니다.")
-    @GetMapping("/token")
-    public ApiResponse<Boolean> tokenCheck(@RequestHeader String accessToken) {
-        return ApiResponse.success(jwtTokenProvider.validateAccessToken(accessToken), ResponseCode.TOKEN_CHECK_SUCCESS.getMessage());
     }
 
     @Operation(summary = "[토큰 재발급] 토큰 재발급", description = "클라이언트가 가지고 있던 Refresh 토큰을 서버에 전송하여, 서버가 유효한 토큰인지 확인하고 OK 혹은 예외를 반환합니다.")
@@ -66,6 +61,7 @@ public class AuthController {
         jwtTokenProvider.validateRefreshToken(userId, refreshToken);
 
         ResponseJwtDto responseJwtDto = (userId == null) ? null : ResponseJwtDto.builder()
+                .userId(userId)
                 .accessToken(jwtTokenProvider.createAccessToken(userId.toString()))
                 .refreshToken(jwtTokenProvider.createRefreshToken(userId.toString()))
                 .build();
