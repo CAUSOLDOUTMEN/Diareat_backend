@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ResponseJwtDto {
 
+    private Long userId;
     private String accessToken;
     private String refreshToken;
 }
